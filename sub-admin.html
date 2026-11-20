@@ -845,5 +845,122 @@
     initDeskWorkspace("sa");
     
   </script>
-</body>
+<div id="role-pin-gate" style="position:fixed;inset:0;background:rgba(10,14,22,0.96);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;">
+  <div style="width:100%;max-width:400px;background:#141b26;border:1px solid #2a364b;border-radius:12px;padding:24px;color:#f1f5f9;font-family:system-ui,sans-serif;">
+    <h2 style="margin:0 0 8px;font-size:20px;">Portal PIN Verification</h2>
+    <p id="pin-gate-subtitle" style="margin:0 0 16px;font-size:13px;color:#94a3b8;">
+      Enter your 4-digit PIN to unlock your portal.
+    </p>
+
+    <form id="staff-pin-form">
+      <label for="staff-pin-input" style="display:block;font-size:12px;margin-bottom:6px;color:#cbd5e1;">
+        4-Digit Access PIN
+      </label>
+      <input
+        id="staff-pin-input"
+        type="password"
+        inputmode="numeric"
+        pattern="\d{4}"
+        maxlength="4"
+        placeholder="••••"
+        autocomplete="one-time-code"
+        required
+        style="width:100%;box-sizing:border-box;padding:12px;font-size:20px;letter-spacing:8px;text-align:center;border-radius:8px;border:1px solid #334155;background:#0b0f17;color:#fff;margin-bottom:14px;"
+      />
+      <button
+        id="staff-pin-submit"
+        type="submit"
+        style="width:100%;padding:12px;font-size:15px;font-weight:600;border:none;border-radius:8px;background:#2563eb;color:#fff;cursor:pointer;"
+      >
+        Unlock Portal
+      </button>
+    </form>
+
+    <p id="pin-gate-error" style="display:none;margin:12px 0 0;font-size:13px;color:#f87171;"></p>
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbyzM3tcP1dZKfqjQvBqKvn_d0faxXVzMmAo2VTGGv3gBdQDwdcAhN1F3FwbQk2Gj1dI0w/exec';
+
+// Change to 'Broker Owner', 'Admin Manager', or 'Sub Admin'
+const PORTAL_ROLE = 'Sub Admin';
+
+function lockNonMasterNavigation() {
+  document.querySelectorAll('[data-role-nav="hub"], [data-role-nav="super-master"]').forEach((el) => {
+    el.style.display = 'none';
+  });
+}
+
+function showGateError(msg) {
+  const errEl = document.getElementById('pin-gate-error');
+  errEl.textContent = msg;
+  errEl.style.display = 'block';
+}
+
+function clearGateError() {
+  const errEl = document.getElementById('pin-gate-error');
+  errEl.textContent = '';
+  errEl.style.display = 'none';
+}
+
+async function unlockStaffPortal({ role, token, pin }) {
+  if (!/^\d{4}$/.test(pin)) {
+    throw new Error(`${role} requires a 4-digit PIN.`);
+  }
+  const url = `${APPS_SCRIPT_URL}?action=verifyStaffAccess&role=${encodeURIComponent(role)}&token=${encodeURIComponent(token)}&pin=${encodeURIComponent(pin)}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!data.ok) {
+    throw new Error(data.error || 'Invalid magic link token or 4-digit PIN.');
+  }
+  sessionStorage.setItem('metro_role_session', JSON.stringify(data));
+  return data;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  lockNonMasterNavigation();
+
+  const params = new URLSearchParams(window.location.search);
+  const brokerId = (params.get('broker') || '').trim();
+  const token = (params.get('token') || '').trim();
+  const form = document.getElementById('staff-pin-form');
+  const pinInput = document.getElementById('staff-pin-input');
+  const submitBtn = document.getElementById('staff-pin-submit');
+
+  pinInput.addEventListener('input', () => {
+    pinInput.value = pinInput.value.replace(/\D/g, '').slice(0, 4);
+  });
+
+  if (!token) {
+    showGateError('Missing magic link token. Please open the link sent to your email.');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearGateError();
+
+    const pin = pinInput.value.trim();
+    if (!/^\d{4}$/.test(pin)) {
+      showGateError('Please enter a valid 4-digit PIN.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verifying...';
+
+    try {
+      const session = await unlockStaffPortal({ role: PORTAL_ROLE, token, pin });
+      document.getElementById('role-pin-gate').style.display = 'none';
+      window.dispatchEvent(new CustomEvent('metro:portalUnlocked', { detail: { ...session, brokerId } }));
+    } catch (err) {
+      showGateError(err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Unlock Portal';
+    }
+  });
+});
+</script></body>
 </html>
