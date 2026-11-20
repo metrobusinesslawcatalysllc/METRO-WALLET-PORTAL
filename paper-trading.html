@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Metro Paper Trading — Demo Only</title>
+  <style>
+    :root { color-scheme: dark; --bg:#070b14; --surface:#0f172a; --alt:#020617; --border:#1e293b; --text:#f8fafc; --muted:#94a3b8; --accent:#38bdf8; --green:#10b981; --red:#ef4444; }
+    * { box-sizing:border-box; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+    body { margin:0; background:var(--bg); color:var(--text); }
+    header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; padding:16px 20px; background:var(--surface); border-bottom:1px solid var(--border); }
+    h1,h2,p { margin-top:0; } h1 { margin-bottom:4px; color:var(--accent); font-size:20px; } h2 { font-size:16px; margin-bottom:12px; }
+    .muted { color:var(--muted); font-size:13px; }
+    .wrap { max-width:1100px; margin:20px auto; padding:0 16px; }
+    .banner { border:1px solid #92400e; background:#451a03; color:#fde68a; border-radius:10px; padding:12px 14px; font-size:13px; line-height:1.5; margin-bottom:16px; }
+    .layout { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr); gap:16px; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+    .stat { background:var(--alt); border:1px solid var(--border); border-radius:9px; padding:12px; }
+    .stat-label { color:var(--muted); font-size:11px; text-transform:uppercase; font-weight:700; }
+    .stat-value { margin-top:5px; font-size:18px; font-weight:800; font-family:ui-monospace,monospace; }
+    label { display:block; font-size:12px; color:var(--muted); font-weight:700; margin:12px 0 5px; }
+    input,select { width:100%; padding:10px; background:var(--alt); color:var(--text); border:1px solid #334155; border-radius:8px; font-size:14px; }
+    .quote { font:800 30px ui-monospace,monospace; margin:10px 0 4px; }
+    .trade-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+    button { border:0; border-radius:8px; padding:11px 14px; color:white; font-weight:800; cursor:pointer; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .call { background:#059669; } .put { background:#dc2626; } .secondary { background:#334155; }
+    .message { min-height:20px; margin-top:10px; font-size:13px; color:var(--muted); }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th,td { text-align:left; padding:9px 7px; border-bottom:1px solid var(--border); white-space:nowrap; }
+    th { color:var(--muted); font-size:11px; text-transform:uppercase; }
+    .positive { color:#34d399; } .negative { color:#f87171; }
+    .empty { color:var(--muted); padding:14px 0; font-size:13px; }
+    footer { color:var(--muted); text-align:center; font-size:11px; line-height:1.5; padding:8px 0 26px; }
+    @media(max-width:760px) { .layout { grid-template-columns:1fr; } }
+    @media(max-width:480px) { .stats { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>Metro Paper Trading</h1><div class="muted">Binary-options mechanics demonstrator · simulated prices only</div></div>
+    <a href="index.html" style="color:var(--accent);font-size:13px">Back to portal</a>
+  </header>
+  <main class="wrap">
+    <div class="banner"><strong>DEMO ONLY — NO REAL MONEY.</strong> This standalone page uses generated mock prices and a virtual balance stored in this browser. It is not connected to a broker, exchange, payment provider, wallet, or deposit/withdrawal system. Trades are not orders and displayed outcomes have no cash value.</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Virtual balance</div><div class="stat-value" id="balance">—</div></div>
+      <div class="stat"><div class="stat-label">Open demo trades</div><div class="stat-value" id="openCount">0</div></div>
+      <div class="stat"><div class="stat-label">Demo payout on win</div><div class="stat-value">80%</div></div>
+    </div>
+    <div class="layout">
+      <section>
+        <div class="card">
+          <h2>Simulated market</h2>
+          <label for="asset">Demo asset</label>
+          <select id="asset"><option value="EUR/USD">EUR/USD</option><option value="GBP/USD">GBP/USD</option><option value="BTC/USD">BTC/USD</option><option value="GOLD">Gold</option></select>
+          <div class="quote" id="quote" aria-live="polite">—</div>
+          <div class="muted">Generated demo quote; not a live market price.</div>
+          <label for="stake">Virtual stake (USD)</label>
+          <input id="stake" type="number" min="1" step="1" value="100" inputmode="decimal" />
+          <label for="duration">Expiry</label>
+          <select id="duration"><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select>
+          <div class="trade-buttons"><button type="button" class="call" id="callBtn">CALL / UP</button><button type="button" class="put" id="putBtn">PUT / DOWN</button></div>
+          <div id="message" class="message" role="status" aria-live="polite">Choose an asset and place a virtual demo trade.</div>
+        </div>
+        <div class="card"><h2>Open demo trades</h2><div class="table-wrap"><table><thead><tr><th>Asset</th><th>Direction</th><th>Entry</th><th>Expiry</th><th>Time left</th><th>Stake</th></tr></thead><tbody id="openTrades"></tbody></table></div><div id="openEmpty" class="empty">No open demo trades.</div></div>
+      </section>
+      <section>
+        <div class="card"><h2>Demo trade history</h2><div class="table-wrap"><table><thead><tr><th>Closed</th><th>Asset</th><th>Result</th><th>Entry → exit</th><th>Net demo P/L</th></tr></thead><tbody id="history"></tbody></table></div><div id="historyEmpty" class="empty">Completed demo trades will appear here.</div><button type="button" class="secondary" id="resetBtn">Reset demo balance &amp; history</button></div>
+        <div class="card"><h2>Demo settlement rules</h2><p class="muted">At expiry, a higher generated quote settles CALL as a win; a lower quote settles PUT as a win. A correct prediction returns the stake plus an 80% demo payout. An incorrect prediction loses the virtual stake. An unchanged quote returns the virtual stake. These simplified rules are for interface testing only.</p></div>
+      </section>
+    </div>
+    <footer>All balances, quotes, trade records, wins, and losses are simulated in this browser only. Clearing browser storage resets this demo. Not an offer to trade or a real-money brokerage service.</footer>
+  </main>
+<script>
+(() => {
+  'use strict';
+  const KEY = 'metro_paper_trading_demo_v1';
+  const PAYOUT = 0.80;
+  const seeds = { 'EUR/USD': 1.08500, 'GBP/USD': 1.27400, 'BTC/USD': 65000, 'GOLD': 2300 };
+  const volatility = { 'EUR/USD': 0.00012, 'GBP/USD': 0.00015, 'BTC/USD': 18, 'GOLD': 0.7 };
+  let prices = { ...seeds };
+  let state = load();
+  const el = id => document.getElementById(id);
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (saved && Number.isFinite(saved.balance) && Array.isArray(saved.open) && Array.isArray(saved.history)) return saved;
+    } catch (_) {}
+    return { balance: 10000, open: [], history: [] };
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {} }
+  function money(n) { return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+  function quote(n, asset) { return Number(n).toLocaleString('en-US', { minimumFractionDigits:asset === 'BTC/USD' || asset === 'GOLD' ? 2 : 5, maximumFractionDigits:asset === 'BTC/USD' || asset === 'GOLD' ? 2 : 5 }); }
+  function render() {
+    el('balance').textContent = money(state.balance);
+    el('openCount').textContent = state.open.length;
+    const asset = el('asset').value;
+    el('quote').textContent = quote(prices[asset], asset);
+    el('openTrades').innerHTML = state.open.map(t => {
+      const remaining = Math.max(0, Math.ceil((t.expiresAt - Date.now()) / 1000));
+      return `<tr><td>${t.asset}</td><td>${t.direction}</td><td>${quote(t.entry, t.asset)}</td><td>${new Date(t.expiresAt).toLocaleTimeString()}</td><td>${remaining}s</td><td>${money(t.stake)}</td></tr>`;
+    }).join('');
+    el('openEmpty').hidden = state.open.length > 0;
+    el('history').innerHTML = state.history.slice(0, 30).map(t => `<tr><td>${new Date(t.closedAt).toLocaleTimeString()}</td><td>${t.asset}</td><td class="${t.result === 'WIN' ? 'positive' : t.result === 'LOSS' ? 'negative' : ''}">${t.result}</td><td>${quote(t.entry, t.asset)} → ${quote(t.exit, t.asset)}</td><td class="${t.net >= 0 ? 'positive' : 'negative'}">${t.net >= 0 ? '+' : ''}${money(t.net)}</td></tr>`).join('');
+    el('historyEmpty').hidden = state.history.length > 0;
+  }
+  function place(direction) {
+    const stake = Number(el('stake').value);
+    if (!Number.isFinite(stake) || stake <= 0) return say('Enter a virtual stake greater than zero.');
+    if (stake > state.balance) return say('That stake exceeds your available virtual balance.');
+    const asset = el('asset').value;
+    const duration = Number(el('duration').value);
+    state.balance = +(state.balance - stake).toFixed(2);
+    state.open.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random(), asset, direction, entry: prices[asset], stake, expiresAt: Date.now() + duration * 1000 });
+    save(); render(); say(`${direction} demo trade opened on ${asset} for ${duration} seconds. No real order was placed.`);
+  }
+  function settle() {
+    const now = Date.now();
+    const pending = [];
+    for (const trade of state.open) {
+      if (trade.expiresAt > now) { pending.push(trade); continue; }
+      const exit = prices[trade.asset];
+      const movement = exit - trade.entry;
+      const correct = movement === 0 ? null : trade.direction === 'CALL' ? movement > 0 : movement < 0;
+      let result, net;
+      if (correct === null) { result = 'TIE'; net = 0; state.balance += trade.stake; }
+      else if (correct) { result = 'WIN'; net = +(trade.stake * PAYOUT).toFixed(2); state.balance += trade.stake + net; }
+      else { result = 'LOSS'; net = -trade.stake; }
+      state.history.unshift({ ...trade, exit, result, net, closedAt: now });
+      say(`${result}: ${trade.asset} demo trade settled. Virtual P/L ${net >= 0 ? '+' : ''}${money(net)}.`);
+    }
+    state.open = pending;
+    save(); render();
+  }
+  function say(text) { el('message').textContent = text; }
+  el('callBtn').addEventListener('click', () => place('CALL'));
+  el('putBtn').addEventListener('click', () => place('PUT'));
+  el('asset').addEventListener('change', render);
+  el('resetBtn').addEventListener('click', () => {
+    if (!window.confirm('Reset this browser-only demo to a $10,000 virtual balance and clear its history?')) return;
+    state = { balance: 10000, open: [], history: [] }; save(); render(); say('Demo reset. No actual funds were affected.');
+  });
+  setInterval(() => {
+    for (const asset of Object.keys(prices)) {
+      const scale = asset === 'EUR/USD' || asset === 'GBP/USD' ? 100000 : 100;
+      prices[asset] = Math.max(scale === 100000 ? 0.00001 : 0.01, +(prices[asset] + (Math.random() - 0.5) * volatility[asset]).toFixed(scale === 100000 ? 5 : 2));
+    }
+    settle(); render();
+  }, 1000);
+  render();
+})();
+</script>
+</body>
+</html>
