@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Trading Terminal</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --surface: #0f172a;
+      --surface-alt: #020617;
+      --border: #1e293b;
+      --input-border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --pill-bg: #1e293b;
+      --accent: #38bdf8;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+    body.theme-dim {
+      --bg: #181c24;
+      --surface: #222733;
+      --surface-alt: #141820;
+      --border: #313846;
+      --input-border: #424b5c;
+      --text: #f1f5f9;
+      --muted: #9ca3af;
+      --pill-bg: #2b3240;
+    }
+    body.theme-light {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: #cbd5e1;
+      --input-border: #94a3b8;
+      --text: #0f172a;
+      --muted: #475569;
+      --pill-bg: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); transition: background 0.2s, color 0.2s; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 12px; padding: 13px 20px; background: var(--surface); border-bottom: 1px solid var(--border);
+    }
+    .brand-box { display: flex; align-items: center; gap: 10px; }
+    .brand-logo {
+      width: 36px; height: 36px; border-radius: 8px; object-fit: cover;
+      background: var(--pill-bg); border: 1px solid var(--input-border); display: none;
+    }
+    .brand-fallback {
+      width: 36px; height: 36px; border-radius: 8px; background: #2563eb;
+      color: #fff; font-weight: 800; font-size: 16px; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .brand-title { font-weight: 800; font-size: 17px; color: var(--accent); }
+    .brand-sub { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    .right-hdr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .theme-switch {
+      display: inline-flex; background: var(--surface-alt); border: 1px solid var(--border);
+      border-radius: 8px; padding: 2px; gap: 2px;
+    }
+    .theme-btn {
+      background: transparent; border: none; color: var(--muted); font-size: 11px;
+      font-weight: 700; padding: 5px 8px; border-radius: 6px; cursor: pointer;
+    }
+    .theme-btn.active { background: #2563eb; color: #fff; }
+
+    nav { display: flex; flex-wrap: wrap; gap: 6px; }
+    nav a {
+      color: var(--text); text-decoration: none; font-size: 12px; font-weight: 700;
+      padding: 6px 10px; border-radius: 7px; background: var(--pill-bg); border: 1px solid var(--border);
+    }
+    nav a.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .pill {
+      background: var(--pill-bg); border: 1px solid var(--border); padding: 6px 11px;
+      border-radius: 8px; font-size: 13px;
+    }
+    .pill strong { color: var(--green); }
+
+    .wrap { max-width: 1180px; margin: 18px auto; padding: 0 16px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px; margin-bottom: 16px;
+    }
+    h1 { margin: 0 0 6px; font-size: 19px; color: var(--accent); }
+    h2 { margin: 0 0 8px; font-size: 16px; color: var(--accent); }
+    p.sub { margin: 0 0 14px; font-size: 13px; color: var(--muted); line-height: 1.45; }
+    .meta {
+      font-size: 12px; color: var(--text); background: var(--surface-alt); padding: 10px 14px;
+      border-radius: 8px; border: 1px solid var(--border); margin-bottom: 14px;
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+    .desk-split { display: grid; grid-template-columns: 1.9fr 1fr; gap: 16px; }
+    @media (max-width: 860px) { .desk-split { grid-template-columns: 1fr; } }
+
+    label { display: block; font-size: 11px; color: var(--muted); margin: 0 0 5px; font-weight: 700; text-transform: uppercase; }
+    input, select, textarea {
+      width: 100%; padding: 9px 10px; background: var(--surface-alt); border: 1px solid var(--input-border);
+      border-radius: 8px; color: var(--text); font-size: 13px;
+    }
+    button.btn {
+      margin-top: 12px; padding: 10px 15px; background: #10b981; color: #fff;
+      border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px;
+    }
+    button.btn:hover { background: #059669; }
+    button.btn-blue { background: #2563eb; }
+    button.btn-blue:hover { background: #1d4ed8; }
+    button.btn-red { background: #ef4444; }
+    button.btn-red:hover { background: #dc2626; }
+    button.btn-amber { background: #d97706; }
+    button.btn-amber:hover { background: #b45309; }
+    .msg { margin-top: 10px; font-size: 13px; color: #10b981; min-height: 18px; font-weight: 600; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    th, td { padding: 9px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+    th { color: var(--muted); font-size: 12px; }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+      font-weight: 700; background: var(--pill-bg); color: var(--accent); border: 1px solid var(--border);
+    }
+    .tbl-logo { width: 24px; height: 24px; border-radius: 5px; object-fit: cover; vertical-align: middle; margin-right: 6px; }
+    .magic-box {
+      margin-top: 12px; padding: 12px; background: var(--surface-alt);
+      border: 1px dashed var(--accent); border-radius: 10px; font-size: 12.5px;
+    }
+    .profit-strip {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0;
+    }
+    @media (max-width: 680px) { .profit-strip { grid-template-columns: 1fr; } }
+    .kpi-box {
+      background: var(--surface-alt); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+    }
+    .kpi-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+    .kpi-val { font-size: 16px; font-weight: 800; margin-top: 3px; font-family: monospace; }
+    .note { text-align: center; font-size: 11px; color: var(--muted); padding: 10px 0 24px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand-box">
+      <img id="wlLogoImg" class="brand-logo" alt="Broker Logo" />
+      <div id="wlLogoFallback" class="brand-fallback">M</div>
+      <div>
+        <div class="brand-title" id="wlBrandName">Metro Options</div>
+        <div class="brand-sub">White-Label TradingView Terminal</div>
+      </div>
+    </div>
+    <div class="right-hdr">
+      <div class="theme-switch" title="Switch Theme">
+        <button type="button" class="theme-btn" data-theme="light" onclick="applyTheme('light')">White</button>
+        <button type="button" class="theme-btn" data-theme="dim" onclick="applyTheme('dim')">Dim</button>
+        <button type="button" class="theme-btn" data-theme="dark" onclick="applyTheme('dark')">Black</button>
+      </div>
+      <div class="pill">Equity: <strong id="balDisp">$10,000.00</strong></div>
+      <nav><a href="index.html" class="">Hub</a><a href="super-master.html" class="">Super Master</a><a href="broker-owner.html" class="">Broker Owner</a><a href="admin-manager.html" class="">Admin Manager</a><a href="sub-admin.html" class="">Sub Admin</a><a href="client.html" class="active">Client Terminal</a></nav>
+    </div>
+  </header>
+  <div class="wrap">
+    
+    <div class="meta">
+      <span>Broker: <strong id="clBrk">-</strong></span>
+      <span>Desk Manager: <strong id="clMgr">-</strong></span>
+      <span>Chart Feed: <strong style="color:#10b981;">TradingView Live</strong></span>
+    </div>
+
+    <div class="grid" style="grid-template-columns: 2.2fr 1fr; gap: 16px;">
+      <div class="card" style="margin-bottom:0;padding:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+          <select id="symSel" style="width:auto;font-weight:700;" onchange="changeSym()">
+            <option value="EURUSD|FX:EURUSD|1.08500|0.00015|5">EUR/USD (TradingView FX)</option>
+            <option value="GBPUSD|FX:GBPUSD|1.27400|0.00018|5">GBP/USD (TradingView FX)</option>
+            <option value="USDJPY|FX:USDJPY|154.250|0.035|3">USD/JPY (TradingView FX)</option>
+            <option value="EURGBP|FX:EURGBP|0.85160|0.00012|5">EUR/GBP (TradingView FX)</option>
+            <option value="XAUUSD|OANDA:XAUUSD|2645.50|0.85|2">XAU/USD Gold (TradingView)</option>
+            <option value="BTCUSD|BINANCE:BTCUSDT|91500.0|45.0|2">BTC/USDT (TradingView Crypto)</option>
+            <option value="US30|CAPITALCOM:US30|43850.0|12.0|1">US30 Wall Street (TradingView)</option>
+          </select>
+          <div id="priceBox" style="font-size:20px;font-weight:800;color:var(--accent);font-family:monospace;">1.08500</div>
+        </div>
+        <div id="tv_chart_container" style="height:370px;width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--border);"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:0;">
+        <label>Volume (Lots)</label>
+        <input type="number" id="clLots" value="0.10" min="0.01" step="0.01" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+          <button class="btn" style="margin-top:0;padding:13px;" onclick="trade('BUY')">BUY</button>
+          <button class="btn btn-red" style="margin-top:0;padding:13px;" onclick="trade('SELL')">SELL</button>
+        </div>
+        <div id="clStatus" style="margin-top:12px;padding:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;font-size:12px;min-height:44px;">
+          Ready to execute practice orders.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h2>Open Positions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Symbol</th>
+            <th>Side</th>
+            <th>Lots</th>
+            <th>Entry</th>
+            <th>Floating P/L</th>
+            <th>Close</th>
+          </tr>
+        </thead>
+        <tbody id="clPosBody">
+          <tr><td colspan="7" style="color:var(--muted);">No open positions.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="note">
+      Practice &amp; simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value.
+    </div>
+  </div>
+  <script>
+    
+    const STORAGE_KEY = "metro_whitelabel_mt5_v3";
+    const THEME_KEY = "metro_wl_theme_v3";
+
+    const INSTRUMENTS = [
+      { sym: "EURUSD", tv: "FX:EURUSD", price: 1.08500, vol: 0.00015, dec: 5, scale: 100000, kind: "FX" },
+      { sym: "GBPUSD", tv: "FX:GBPUSD", price: 1.27400, vol: 0.00018, dec: 5, scale: 100000, kind: "FX" },
+      { sym: "USDJPY", tv: "FX:USDJPY", price: 154.250, vol: 0.035,   dec: 3, scale: 1000,   kind: "FX" },
+      { sym: "EURGBP", tv: "FX:EURGBP", price: 0.85160, vol: 0.00012, dec: 5, scale: 100000, kind: "FX" },
+      { sym: "AUDUSD", tv: "FX:AUDUSD", price: 0.65420, vol: 0.00014, dec: 5, scale: 100000, kind: "FX" },
+      { sym: "USDCAD", tv: "FX:USDCAD", price: 1.39650, vol: 0.00015, dec: 5, scale: 100000, kind: "FX" },
+      { sym: "XAUUSD", tv: "OANDA:XAUUSD", price: 2645.50, vol: 0.85, dec: 2, scale: 100, kind: "Metal" },
+      { sym: "BTCUSD", tv: "BINANCE:BTCUSDT", price: 91500.0, vol: 45.0, dec: 2, scale: 1, kind: "Crypto" },
+      { sym: "US30",   tv: "CAPITALCOM:US30", price: 43850.0, vol: 12.0, dec: 1, scale: 10, kind: "Index" }
+    ];
+
+    const DEFAULT_BROKER = {
+      id: "brk-default",
+      ownerName: "Metro Super Master",
+      ownerEmail: "owner@metrooptions.demo",
+      brokerName: "Metro Options",
+      logoData: "",
+      accentColor: "#38bdf8",
+      manager: "Desk Alpha",
+      subAdmin: "Coach Partner",
+      balance: 10000,
+      profitMode: "NORMAL",
+      profitMultiplier: 1.0,
+      profitOffset: 0,
+      chartProfitBias: 0,
+      magicToken: "tok-default-master",
+      mt5Login: "115907871",
+      mt5Server: "MetaQuotes-Demo",
+      gasUrl: "",
+      positions: []
+    };
+
+    function applyTheme(mode) {
+      const m = mode || localStorage.getItem(THEME_KEY) || "dark";
+      localStorage.setItem(THEME_KEY, m);
+      document.body.classList.remove("theme-dim", "theme-light");
+      if (m === "dim") document.body.classList.add("theme-dim");
+      if (m === "light") document.body.classList.add("theme-light");
+
+      document.querySelectorAll(".theme-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.theme === m);
+      });
+      if (typeof window.onThemeChanged === "function") {
+        window.onThemeChanged(m);
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (!raw || !Array.isArray(raw.brokers) || raw.brokers.length === 0) {
+          return { activeId: DEFAULT_BROKER.id, brokers: [{ ...DEFAULT_BROKER }] };
+        }
+        const brokers = raw.brokers.map(b => ({ ...DEFAULT_BROKER, ...b }));
+        const activeId = brokers.some(b => b.id === raw.activeId) ? raw.activeId : brokers[0].id;
+        return { activeId, brokers };
+      } catch (e) {
+        return { activeId: DEFAULT_BROKER.id, brokers: [{ ...DEFAULT_BROKER }] };
+      }
+    }
+
+    function saveState(st) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+      applyWhiteLabelHeader();
+    }
+
+    function getActiveBroker(stObj) {
+      const st = stObj || loadState();
+      return st.brokers.find(b => b.id === st.activeId) || st.brokers[0];
+    }
+
+    function updateActiveBroker(fn) {
+      const st = loadState();
+      const idx = st.brokers.findIndex(b => b.id === st.activeId);
+      const target = idx >= 0 ? idx : 0;
+      const updated = fn({ ...DEFAULT_BROKER, ...st.brokers[target] });
+      st.brokers[target] = updated;
+      saveState(st);
+      return updated;
+    }
+
+    function handleMagicLoginFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const brkId = params.get("broker");
+      const token = params.get("token");
+      if (!brkId || !token) return null;
+
+      const st = loadState();
+      const found = st.brokers.find(b => b.id === brkId && b.magicToken === token);
+      if (found) {
+        st.activeId = found.id;
+        saveState(st);
+        return found;
+      }
+      return false;
+    }
+
+    function buildMagicLoginUrl(broker) {
+      const base = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "broker-owner.html";
+      return `${base}?broker=${encodeURIComponent(broker.id)}&token=${encodeURIComponent(broker.magicToken)}`;
+    }
+
+    function applyWhiteLabelHeader() {
+      const b = getActiveBroker();
+      const titleEl = document.getElementById("wlBrandName");
+      const logoImg = document.getElementById("wlLogoImg");
+      const logoFallback = document.getElementById("wlLogoFallback");
+      const balEl = document.getElementById("balDisp");
+
+      if (titleEl) {
+        titleEl.innerText = b.brokerName || "Metro Options";
+        titleEl.style.color = b.accentColor || "#38bdf8";
+      }
+      if (logoImg && logoFallback) {
+        if (b.logoData) {
+          logoImg.src = b.logoData;
+          logoImg.style.display = "block";
+          logoFallback.style.display = "none";
+        } else {
+          logoImg.style.display = "none";
+          logoFallback.style.display = "flex";
+          logoFallback.style.background = b.accentColor || "#2563eb";
+          logoFallback.innerText = (b.brokerName || "M").trim().charAt(0).toUpperCase();
+        }
+      }
+      if (balEl) {
+        const floating = (b.positions || []).reduce((acc, p) => acc + (p.lastPnl || 0), 0);
+        const eq = (Number(b.balance) || 0) + floating;
+        balEl.innerText = "$" + eq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    }
+
+    function readLogoFile(fileInput, callback) {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return callback("");
+      const reader = new FileReader();
+      reader.onload = () => callback(reader.result || "");
+      reader.readAsDataURL(file);
+    }
+
+    function getInstrumentBySym(s) {
+      return INSTRUMENTS.find(x => x.sym === s) || INSTRUMENTS[0];
+    }
+
+    function computeSimulatedPnl(pos, broker, livePriceMap) {
+      const inst = getInstrumentBySym(pos.sym);
+      const curPrice = (livePriceMap && livePriceMap[pos.sym] !== undefined)
+        ? livePriceMap[pos.sym]
+        : (pos.currentPrice || pos.entry);
+      const diff = pos.side === "BUY" ? (curPrice - pos.entry) : (pos.entry - curPrice);
+      const rawPnl = diff * pos.lots * inst.scale;
+      const mult = Number(broker.profitMultiplier) || 1.0;
+      const offset = Number(broker.profitOffset) || 0;
+      const chartBias = Number(broker.chartProfitBias) || 0;
+      const totalBias = offset + (chartBias * pos.lots * 25);
+      return +(rawPnl * mult + totalBias).toFixed(2);
+    }
+
+    async function relayOrderWebhook(broker, payload) {
+      if (!broker.gasUrl) return;
+      try {
+        await fetch(broker.gasUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            broker_name: broker.brokerName,
+            hidden_mt5_login: broker.mt5Login,
+            hidden_mt5_server: broker.mt5Server,
+            ...payload,
+            timestamp: new Date().toISOString()
+          })
+        });
+      } catch (e) {}
+    }
+
+    function buildDeskWorkspaceHTML(prefix, roleLabel) {
+      const symOpts = INSTRUMENTS.map(i =>
+        `<option value="${i.sym}">${i.sym} (${i.kind} | ${i.price.toFixed(i.dec)})</option>`
+      ).join("");
+      const rateOpts = INSTRUMENTS.filter(i => i.kind === "FX").map(i =>
+        `<option value="${i.sym}">${i.sym}</option>`
+      ).join("");
+
+      return `
+        <div class="card">
+          <h2>${roleLabel}: Live Chart &amp; Client Profit Control</h2>
+          <p class="sub">Monitor the live TradingView chart, adjust client investment profit up or down in real time, and place trades/orders or exchange FX rates for clients.</p>
+
+          <div class="profit-strip">
+            <div class="kpi-box">
+              <div class="kpi-lbl">Active Profit Mode</div>
+              <div class="kpi-val" id="${prefix}_kpiMode" style="color:var(--accent);">NORMAL</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-lbl">Chart Profit Bias (Slider)</div>
+              <div class="kpi-val" id="${prefix}_kpiBias" style="color:#10b981;">$0 / +0%</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-lbl">Total Client Floating P/L</div>
+              <div class="kpi-val" id="${prefix}_kpiFloating">$0.00</div>
+            </div>
+          </div>
+
+          <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+              <label style="margin:0;color:var(--text);">Client Investment Chart Profit Slider (Decrease Profit &larr; 0 &rarr; Increase Profit)</label>
+              <span id="${prefix}_biasReadout" style="font-family:monospace;font-weight:800;color:var(--accent);">0</span>
+            </div>
+            <input type="range" id="${prefix}_biasRange" min="-40" max="40" step="1" value="0" oninput="onChartBiasSlider('${prefix}')" />
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+              <button type="button" class="btn btn-red" style="margin-top:0;padding:7px 11px;font-size:12px;" onclick="applyProfitAction('${prefix}', 'DECREASE')">&#9660; Decrease Client Profit</button>
+              <button type="button" class="btn btn-blue" style="margin-top:0;padding:7px 11px;font-size:12px;" onclick="applyProfitAction('${prefix}', 'RESET')">Reset to Normal</button>
+              <button type="button" class="btn" style="margin-top:0;padding:7px 11px;font-size:12px;" onclick="applyProfitAction('${prefix}', 'INCREASE')">&#9650; Increase Client Profit</button>
+            </div>
+            <div class="grid" style="margin-top:12px;">
+              <div>
+                <label>Profit Multiplier (x)</label>
+                <input type="number" id="${prefix}_multInp" step="0.1" value="1.0" />
+              </div>
+              <div>
+                <label>Direct P/L Offset ($)</label>
+                <input type="number" id="${prefix}_offInp" step="10" value="0" />
+              </div>
+              <div style="display:flex;align-items:flex-end;">
+                <button type="button" class="btn btn-amber" style="margin-top:0;width:100%;" onclick="saveCustomProfit('${prefix}')">Save Profit Rules</button>
+              </div>
+            </div>
+            <div class="msg" id="${prefix}_profitMsg"></div>
+          </div>
+
+          <div class="desk-split">
+            <div class="card" style="margin-bottom:0;padding:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+                <select id="${prefix}_chartSym" style="width:auto;font-weight:700;" onchange="onDeskChartSymChange('${prefix}')">
+                  ${symOpts}
+                </select>
+                <div id="${prefix}_livePx" style="font-size:18px;font-weight:800;color:var(--accent);font-family:monospace;">1.08500</div>
+              </div>
+              <div id="${prefix}_tvBox" style="height:330px;width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--border);"></div>
+            </div>
+
+            <div class="card" style="margin-bottom:0;">
+              <h2 style="margin-bottom:10px;">Place Trade / Order for Client</h2>
+              <div style="margin-bottom:10px;">
+                <label>Client Name / Account</label>
+                <input type="text" id="${prefix}_clientName" value="Client Account #01" />
+              </div>
+              <div style="margin-bottom:10px;">
+                <label>Instrument / Pair</label>
+                <select id="${prefix}_tradeSym" onchange="syncTradeRateBox('${prefix}')">
+                  ${symOpts}
+                </select>
+              </div>
+              <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                <div>
+                  <label>Order Type</label>
+                  <select id="${prefix}_ordType">
+                    <option value="MARKET">Market Execution</option>
+                    <option value="BUY_LIMIT">Buy Limit</option>
+                    <option value="SELL_LIMIT">Sell Limit</option>
+                    <option value="BUY_STOP">Buy Stop</option>
+                    <option value="SELL_STOP">Sell Stop</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Volume (Lots)</label>
+                  <input type="number" id="${prefix}_lots" value="0.10" min="0.01" step="0.01" />
+                </div>
+              </div>
+              <div style="margin-bottom:10px;">
+                <label>Target / Exchange Rate (Optional for Pending)</label>
+                <input type="number" id="${prefix}_targetPx" step="0.0001" placeholder="Uses live market rate if blank" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button type="button" class="btn" style="margin-top:0;padding:11px;" onclick="placeClientOrder('${prefix}', 'BUY')">BUY for Client</button>
+                <button type="button" class="btn btn-red" style="margin-top:0;padding:11px;" onclick="placeClientOrder('${prefix}', 'SELL')">SELL for Client</button>
+              </div>
+              <div class="msg" id="${prefix}_tradeMsg"></div>
+
+              <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+                <h2 style="margin-bottom:8px;">FX Rate-Exchange Converter</h2>
+                <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px;">
+                  <div>
+                    <label>FX Pair</label>
+                    <select id="${prefix}_fxPair" onchange="calcFxExchange('${prefix}')">
+                      ${rateOpts}
+                    </select>
+                  </div>
+                  <div>
+                    <label>Amount (Base)</label>
+                    <input type="number" id="${prefix}_fxAmt" value="1000" step="10" oninput="calcFxExchange('${prefix}')" />
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;">
+                  <div id="${prefix}_fxResult" style="font-size:12.5px;font-weight:700;color:var(--accent);font-family:monospace;">1,000 EURUSD @ 1.08500 = $1,085.00</div>
+                  <button type="button" class="btn btn-blue" style="margin-top:0;padding:6px 10px;font-size:11px;" onclick="applyFxRateToOrder('${prefix}')">Use Rate</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <h2>Client Trades &amp; Orders Log</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Ticket</th>
+                  <th>Client</th>
+                  <th>Symbol</th>
+                  <th>Type / Side</th>
+                  <th>Lots</th>
+                  <th>Rate</th>
+                  <th>Floating P/L</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="${prefix}_posTbody">
+                <tr><td colspan="8" style="color:var(--muted);">No client trades or orders yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    const deskLivePrices = {};
+    INSTRUMENTS.forEach(i => { deskLivePrices[i.sym] = i.price; });
+
+    function mountDeskTV(prefix, tvSymbol) {
+      const box = document.getElementById(prefix + "_tvBox");
+      if (!box) return;
+      box.innerHTML = "";
+      const curTheme = localStorage.getItem(THEME_KEY) || "dark";
+      const tvTheme = curTheme === "light" ? "light" : "dark";
+      const s = document.createElement("script");
+      s.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+      s.type = "text/javascript";
+      s.async = true;
+      s.innerHTML = JSON.stringify({
+        autosize: true,
+        symbol: tvSymbol,
+        interval: "15",
+        timezone: "Etc/UTC",
+        theme: tvTheme,
+        style: "1",
+        locale: "en",
+        allow_symbol_change: true,
+        hide_top_toolbar: false,
+        save_image: false,
+        support_host: "https://www.tradingview.com"
+      });
+      box.appendChild(s);
+    }
+
+    function syncProfitControlsUI(prefix) {
+      const b = getActiveBroker();
+      const bias = Number(b.chartProfitBias) || 0;
+      const mult = Number(b.profitMultiplier) || 1.0;
+      const off = Number(b.profitOffset) || 0;
+
+      const slider = document.getElementById(prefix + "_biasRange");
+      const multInp = document.getElementById(prefix + "_multInp");
+      const offInp = document.getElementById(prefix + "_offInp");
+      if (slider) slider.value = bias;
+      if (multInp) multInp.value = mult;
+      if (offInp) offInp.value = off;
+
+      const modeEl = document.getElementById(prefix + "_kpiMode");
+      const biasKpi = document.getElementById(prefix + "_kpiBias");
+      const readout = document.getElementById(prefix + "_biasReadout");
+
+      const pct = bias * 5;
+      if (modeEl) modeEl.innerText = b.profitMode || "NORMAL";
+      if (biasKpi) {
+        biasKpi.innerText = `${bias >= 0 ? "+" : ""}$${(bias * 25).toFixed(0)} / ${pct >= 0 ? "+" : ""}${pct}%`;
+        biasKpi.style.color = bias > 0 ? "#10b981" : (bias < 0 ? "#ef4444" : "var(--accent)");
+      }
+      if (readout) {
+        readout.innerText = `Bias: ${bias > 0 ? "+" : ""}${bias} (${pct >= 0 ? "+" : ""}${pct}%) | Mult: ${mult}x | Offset: $${off}`;
+      }
+    }
+
+    function onChartBiasSlider(prefix) {
+      const slider = document.getElementById(prefix + "_biasRange");
+      const bias = parseFloat(slider.value) || 0;
+      const mult = bias > 0 ? +(1 + bias * 0.05).toFixed(2) : (bias < 0 ? Math.max(0.1, +(1 + bias * 0.02).toFixed(2)) : 1.0);
+      const mode = bias > 0 ? "INCREASED_HIGH" : (bias < 0 ? "DECREASED_LOW" : "NORMAL");
+
+      updateActiveBroker(b => ({
+        ...b,
+        chartProfitBias: bias,
+        profitMultiplier: mult,
+        profitMode: mode
+      }));
+      syncProfitControlsUI(prefix);
+      renderDeskTrades(prefix);
+    }
+
+    function applyProfitAction(prefix, dir) {
+      const b = getActiveBroker();
+      let bias = Number(b.chartProfitBias) || 0;
+      let mult = Number(b.profitMultiplier) || 1.0;
+      let off = Number(b.profitOffset) || 0;
+      let mode = b.profitMode || "NORMAL";
+
+      if (dir === "INCREASE") {
+        bias = Math.min(40, bias + 5);
+        mult = +(mult + 0.35).toFixed(2);
+        off = +(off + 100).toFixed(2);
+        mode = "INCREASED_HIGH";
+      } else if (dir === "DECREASE") {
+        bias = Math.max(-40, bias - 5);
+        mult = Math.max(0.1, +(mult - 0.25).toFixed(2));
+        off = +(off - 100).toFixed(2);
+        mode = "DECREASED_LOW";
+      } else {
+        bias = 0;
+        mult = 1.0;
+        off = 0;
+        mode = "NORMAL";
+      }
+
+      updateActiveBroker(cur => ({
+        ...cur,
+        chartProfitBias: bias,
+        profitMultiplier: mult,
+        profitOffset: off,
+        profitMode: mode
+      }));
+      syncProfitControlsUI(prefix);
+      renderDeskTrades(prefix);
+      const msg = document.getElementById(prefix + "_profitMsg");
+      if (msg) msg.innerText = `Client investment profit updated (${mode}): Bias ${bias >= 0 ? "+" : ""}${bias}, Mult ${mult}x, Offset $${off}.`;
+    }
+
+    function saveCustomProfit(prefix) {
+      const mult = parseFloat(document.getElementById(prefix + "_multInp").value);
+      const off = parseFloat(document.getElementById(prefix + "_offInp").value);
+      const safeMult = isNaN(mult) ? 1.0 : mult;
+      const safeOff = isNaN(off) ? 0 : off;
+      const mode = safeMult > 1 || safeOff > 0 ? "INCREASED_HIGH" : (safeMult < 1 || safeOff < 0 ? "DECREASED_LOW" : "NORMAL");
+
+      updateActiveBroker(b => ({
+        ...b,
+        profitMultiplier: safeMult,
+        profitOffset: safeOff,
+        profitMode: mode
+      }));
+      syncProfitControlsUI(prefix);
+      renderDeskTrades(prefix);
+      const msg = document.getElementById(prefix + "_profitMsg");
+      if (msg) msg.innerText = `Saved profit rules: ${safeMult}x multiplier and $${safeOff} offset.`;
+    }
+
+    function onDeskChartSymChange(prefix) {
+      const symVal = document.getElementById(prefix + "_chartSym").value;
+      const inst = getInstrumentBySym(symVal);
+      const tradeSel = document.getElementById(prefix + "_tradeSym");
+      if (tradeSel) tradeSel.value = inst.sym;
+      const pxEl = document.getElementById(prefix + "_livePx");
+      if (pxEl) pxEl.innerText = (deskLivePrices[inst.sym] || inst.price).toFixed(inst.dec);
+      mountDeskTV(prefix, inst.tv);
+    }
+
+    function syncTradeRateBox(prefix) {
+      const symVal = document.getElementById(prefix + "_tradeSym").value;
+      const inst = getInstrumentBySym(symVal);
+      const px = deskLivePrices[inst.sym] || inst.price;
+      const tgt = document.getElementById(prefix + "_targetPx");
+      if (tgt && !tgt.value) tgt.placeholder = `Live rate: ${px.toFixed(inst.dec)}`;
+      const fxSel = document.getElementById(prefix + "_fxPair");
+      if (fxSel && inst.kind === "FX") {
+        fxSel.value = inst.sym;
+        calcFxExchange(prefix);
+      }
+    }
+
+    function calcFxExchange(prefix) {
+      const pairSel = document.getElementById(prefix + "_fxPair");
+      const amtInp = document.getElementById(prefix + "_fxAmt");
+      const resEl = document.getElementById(prefix + "_fxResult");
+      if (!pairSel || !amtInp || !resEl) return;
+      const inst = getInstrumentBySym(pairSel.value);
+      const rate = deskLivePrices[inst.sym] || inst.price;
+      const amt = parseFloat(amtInp.value) || 0;
+      const converted = +(amt * rate).toFixed(2);
+      resEl.innerText = `${amt.toLocaleString()} ${inst.sym} @ ${rate.toFixed(inst.dec)} = $${converted.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function applyFxRateToOrder(prefix) {
+      const pairSel = document.getElementById(prefix + "_fxPair");
+      const inst = getInstrumentBySym(pairSel.value);
+      const rate = deskLivePrices[inst.sym] || inst.price;
+      const tradeSel = document.getElementById(prefix + "_tradeSym");
+      const tgtInp = document.getElementById(prefix + "_targetPx");
+      if (tradeSel) tradeSel.value = inst.sym;
+      if (tgtInp) tgtInp.value = rate.toFixed(inst.dec);
+      const msg = document.getElementById(prefix + "_tradeMsg");
+      if (msg) msg.innerText = `Loaded ${inst.sym} exchange rate ${rate.toFixed(inst.dec)} into order ticket.`;
+    }
+
+    function placeClientOrder(prefix, side) {
+      const clientName = (document.getElementById(prefix + "_clientName").value || "Client Account").trim();
+      const symVal = document.getElementById(prefix + "_tradeSym").value;
+      const ordType = document.getElementById(prefix + "_ordType").value;
+      const lots = parseFloat(document.getElementById(prefix + "_lots").value);
+      const tgtRaw = parseFloat(document.getElementById(prefix + "_targetPx").value);
+      if (!lots || lots <= 0) return alert("Enter valid volume (lots).");
+
+      const inst = getInstrumentBySym(symVal);
+      const livePx = deskLivePrices[inst.sym] || inst.price;
+      const execRate = (!isNaN(tgtRaw) && tgtRaw > 0) ? tgtRaw : livePx;
+      const ticket = Math.floor(10000000 + Math.random() * 90000000);
+
+      const updated = updateActiveBroker(b => {
+        const list = Array.isArray(b.positions) ? [...b.positions] : [];
+        const newPos = {
+          ticket,
+          clientName,
+          sym: inst.sym,
+          ordType,
+          side,
+          lots,
+          entry: execRate,
+          currentPrice: livePx,
+          dec: inst.dec,
+          lastPnl: 0
+        };
+        newPos.lastPnl = computeSimulatedPnl(newPos, b, deskLivePrices);
+        list.unshift(newPos);
+        return { ...b, positions: list };
+      });
+
+      relayOrderWebhook(updated, {
+        event: "OPEN_ORDER",
+        client_name: clientName,
+        order_type: ordType,
+        ticket,
+        sym: inst.sym,
+        side,
+        lots,
+        entry: execRate
+      });
+
+      const msg = document.getElementById(prefix + "_tradeMsg");
+      if (msg) {
+        msg.innerText = `Placed ${ordType} ${side} ${lots} ${inst.sym} @ ${execRate.toFixed(inst.dec)} for ${clientName} (#${ticket}).`;
+      }
+      renderDeskTrades(prefix);
+    }
+
+    function closeDeskPosition(prefix, ticket) {
+      let realized = 0;
+      const updated = updateActiveBroker(b => {
+        const list = [...(b.positions || [])];
+        const idx = list.findIndex(p => p.ticket === ticket);
+        if (idx === -1) return b;
+        const pos = list[idx];
+        realized = computeSimulatedPnl(pos, b, deskLivePrices);
+        list.splice(idx, 1);
+        return { ...b, balance: +(Number(b.balance) + realized).toFixed(2), positions: list };
+      });
+
+      relayOrderWebhook(updated, { event: "CLOSE_ORDER", ticket, pnl: realized });
+      const msg = document.getElementById(prefix + "_tradeMsg");
+      if (msg) msg.innerText = `Closed #${ticket} | Realized P/L: $${realized.toFixed(2)}.`;
+      renderDeskTrades(prefix);
+    }
+
+    function renderDeskTrades(prefix) {
+      const b = updateActiveBroker(cur => {
+        const nextList = (cur.positions || []).map(p => {
+          const curPx = deskLivePrices[p.sym] !== undefined ? deskLivePrices[p.sym] : p.entry;
+          const pnl = computeSimulatedPnl({ ...p, currentPrice: curPx }, cur, deskLivePrices);
+          return { ...p, currentPrice: curPx, lastPnl: pnl };
+        });
+        return { ...cur, positions: nextList };
+      });
+
+      const totalFloat = (b.positions || []).reduce((acc, p) => acc + (p.lastPnl || 0), 0);
+      const floatEl = document.getElementById(prefix + "_kpiFloating");
+      if (floatEl) {
+        floatEl.innerText = `${totalFloat >= 0 ? "+" : ""}$${totalFloat.toFixed(2)}`;
+        floatEl.style.color = totalFloat >= 0 ? "#10b981" : "#ef4444";
+      }
+
+      const tbody = document.getElementById(prefix + "_posTbody");
+      if (!tbody) return;
+      if (!b.positions || b.positions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="color:var(--muted);">No client trades or orders yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = b.positions.map(p => {
+        const pnl = p.lastPnl || 0;
+        const col = pnl >= 0 ? "#10b981" : "#ef4444";
+        return `
+          <tr>
+            <td>#${p.ticket}</td>
+            <td><strong>${p.clientName || "Client"}</strong></td>
+            <td><strong>${p.sym}</strong></td>
+            <td><span class="badge">${p.ordType || "MARKET"}</span> <strong style="color:${p.side === 'BUY' ? '#10b981' : '#ef4444'};">${p.side}</strong></td>
+            <td>${Number(p.lots).toFixed(2)}</td>
+            <td style="font-family:monospace;">${Number(p.entry).toFixed(p.dec)}</td>
+            <td style="color:${col};font-weight:700;font-family:monospace;">${pnl >= 0 ? "+" : ""}$${pnl.toFixed(2)}</td>
+            <td><button type="button" class="btn" style="margin-top:0;padding:4px 9px;font-size:11px;background:#334155;" onclick="closeDeskPosition('${prefix}', ${p.ticket})">Close</button></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function initDeskWorkspace(prefix) {
+      syncProfitControlsUI(prefix);
+      const symSel = document.getElementById(prefix + "_chartSym");
+      const inst = getInstrumentBySym(symSel ? symSel.value : "EURUSD");
+      const pxEl = document.getElementById(prefix + "_livePx");
+      if (pxEl) pxEl.innerText = (deskLivePrices[inst.sym] || inst.price).toFixed(inst.dec);
+      mountDeskTV(prefix, inst.tv);
+      calcFxExchange(prefix);
+      renderDeskTrades(prefix);
+
+      setInterval(() => {
+        INSTRUMENTS.forEach(item => {
+          deskLivePrices[item.sym] = Math.max(0.0001, +(deskLivePrices[item.sym] + (Math.random() - 0.495) * item.vol).toFixed(item.dec));
+        });
+        const curChartSym = document.getElementById(prefix + "_chartSym")?.value || "EURUSD";
+        const curInst = getInstrumentBySym(curChartSym);
+        const livePxEl = document.getElementById(prefix + "_livePx");
+        if (livePxEl) livePxEl.innerText = deskLivePrices[curInst.sym].toFixed(curInst.dec);
+        calcFxExchange(prefix);
+        renderDeskTrades(prefix);
+      }, 900);
+    }
+
+    applyTheme();
+    applyWhiteLabelHeader();
+
+    
+    let sym = "EURUSD", tvSym = "FX:EURUSD", price = 1.08500, vol = 0.00015, dec = 5;
+
+    function mountTradingView() {
+      const container = document.getElementById("tv_chart_container");
+      if (!container) return;
+      container.innerHTML = "";
+      const curTheme = localStorage.getItem(THEME_KEY) || "dark";
+      const tvTheme = curTheme === "light" ? "light" : "dark";
+
+      const script = document.createElement("script");
+      script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+      script.type = "text/javascript";
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        autosize: true,
+        symbol: tvSym,
+        interval: "15",
+        timezone: "Etc/UTC",
+        theme: tvTheme,
+        style: "1",
+        locale: "en",
+        allow_symbol_change: true,
+        hide_top_toolbar: false,
+        save_image: false,
+        support_host: "https://www.tradingview.com"
+      });
+      container.appendChild(script);
+    }
+
+    window.onThemeChanged = function() {
+      mountTradingView();
+    };
+
+    function initClient() {
+      const b = getActiveBroker();
+      document.getElementById("clBrk").innerText = b.brokerName;
+      document.getElementById("clMgr").innerText = b.manager;
+      mountTradingView();
+      renderClientPositions();
+    }
+
+    function changeSym() {
+      const [s, tv, p, v, d] = document.getElementById("symSel").value.split("|");
+      sym = s; tvSym = tv; price = parseFloat(p); vol = parseFloat(v); dec = parseInt(d, 10);
+      document.getElementById("priceBox").innerText = price.toFixed(dec);
+      mountTradingView();
+    }
+
+    function trade(side) {
+      const lots = parseFloat(document.getElementById("clLots").value);
+      if (!lots || lots <= 0) return alert("Enter valid volume.");
+      const ticket = Math.floor(10000000 + Math.random() * 90000000);
+
+      const updated = updateActiveBroker(b => {
+        const list = Array.isArray(b.positions) ? [...b.positions] : [];
+        const p = { ticket, clientName: "Self Client", sym, ordType: "MARKET", side, lots, entry: price, currentPrice: price, dec, lastPnl: 0 };
+        p.lastPnl = computeSimulatedPnl(p, b, { [sym]: price });
+        list.unshift(p);
+        return { ...b, positions: list };
+      });
+
+      relayOrderWebhook(updated, { event: "OPEN_ORDER", ticket, sym, side, lots, entry: price });
+      document.getElementById("clStatus").innerHTML =
+        `Order <strong>#${ticket}</strong> (${updated.brokerName}): <strong>${side}</strong> ${lots} ${sym} @ <code>${price.toFixed(dec)}</code>`;
+      renderClientPositions();
+    }
+
+    function closeClPos(ticket) {
+      let realized = 0;
+      const updated = updateActiveBroker(b => {
+        const list = [...(b.positions || [])];
+        const idx = list.findIndex(p => p.ticket === ticket);
+        if (idx === -1) return b;
+        const pos = list[idx];
+        realized = computeSimulatedPnl(pos, b, { [pos.sym]: price });
+        list.splice(idx, 1);
+        return { ...b, balance: +(Number(b.balance) + realized).toFixed(2), positions: list };
+      });
+
+      relayOrderWebhook(updated, { event: "CLOSE_ORDER", ticket, pnl: realized });
+      document.getElementById("clStatus").innerHTML =
+        `Closed <strong>#${ticket}</strong> | P/L: <strong style="color:${realized >= 0 ? '#10b981' : '#ef4444'};">$${realized.toFixed(2)}</strong>`;
+      renderClientPositions();
+    }
+
+    function renderClientPositions() {
+      const b = updateActiveBroker(cur => {
+        const updatedList = (cur.positions || []).map(p => {
+          const curPrice = p.sym === sym ? price : (p.currentPrice || p.entry);
+          const pnl = computeSimulatedPnl({ ...p, currentPrice: curPrice }, cur, { [p.sym]: curPrice });
+          return { ...p, currentPrice: curPrice, lastPnl: pnl };
+        });
+        return { ...cur, positions: updatedList };
+      });
+
+      const tbody = document.getElementById("clPosBody");
+      if (!b.positions.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="color:var(--muted);">No open positions.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = b.positions.map(p => {
+        const pnl = p.lastPnl || 0;
+        const col = pnl >= 0 ? "#10b981" : "#ef4444";
+        return `
+          <tr>
+            <td>#${p.ticket}</td>
+            <td><strong>${p.sym}</strong></td>
+            <td style="color:${p.side === 'BUY' ? '#10b981' : '#ef4444'};font-weight:700;">${p.side}</td>
+            <td>${Number(p.lots).toFixed(2)}</td>
+            <td>${Number(p.entry).toFixed(p.dec)}</td>
+            <td style="color:${col};font-weight:700;">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
+            <td><button class="btn" style="margin-top:0;padding:4px 9px;font-size:11px;background:#334155;" onclick="closeClPos(${p.ticket})">Close</button></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    setInterval(() => {
+      price = Math.max(0.0001, +(price + (Math.random() - 0.495) * vol).toFixed(dec));
+      document.getElementById("priceBox").innerText = price.toFixed(dec);
+      renderClientPositions();
+    }, 650);
+
+    initClient();
+    
+  </script>
+</body>
+</html>

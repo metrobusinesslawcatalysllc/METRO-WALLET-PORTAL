@@ -1,0 +1,17 @@
+{
+  "appsScriptWebAppUrl": "https://script.google.com/macros/s/AKfycbyzM3tcP1dZKfqjQvBqKvn_d0faxXVzMmAo2VTGGv3gBdQDwdcAhN1F3FwbQk2Gj1dI0w/exec",
+  "nowpayments": {
+    "webhookFormat": "Classic way",
+    "scriptPropertiesRequired": [
+      "NOWPAYMENTS_API_KEY",
+      "NOWPAYMENTS_IPN_SECRET"
+    ]
+  },
+  "googleSheetTabs": [
+    "APPROVED_WALLETS",
+    "CLIENT_WALLETS",
+    "CLIENT_TRANSACTIONS",
+    "BROKERS"
+  ],
+  "portalFile": "metro_wallet_crypto_deposit_portal-v2.html"
+}
