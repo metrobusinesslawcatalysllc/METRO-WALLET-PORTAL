@@ -1,4 +1,14 @@
+# Git metadata
 .git
-.github
+.gitignore
+.gitattributes
+
+# Wrangler / build artifacts
+.wrangler
 wrangler.jsonc
+wrangler.toml
+wrangler.json
+
+# Docs
 README.md
+README
