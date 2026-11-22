@@ -971,5 +971,189 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-</script></body>
+</script>
+  <div id="admin-manager-desk-widget" style="font-family:sans-serif;max-width:820px;margin:16px auto;padding:18px;border:1px solid #334155;border-radius:10px;background:#0b1220;color:#f8fafc;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;border-bottom:1px solid #1e293b;padding-bottom:10px;">
+    <div>
+      <strong style="font-size:17px;">Admin Manager — Desk Operations & Approvals</strong>
+      <div id="am-desk-subtitle" style="font-size:12px;color:#94a3b8;margin-top:2px;">Brokerage Desk: Metro Options • Role: Admin Manager</div>
+    </div>
+    <span style="font-size:11px;padding:4px 8px;border-radius:999px;background:#1e293b;color:#38bdf8;border:1px solid #334155;">Live Operational Queue</span>
+  </div>
+
+  <!-- Top KPI Strip -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">PENDING DEPOSIT LINKS</div>
+      <div id="am-kpi-deposits" style="font-size:18px;font-weight:bold;color:#38bdf8;margin-top:2px;">1</div>
+    </div>
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">PENDING WITHDRAWALS</div>
+      <div id="am-kpi-withdrawals" style="font-size:18px;font-weight:bold;color:#f59e0b;margin-top:2px;">1</div>
+    </div>
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">ACTIVE DESK CLIENTS</div>
+      <div id="am-kpi-clients" style="font-size:18px;font-weight:bold;color:#4ade80;margin-top:2px;">1</div>
+    </div>
+  </div>
+
+  <!-- Deposit Link Dispatch + Client Intake -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+    <div style="padding:12px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:12px;font-weight:bold;color:#e2e8f0;margin-bottom:8px;">1. DISPATCH CLIENT DEPOSIT LINK</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <input id="am-dep-client" type="text" placeholder="Client ID or Name (e.g. cli-101)" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <input id="am-dep-amount" type="number" value="1000" placeholder="Amount ($)" style="width:95px;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <input id="am-dep-url" type="text" placeholder="Payment / Checkout Link (NOWPayments, Bank, Crypto)" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <button onclick="amSendDepositLink()" style="padding:6px 12px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Send Link</button>
+      </div>
+      <div id="am-dep-feedback" style="font-size:11px;color:#93c5fd;margin-top:6px;"></div>
+    </div>
+
+    <div style="padding:12px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:12px;font-weight:bold;color:#e2e8f0;margin-bottom:8px;">2. ENROLL CLIENT TO DESK</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <input id="am-cli-name" type="text" placeholder="Client Full Name" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <select id="am-cli-tier" style="padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;">
+          <option value="Standard">Standard</option>
+          <option value="VIP Pro">VIP Pro</option>
+          <option value="Institutional">Institutional</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <input id="am-cli-contact" type="text" placeholder="Email or WhatsApp Handle" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <button onclick="amEnrollClient()" style="padding:6px 12px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Enroll</button>
+      </div>
+      <div id="am-cli-list" style="font-size:11px;color:#cbd5e1;margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <!-- One-Click Withdrawal & Deposit Approval Queue -->
+  <div style="padding:12px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:12px;font-weight:bold;color:#e2e8f0;">3. WITHDRAWAL & DEPOSIT APPROVAL QUEUE</span>
+      <span style="font-size:11px;color:#94a3b8;">One-Click Desk Settlement</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:#0b1220;color:#94a3b8;text-align:left;">
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Ticket</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Client</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Type</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Amount</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Destination / Ref</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Status</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="am-queue-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function initAdminManagerDesk() {
+    const AM_QUEUE_KEY = 'metro_admin_approval_queue';
+    const AM_CLIENTS_KEY = 'metro_admin_desk_clients';
+    const OWNER_PROFILE_KEY = 'metro_private_broker_owner_profile';
+
+    const ownerProfile = JSON.parse(localStorage.getItem(OWNER_PROFILE_KEY) || '{}');
+    const brokerName = ownerProfile.brokerageName || 'Metro Options';
+    const subEl = document.getElementById('am-desk-subtitle');
+    if (subEl) subEl.textContent = `Brokerage Desk: ${brokerName} • Role: Admin Manager`;
+
+    let queue = JSON.parse(localStorage.getItem(AM_QUEUE_KEY) || 'null') || [
+      { id: 'WD-401', client: 'Alex Trader (cli-101)', type: 'Withdrawal', amount: 850, ref: 'USDT-TRC20 • T9x...4kP', status: 'Pending' },
+      { id: 'DP-204', client: 'Alex Trader (cli-101)', type: 'Deposit Link', amount: 2500, ref: 'https://pay.metrooptions.com/inv-204', status: 'Sent' }
+    ];
+
+    let clients = JSON.parse(localStorage.getItem(AM_CLIENTS_KEY) || 'null') || [
+      { id: 'cli-101', name: 'Alex Trader', tier: 'VIP Pro', contact: 'alex@client.io' }
+    ];
+
+    function saveState() {
+      localStorage.setItem(AM_QUEUE_KEY, JSON.stringify(queue));
+      localStorage.setItem(AM_CLIENTS_KEY, JSON.stringify(clients));
+    }
+
+    function renderAll() {
+      const pendingW = queue.filter(q => q.type === 'Withdrawal' && q.status === 'Pending').length;
+      const pendingD = queue.filter(q => q.type === 'Deposit Link' && q.status !== 'Settled').length;
+      document.getElementById('am-kpi-withdrawals').textContent = pendingW;
+      document.getElementById('am-kpi-deposits').textContent = pendingD;
+      document.getElementById('am-kpi-clients').textContent = clients.length;
+
+      const cliEl = document.getElementById('am-cli-list');
+      cliEl.innerHTML = clients.slice(0, 3).map(c =>
+        `<div style="padding:3px 0;border-top:1px solid #1e293b;"><strong>${c.id}</strong>: ${c.name} (${c.tier}) — ${c.contact}</div>`
+      ).join('');
+
+      const tbody = document.getElementById('am-queue-body');
+      tbody.innerHTML = queue.map((item, idx) => {
+        const badgeColor = item.status === 'Approved' || item.status === 'Settled'
+          ? '#4ade80'
+          : (item.status === 'Rejected' ? '#f87171' : '#f59e0b');
+        const actions = item.status === 'Pending' || item.status === 'Sent'
+          ? `<button onclick="amUpdateTicket(${idx}, 'Approved')" style="padding:4px 8px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;margin-right:4px;">Approve</button>
+             <button onclick="amUpdateTicket(${idx}, 'Rejected')" style="padding:4px 8px;background:#dc2626;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;">Reject</button>`
+          : `<span style="color:#64748b;font-size:11px;">Closed</span>`;
+        return `
+          <tr style="border-bottom:1px solid #1e293b;">
+            <td style="padding:7px;font-weight:bold;">${item.id}</td>
+            <td style="padding:7px;">${item.client}</td>
+            <td style="padding:7px;">${item.type}</td>
+            <td style="padding:7px;">$${Number(item.amount).toLocaleString()}</td>
+            <td style="padding:7px;color:#93c5fd;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.ref}</td>
+            <td style="padding:7px;font-weight:bold;color:${badgeColor};">${item.status}</td>
+            <td style="padding:7px;">${actions}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    window.amSendDepositLink = function() {
+      const client = (document.getElementById('am-dep-client').value || '').trim();
+      const amount = Number(document.getElementById('am-dep-amount').value || 0);
+      const url = (document.getElementById('am-dep-url').value || '').trim();
+      const fb = document.getElementById('am-dep-feedback');
+      if (!client || !(amount > 0) || !url) {
+        fb.textContent = 'Enter client, amount, and deposit link URL.';
+        return;
+      }
+      const ticketId = 'DP-' + Math.floor(205 + Math.random() * 700);
+      queue.unshift({ id: ticketId, client, type: 'Deposit Link', amount, ref: url, status: 'Sent' });
+      saveState();
+      renderAll();
+      document.getElementById('am-dep-url').value = '';
+      fb.textContent = `Dispatched ${ticketId} ($${amount.toLocaleString()}) to ${client}.`;
+    };
+
+    window.amEnrollClient = function() {
+      const name = (document.getElementById('am-cli-name').value || '').trim();
+      const tier = document.getElementById('am-cli-tier').value;
+      const contact = (document.getElementById('am-cli-contact').value || '').trim();
+      if (!name) return;
+      const newId = 'cli-' + (101 + clients.length);
+      clients.unshift({ id: newId, name, tier, contact: contact || 'Admin Desk' });
+      saveState();
+      renderAll();
+      document.getElementById('am-cli-name').value = '';
+      document.getElementById('am-cli-contact').value = '';
+    };
+
+    window.amUpdateTicket = function(idx, status) {
+      if (!queue[idx]) return;
+      queue[idx].status = status;
+      saveState();
+      renderAll();
+    };
+
+    renderAll();
+  })();
+</script>
+</body>
 </html>
