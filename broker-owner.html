@@ -1357,6 +1357,129 @@ function ttRenderPositions() {
   ttRenderChart();
   ttRenderPositions();
 </script>
+  <div id="portfolio-alerts-widget" style="font-family:sans-serif;max-width:720px;padding:16px;margin-bottom:14px;border:1px solid #334155;border-radius:10px;background:#0b1220;color:#f8fafc;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+    <strong style="font-size:16px;">Portfolio Allocation, Holdings &amp; Alerts</strong>
+    <span style="font-size:12px;color:#94a3b8;">Simulation &amp; Desk Overview</span>
+  </div>
+
+  <div id="pa-allocation-cards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;"></div>
+
+  <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:12px;">
+    <div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">HOLDINGS BREAKDOWN</div>
+      <div style="overflow-x:auto;border:1px solid #1e293b;border-radius:6px;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="background:#0f172a;color:#94a3b8;text-align:left;">
+              <th style="padding:7px 8px;">Asset</th>
+              <th style="padding:7px 8px;">Class</th>
+              <th style="padding:7px 8px;">Units</th>
+              <th style="padding:7px 8px;">Value</th>
+            </tr>
+          </thead>
+          <tbody id="pa-holdings-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">ALERTS &amp; WATCH TRIGGERS</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <input id="pa-alert-symbol" type="text" placeholder="Symbol (e.g. BTC/USD)" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0f172a;color:#f8fafc;font-size:12px;"/>
+        <input id="pa-alert-note" type="text" placeholder="Trigger (e.g. > $70,000)" style="flex:1.2;padding:6px;border-radius:4px;border:1px solid #334155;background:#0f172a;color:#f8fafc;font-size:12px;"/>
+        <button onclick="paAddAlert()" style="padding:6px 10px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Add</button>
+      </div>
+      <div id="pa-alerts-list" style="font-size:12px;border:1px solid #1e293b;border-radius:6px;padding:8px;background:#0f172a;min-height:92px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const PA_ALLOCATIONS = [
+    { bucket: 'Crypto', target: 35, current: 38, accent: '#f59e0b' },
+    { bucket: 'FX', target: 25, current: 24, accent: '#38bdf8' },
+    { bucket: 'Equities', target: 25, current: 23, accent: '#4ade80' },
+    { bucket: 'Cash', target: 15, current: 15, accent: '#a78bfa' }
+  ];
+
+  const PA_HOLDINGS = [
+    { asset: 'BTC/USD', assetClass: 'Crypto', units: '0.055', value: '$3,800.00' },
+    { asset: 'EUR/USD', assetClass: 'FX', units: '2,025', value: '$2,400.00' },
+    { asset: 'AAPL', assetClass: 'Equities', units: '10.07', value: '$2,300.00' },
+    { asset: 'USD Reserve', assetClass: 'Cash', units: '1,500', value: '$1,500.00' }
+  ];
+
+  let paAlerts = [
+    { id: 'al-1', symbol: 'BTC/USD', note: 'Breakout watch above $70,000' },
+    { id: 'al-2', symbol: 'EUR/USD', note: 'Support test near 1.1800' }
+  ];
+
+  function paRenderAllocations() {
+    const el = document.getElementById('pa-allocation-cards');
+    if (!el) return;
+    el.innerHTML = PA_ALLOCATIONS.map(item => `
+      <div style="padding:9px;border:1px solid #1e293b;border-left:3px solid ${item.accent};border-radius:6px;background:#0f172a;">
+        <div style="font-size:11px;color:#94a3b8;">${item.bucket}</div>
+        <div style="font-size:16px;font-weight:bold;margin:3px 0;">${item.current}%</div>
+        <div style="font-size:11px;color:#cbd5e1;">Target: ${item.target}%</div>
+      </div>
+    `).join('');
+  }
+
+  function paRenderHoldings() {
+    const body = document.getElementById('pa-holdings-body');
+    if (!body) return;
+    body.innerHTML = PA_HOLDINGS.map(row => `
+      <tr style="border-top:1px solid #1e293b;">
+        <td style="padding:7px 8px;font-weight:bold;">${row.asset}</td>
+        <td style="padding:7px 8px;color:#94a3b8;">${row.assetClass}</td>
+        <td style="padding:7px 8px;">${row.units}</td>
+        <td style="padding:7px 8px;color:#4ade80;">${row.value}</td>
+      </tr>
+    `).join('');
+  }
+
+  function paAddAlert() {
+    const symInput = document.getElementById('pa-alert-symbol');
+    const noteInput = document.getElementById('pa-alert-note');
+    const symbol = (symInput.value || '').trim().toUpperCase();
+    const note = (noteInput.value || '').trim();
+    if (!symbol || !note) return;
+    paAlerts.unshift({
+      id: 'al-' + Date.now().toString().slice(-5),
+      symbol,
+      note
+    });
+    symInput.value = '';
+    noteInput.value = '';
+    paRenderAlerts();
+  }
+
+  function paRemoveAlert(id) {
+    paAlerts = paAlerts.filter(a => a.id !== id);
+    paRenderAlerts();
+  }
+
+  function paRenderAlerts() {
+    const list = document.getElementById('pa-alerts-list');
+    if (!list) return;
+    if (!paAlerts.length) {
+      list.innerHTML = '<span style="color:#94a3b8;">No active alerts.</span>';
+      return;
+    }
+    list.innerHTML = paAlerts.map(a => `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #1e293b;">
+        <span><strong>${a.symbol}</strong> — ${a.note}</span>
+        <button onclick="paRemoveAlert('${a.id}')" style="padding:2px 6px;cursor:pointer;font-size:11px;">Dismiss</button>
+      </div>
+    `).join('');
+  }
+
+  paRenderAllocations();
+  paRenderHoldings();
+  paRenderAlerts();
+</script>
   <div id="funding-loop-widget" style="font-family:sans-serif;max-width:720px;padding:16px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#f8fafc;">
   <h3 style="margin-top:0;">Client Deposit Link & Withdrawal Approval Loop</h3>
 
