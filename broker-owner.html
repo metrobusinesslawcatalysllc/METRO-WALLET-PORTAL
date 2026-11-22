@@ -1337,8 +1337,10 @@ document.addEventListener('DOMContentLoaded', () => {
     ttRenderPositions();
   }
 
-  function ttRenderPositions() {
-    const el = document.getElementById('tt-positions');
+function ttRenderPositions() {
+    const widget = document.getElementById('trading-terminal-widget');
+    const el = widget ? widget.querySelector('#tt-positions') : document.getElementById('tt-positions');
+    if (!el) return;
     if (!ttState.positions.length) {
       el.innerHTML = '<span style="color:#94a3b8;">No open trades yet.</span>';
       return;
