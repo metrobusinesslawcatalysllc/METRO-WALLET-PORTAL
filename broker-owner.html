@@ -1480,6 +1480,151 @@ function ttRenderPositions() {
   paRenderHoldings();
   paRenderAlerts();
 </script>
+  <div id="wallet-loans-intake-widget" style="font-family:sans-serif;max-width:720px;padding:16px;margin-bottom:14px;border:1px solid #334155;border-radius:10px;background:#0b1220;color:#f8fafc;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+    <strong style="font-size:16px;">Multi-Currency Wallet, Margin Facility & Client Intake</strong>
+    <span style="font-size:12px;color:#94a3b8;">Treasury & Onboarding Desk</span>
+  </div>
+
+  <div id="wl-wallet-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">MARGIN / CREDIT LINE SIMULATOR</div>
+      <div style="font-size:12px;margin-bottom:8px;">
+        Available Credit: <strong id="wl-credit-limit" style="color:#4ade80;">$25,000.00</strong> •
+        Active Draw: <strong id="wl-credit-drawn" style="color:#f59e0b;">$0.00</strong>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <input id="wl-loan-amt" type="number" value="2500" placeholder="Amount ($)" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <button onclick="wlDrawCredit()" style="padding:6px 10px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Draw</button>
+        <button onclick="wlRepayCredit()" style="padding:6px 10px;background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:4px;cursor:pointer;font-size:12px;">Repay</button>
+      </div>
+      <div id="wl-loan-status" style="font-size:11px;color:#93c5fd;"></div>
+    </div>
+
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">QUICK CLIENT ONBOARDING / INTAKE</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <input id="wl-cli-name" type="text" placeholder="Client Full Name" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <select id="wl-cli-tier" style="padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;">
+          <option value="Standard">Standard</option>
+          <option value="VIP Pro">VIP Pro</option>
+          <option value="Institutional">Institutional</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <input id="wl-cli-email" type="text" placeholder="Email or WhatsApp Handle" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <button onclick="wlAddClient()" style="padding:6px 10px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Enroll</button>
+      </div>
+      <div id="wl-clients-list" style="font-size:11px;color:#cbd5e1;margin-top:6px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const WL_WALLETS = [
+    { currency: 'USD Treasury', symbol: '$', amount: 10000.00, note: 'Primary Settlement' },
+    { currency: 'EUR Desk', symbol: '€', amount: 4250.00, note: 'FX Liquidity Pool' },
+    { currency: 'USDT Vault', symbol: '₮', amount: 6500.00, note: 'Instant Crypto Rail' }
+  ];
+
+  let wlState = {
+    creditLimit: 25000,
+    drawn: 0,
+    clients: [
+      { id: 'cli-101', name: 'Alex Trader', tier: 'VIP Pro', contact: 'alex@client.io' }
+    ]
+  };
+
+  function wlRenderWallets() {
+    const el = document.getElementById('wl-wallet-cards');
+    if (!el) return;
+    el.innerHTML = WL_WALLETS.map(w => `
+      <div style="padding:9px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+        <div style="font-size:11px;color:#94a3b8;">${w.currency}</div>
+        <div style="font-size:16px;font-weight:bold;margin:3px 0;color:#f8fafc;">${w.symbol}${w.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+        <div style="font-size:11px;color:#38bdf8;">${w.note}</div>
+      </div>
+    `).join('');
+  }
+
+  function wlRenderCredit() {
+    const limEl = document.getElementById('wl-credit-limit');
+    const drwEl = document.getElementById('wl-credit-drawn');
+    if (limEl) limEl.textContent = '$' + (wlState.creditLimit - wlState.drawn).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    if (drwEl) drwEl.textContent = '$' + wlState.drawn.toLocaleString('en-US', { minimumFractionDigits: 2 });
+  }
+
+  function wlDrawCredit() {
+    const amt = Number(document.getElementById('wl-loan-amt').value || 0);
+    const status = document.getElementById('wl-loan-status');
+    if (!(amt > 0) || wlState.drawn + amt > wlState.creditLimit) {
+      status.textContent = 'Invalid amount or exceeds available credit.';
+      return;
+    }
+    wlState.drawn += amt;
+    WL_WALLETS[0].amount += amt;
+    wlRenderCredit();
+    wlRenderWallets();
+    status.textContent = `Drew $${amt.toLocaleString()} to USD Treasury.`;
+  }
+
+  function wlRepayCredit() {
+    const amt = Number(document.getElementById('wl-loan-amt').value || 0);
+    const status = document.getElementById('wl-loan-status');
+    if (!(amt > 0) || amt > wlState.drawn) {
+      status.textContent = 'Enter a repayment up to your active draw.';
+      return;
+    }
+    wlState.drawn -= amt;
+    WL_WALLETS[0].amount = Math.max(0, WL_WALLETS[0].amount - amt);
+    wlRenderCredit();
+    wlRenderWallets();
+    status.textContent = `Repaid $${amt.toLocaleString()} from USD Treasury.`;
+  }
+
+  function wlAddClient() {
+    const name = (document.getElementById('wl-cli-name').value || '').trim();
+    const tier = document.getElementById('wl-cli-tier').value;
+    const contact = (document.getElementById('wl-cli-email').value || '').trim();
+    if (!name) return;
+    const newId = 'cli-' + (101 + wlState.clients.length);
+    wlState.clients.unshift({ id: newId, name, tier, contact: contact || 'Portal Intake' });
+    document.getElementById('wl-cli-name').value = '';
+    document.getElementById('wl-cli-email').value = '';
+    wlRenderClients();
+  }
+
+  function wlRenderClients() {
+    const el = document.getElementById('wl-clients-list');
+    if (!el) return;
+    el.innerHTML = wlState.clients.slice(0, 3).map(c =>
+      `<div style="padding:3px 0;border-top:1px solid #1e293b;"><strong>${c.id}</strong>: ${c.name} (${c.tier})</div>`
+    ).join('');
+  }
+
+  wlRenderWallets();
+  wlRenderCredit();
+  wlRenderClients();
+</script>
+  <script>
+  (function fixOwnerBanner() {
+    const applyLabel = (detail) => {
+      const brokerId = (detail && (detail.brokerId || detail.broker_id)) ||
+        new URLSearchParams(window.location.search).get('broker') ||
+        'brk-1795190994598';
+      const labelText = `Broker Owner (${brokerId})`;
+      document.querySelectorAll('header, nav, div, span, p, small, strong').forEach(el => {
+        if (el.children.length === 0 && el.textContent && el.textContent.includes('undefined')) {
+          el.textContent = el.textContent.replace(/undefined\s*\(\s*undefined\s*\)/gi, labelText).replace(/undefined/gi, brokerId);
+        }
+      });
+    };
+    window.addEventListener('metro:portal-unlocked', (e) => applyLabel(e.detail));
+    setTimeout(() => applyLabel(), 400);
+  })();
+</script>
   <div id="funding-loop-widget" style="font-family:sans-serif;max-width:720px;padding:16px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#f8fafc;">
   <h3 style="margin-top:0;">Client Deposit Link & Withdrawal Approval Loop</h3>
 
