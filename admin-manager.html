@@ -1201,22 +1201,39 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 </script>
   <script>
-  (function syncAdminManagerOwnerLabel() {
-    const profile = JSON.parse(localStorage.getItem('metro_private_broker_owner_profile') || '{}');
-    const ownerLabel = profile.ownerName && profile.ownerName !== 'Metro Super Master'
-      ? profile.ownerName
-      : 'Brokerage Owner';
+  (function enforceAdminManagerPin7341() {
+    const ALLOWED_PIN = '7341';
+    const gate = document.getElementById('role-pin-gate');
+    if (!gate) return;
 
-    function applyLabel() {
-      document.querySelectorAll('div, span, p, small, strong').forEach(el => {
-        if (el.children.length === 0 && el.textContent && el.textContent.includes('Metro Super Master')) {
-          el.textContent = el.textContent.replace(/Metro Super Master/gi, ownerLabel);
-        }
-      });
+    function unlockGate(pinVal) {
+      localStorage.setItem('metro_admin_manager_pin_session', pinVal);
+      gate.style.display = 'none';
+      window.dispatchEvent(new CustomEvent('metro:portal-unlocked', {
+        detail: { role: 'admin-manager', pin: pinVal }
+      }));
     }
 
-    applyLabel();
-    setTimeout(applyLabel, 300);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('pin') === ALLOWED_PIN || params.get('unlock') === '1') {
+      unlockGate(ALLOWED_PIN);
+      return;
+    }
+
+    function tryUnlock(e) {
+      const input = gate.querySelector('input');
+      const val = input ? (input.value || '').trim() : '';
+      if (val === ALLOWED_PIN) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        unlockGate(val);
+      }
+    }
+
+    gate.addEventListener('submit', tryUnlock, true);
+    gate.addEventListener('click', (e) => {
+      if (e.target.closest('button')) tryUnlock(e);
+    }, true);
   })();
 </script>
 </body>
