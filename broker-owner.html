@@ -1218,6 +1218,143 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+  <div id="trading-terminal-widget" style="font-family:sans-serif;max-width:720px;padding:16px;margin-bottom:14px;border:1px solid #334155;border-radius:10px;background:#0b1220;color:#f8fafc;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+    <div>
+      <strong id="tt-active-symbol" style="font-size:16px;">EUR/USD</strong>
+      <span id="tt-active-price" style="margin-left:8px;color:#4ade80;font-weight:bold;">1.1846</span>
+    </div>
+    <div style="display:flex;gap:12px;font-size:13px;">
+      <span>Balance: <strong id="tt-balance">$10,000.00</strong></span>
+      <span>Equity: <strong id="tt-equity">$10,000.00</strong></span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:180px 1fr;gap:12px;">
+    <div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">WATCHLIST</div>
+      <div id="tt-watchlist" style="display:flex;flex-direction:column;gap:6px;"></div>
+
+      <div style="font-size:12px;color:#94a3b8;margin:12px 0 6px;">ORDER TICKET</div>
+      <select id="tt-side" style="width:100%;padding:5px;margin-bottom:6px;">
+        <option value="BUY">Buy</option>
+        <option value="SELL">Sell</option>
+      </select>
+      <input id="tt-vol" type="number" step="0.01" value="1.00" placeholder="Volume (Lots/Units)" style="width:100%;padding:5px;margin-bottom:6px;"/>
+      <input id="tt-sl" type="number" step="0.0001" placeholder="Stop Loss (opt.)" style="width:100%;padding:5px;margin-bottom:6px;"/>
+      <input id="tt-tp" type="number" step="0.0001" placeholder="Take Profit (opt.)" style="width:100%;padding:5px;margin-bottom:8px;"/>
+      <button onclick="ttPlaceOrder()" style="width:100%;padding:7px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer;">Place Order</button>
+      <div id="tt-status" style="font-size:12px;color:#93c5fd;margin-top:6px;"></div>
+    </div>
+
+    <div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <button onclick="ttSetTf('1')" style="padding:3px 8px;cursor:pointer;">M1</button>
+        <button onclick="ttSetTf('5')" style="padding:3px 8px;cursor:pointer;">M5</button>
+        <button onclick="ttSetTf('60')" style="padding:3px 8px;cursor:pointer;">H1</button>
+        <button onclick="ttSetTf('D')" style="padding:3px 8px;cursor:pointer;">D1</button>
+      </div>
+      <div id="tt-chart-box" style="height:240px;border:1px solid #1e293b;border-radius:6px;overflow:hidden;background:#0f172a;"></div>
+
+      <div style="font-size:12px;color:#94a3b8;margin:10px 0 4px;">OPEN TRADES</div>
+      <div id="tt-positions" style="font-size:13px;color:#cbd5e1;">No open trades yet.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TT_ASSETS = [
+    { label: 'EUR/USD', tv: 'FX:EURUSD', price: 1.1846 },
+    { label: 'GBP/USD', tv: 'FX:GBPUSD', price: 1.2715 },
+    { label: 'BTC/USD', tv: 'BINANCE:BTCUSDT', price: 68450.00 },
+    { label: 'AAPL', tv: 'NASDAQ:AAPL', price: 228.40 },
+    { label: 'GOOGL', tv: 'NASDAQ:GOOGL', price: 176.20 }
+  ];
+
+  let ttState = {
+    asset: TT_ASSETS[0],
+    tf: '60',
+    balance: 10000,
+    positions: []
+  };
+
+  function ttRenderChart() {
+    const box = document.getElementById('tt-chart-box');
+    const src = 'https://s.tradingview.com/widgetembed/?symbol=' +
+      encodeURIComponent(ttState.asset.tv) +
+      '&interval=' + encodeURIComponent(ttState.tf) +
+      '&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hide_side_toolbar=1';
+    box.innerHTML = `<iframe src="${src}" style="width:100%;height:100%;border:0;" loading="lazy"></iframe>`;
+  }
+
+  function ttSelectAsset(idx) {
+    ttState.asset = TT_ASSETS[idx];
+    document.getElementById('tt-active-symbol').textContent = ttState.asset.label;
+    document.getElementById('tt-active-price').textContent = ttState.asset.price;
+    ttRenderWatchlist();
+    ttRenderChart();
+  }
+
+  function ttSetTf(tf) {
+    ttState.tf = tf;
+    ttRenderChart();
+  }
+
+  function ttRenderWatchlist() {
+    const el = document.getElementById('tt-watchlist');
+    el.innerHTML = TT_ASSETS.map((a, i) => {
+      const active = a.label === ttState.asset.label;
+      return `<button onclick="ttSelectAsset(${i})" style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:4px;border:1px solid ${active ? '#3b82f6' : '#1e293b'};background:${active ? '#172554' : '#0f172a'};color:#f8fafc;cursor:pointer;font-size:12px;">
+        <span>${a.label}</span><span>${a.price}</span>
+      </button>`;
+    }).join('');
+  }
+
+  function ttPlaceOrder() {
+    const side = document.getElementById('tt-side').value;
+    const vol = Number(document.getElementById('tt-vol').value || 0);
+    if (!(vol > 0)) {
+      document.getElementById('tt-status').textContent = 'Enter a valid volume.';
+      return;
+    }
+    const sl = document.getElementById('tt-sl').value.trim();
+    const tp = document.getElementById('tt-tp').value.trim();
+    ttState.positions.unshift({
+      id: 'ord-' + Date.now().toString().slice(-5),
+      symbol: ttState.asset.label,
+      side,
+      vol,
+      entry: ttState.asset.price,
+      sl: sl || '-',
+      tp: tp || '-'
+    });
+    document.getElementById('tt-status').textContent = `${side} ${vol} ${ttState.asset.label} opened.`;
+    ttRenderPositions();
+  }
+
+  function ttCloseOrder(id) {
+    ttState.positions = ttState.positions.filter(p => p.id !== id);
+    ttRenderPositions();
+  }
+
+  function ttRenderPositions() {
+    const el = document.getElementById('tt-positions');
+    if (!ttState.positions.length) {
+      el.innerHTML = '<span style="color:#94a3b8;">No open trades yet.</span>';
+      return;
+    }
+    el.innerHTML = ttState.positions.map(p => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-top:1px solid #1e293b;">
+        <span><strong>${p.side}</strong> ${p.vol} ${p.symbol} @ ${p.entry} (SL: ${p.sl} / TP: ${p.tp})</span>
+        <button onclick="ttCloseOrder('${p.id}')" style="padding:2px 7px;cursor:pointer;">Close</button>
+      </div>
+    `).join('');
+  }
+
+  ttRenderWatchlist();
+  ttRenderChart();
+  ttRenderPositions();
+</script>
   <div id="funding-loop-widget" style="font-family:sans-serif;max-width:720px;padding:16px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#f8fafc;">
   <h3 style="margin-top:0;">Client Deposit Link & Withdrawal Approval Loop</h3>
 
