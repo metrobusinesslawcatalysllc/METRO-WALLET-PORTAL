@@ -1149,30 +1149,31 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(applyLabels, 300);
   })();
 </script>
-  <script>
-  (function enableSubAdminFourDigitPin() {
+<script>
+  (function enableSubAdminPin6194() {
+    const USUAL_PIN = '6194';
     const gate = document.getElementById('role-pin-gate');
     if (!gate) return;
 
     function unlockGate(pinVal) {
-      localStorage.setItem('metro_staff_pin_session', pinVal || '1234');
+      localStorage.setItem('metro_staff_pin_session', pinVal || USUAL_PIN);
       gate.style.display = 'none';
       window.dispatchEvent(new CustomEvent('metro:portal-unlocked', {
-        detail: { unlockedVia: '4-digit-pin-fallback', pin: pinVal || '1234' }
+        detail: { unlockedVia: 'pin-6194', pin: pinVal || USUAL_PIN }
       }));
     }
 
+    // Auto-unlock if ?pin=6194 or ?unlock=1 is in the URL
     const params = new URLSearchParams(window.location.search);
-    const urlPin = params.get('pin');
-    if ((urlPin && /^\d{4}$/.test(urlPin)) || params.get('unlock') === '1') {
-      unlockGate(urlPin || '1234');
+    if (params.get('pin') === USUAL_PIN || params.get('unlock') === '1') {
+      unlockGate(USUAL_PIN);
       return;
     }
 
     function tryUnlock(e) {
       const input = gate.querySelector('input');
       const val = input ? (input.value || '').trim() : '';
-      if (/^\d{4}$/.test(val)) {
+      if (val === USUAL_PIN) {
         e.preventDefault();
         e.stopImmediatePropagation();
         unlockGate(val);
