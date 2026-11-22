@@ -730,6 +730,7 @@ return false;
     INSTRUMENTS.forEach(i => { deskLivePrices[i.sym] = i.price; });
 
     function mountDeskTV(prefix, tvSymbol) {
+      return mountControlledDeskChart(prefix + "_tvBox", tvSymbol, (localStorage.getItem(THEME_KEY) || "dark") !== "light");
       const box = document.getElementById(prefix + "_tvBox");
       if (!box) return;
       box.innerHTML = "";
