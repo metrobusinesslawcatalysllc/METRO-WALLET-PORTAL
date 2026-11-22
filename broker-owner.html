@@ -1217,5 +1217,148 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-</script></body>
+</script>
+  <div id="funding-loop-widget" style="font-family:sans-serif;max-width:720px;padding:16px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#f8fafc;">
+  <h3 style="margin-top:0;">Client Deposit Link & Withdrawal Approval Loop</h3>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:8px;">
+      <strong>1. Client: Request Deposit Link</strong><br/>
+      <input id="fl-client-id" placeholder="Client ID (e.g. cli-101)" value="cli-101" style="width:100%;margin:6px 0;padding:6px;"/>
+      <input id="fl-client-name" placeholder="Client Name" value="Alex Trader" style="width:100%;margin:0 0 6px;padding:6px;"/>
+      <input id="fl-dep-amt" type="number" placeholder="Deposit Amount ($)" value="250" style="width:100%;margin:0 0 8px;padding:6px;"/>
+      <button onclick="flRequestDepositLink()" style="padding:7px 12px;cursor:pointer;">Request Deposit Link</button>
+    </div>
+
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:8px;">
+      <strong>2. Client: Request Withdrawal</strong><br/>
+      <input id="fl-wd-amt" type="number" placeholder="Withdrawal Amount ($)" value="100" style="width:100%;margin:6px 0 6px;padding:6px;"/>
+      <input id="fl-wd-notes" placeholder="Payout note / destination" value="Standard payout" style="width:100%;margin:0 0 8px;padding:6px;"/>
+      <button onclick="flRequestWithdrawal()" style="padding:7px 12px;cursor:pointer;">Request Withdrawal</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+    <label>Approver Role:</label>
+    <select id="fl-role" style="padding:5px;">
+      <option value="Broker Owner">Broker Owner</option>
+      <option value="Admin Manager">Admin Manager</option>
+    </select>
+    <button onclick="flLoadRequests()" style="padding:5px 10px;cursor:pointer;">Refresh Queue</button>
+    <span id="fl-msg" style="font-size:13px;color:#93c5fd;"></span>
+  </div>
+
+  <div id="fl-list"></div>
+</div>
+
+<script>
+  const FL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzM3tcP1dZKfqjQvBqKvn_d0faxXVzMmAo2VTGGv3gBdQDwdcAhN1F3FwbQk2Gj1dI0w/exec';
+  const FL_BROKER_ID = 'brk-1795190994598';
+
+  function flSetMsg(text) {
+    document.getElementById('fl-msg').textContent = text || '';
+  }
+
+  async function flPost(payload) {
+    // Uses text/plain to avoid CORS preflight blocks on Apps Script web apps
+    const res = await fetch(FL_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  }
+
+  async function flRequestDepositLink() {
+    flSetMsg('Sending deposit link request...');
+    const out = await flPost({
+      action: 'requestDepositLink',
+      clientId: document.getElementById('fl-client-id').value.trim(),
+      clientName: document.getElementById('fl-client-name').value.trim(),
+      brokerId: FL_BROKER_ID,
+      amount: Number(document.getElementById('fl-dep-amt').value || 0)
+    });
+    flSetMsg(out.ok ? 'Requested: ' + out.requestId : (out.error || 'Error'));
+    flLoadRequests();
+  }
+
+  async function flRequestWithdrawal() {
+    flSetMsg('Submitting withdrawal request...');
+    const out = await flPost({
+      action: 'requestWithdrawal',
+      clientId: document.getElementById('fl-client-id').value.trim(),
+      clientName: document.getElementById('fl-client-name').value.trim(),
+      brokerId: FL_BROKER_ID,
+      amount: Number(document.getElementById('fl-wd-amt').value || 0),
+      notes: document.getElementById('fl-wd-notes').value.trim()
+    });
+    flSetMsg(out.ok ? 'Withdrawal logged: ' + out.requestId : (out.error || 'Error'));
+    flLoadRequests();
+  }
+
+  async function flSendLink(reqId) {
+    const input = document.getElementById('link-input-' + reqId);
+    const depositLink = (input && input.value || '').trim();
+    if (!depositLink) return flSetMsg('Paste a deposit link first.');
+    flSetMsg('Sending link...');
+    const out = await flPost({ action: 'sendDepositLink', requestId: reqId, depositLink });
+    flSetMsg(out.ok ? 'Deposit link sent.' : (out.error || 'Error'));
+    flLoadRequests();
+  }
+
+  async function flApprove(reqId) {
+    const role = document.getElementById('fl-role').value;
+    flSetMsg('Approving as ' + role + '...');
+    const out = await flPost({
+      action: 'decideFundingRequest',
+      requestId: reqId,
+      decision: 'APPROVED',
+      role
+    });
+    flSetMsg(out.ok ? 'Approved by ' + role : (out.error || 'Error'));
+    flLoadRequests();
+  }
+
+  async function flLoadRequests() {
+    const url = FL_SCRIPT_URL + '?action=getFundingRequests&broker=' + encodeURIComponent(FL_BROKER_ID);
+    const res = await fetch(url);
+    const data = await res.json();
+    const listEl = document.getElementById('fl-list');
+    if (!data.ok || !Array.isArray(data.requests) || !data.requests.length) {
+      listEl.innerHTML = '<p style="color:#94a3b8;">No funding requests yet.</p>';
+      return;
+    }
+
+    listEl.innerHTML = data.requests.map(r => {
+      let actionHtml = '';
+      if (r.type === 'DEPOSIT_LINK') {
+        actionHtml += `
+          <input id="link-input-${r.requestId}" placeholder="https://..." value="${r.depositLink || ''}" style="padding:4px;width:190px;"/>
+          <button onclick="flSendLink('${r.requestId}')" style="padding:4px 8px;cursor:pointer;">Send Link</button>
+        `;
+        if (r.depositLink) {
+          actionHtml += ` <a href="${r.depositLink}" target="_blank" rel="noopener noreferrer" style="color:#4ade80;font-weight:bold;margin-left:6px;">Open Deposit Link</a>`;
+        }
+      } else if (r.type === 'WITHDRAWAL') {
+        if (r.status !== 'APPROVED') {
+          actionHtml += `<button onclick="flApprove('${r.requestId}')" style="padding:4px 10px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;">Approve</button>`;
+        } else {
+          actionHtml += `<span style="color:#4ade80;font-weight:bold;">Approved</span>`;
+        }
+      }
+
+      return `
+        <div style="border-top:1px solid #1e293b;padding:8px 0;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div>
+            <strong>${r.type}</strong> · ${r.clientName || r.clientId} · <strong>$${r.amount}</strong> · <span>[${r.status}]</span>
+          </div>
+          <div>${actionHtml}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (FL_SCRIPT_URL.indexOf('REPLACE_WITH') === -1) flLoadRequests();
+</script>
+</body>
 </html>
