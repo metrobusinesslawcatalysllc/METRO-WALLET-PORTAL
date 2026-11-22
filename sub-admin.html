@@ -961,5 +961,193 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-</script></body>
+</script>
+  <div id="sub-admin-desk-widget" style="font-family:sans-serif;max-width:820px;margin:16px auto;padding:18px;border:1px solid #334155;border-radius:10px;background:#0b1220;color:#f8fafc;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;border-bottom:1px solid #1e293b;padding-bottom:10px;">
+    <div>
+      <strong style="font-size:17px;">Sub Admin Manager — Coaching & Client Desk</strong>
+      <div id="sa-desk-subtitle" style="font-size:12px;color:#94a3b8;margin-top:2px;">Brokerage Desk: Metro Options • Role: Sub Admin Manager</div>
+    </div>
+    <span style="font-size:11px;padding:4px 8px;border-radius:999px;background:#1e293b;color:#4ade80;border:1px solid #334155;">Sub-Admin Queue Active</span>
+  </div>
+
+  <!-- Top KPI Strip -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">ASSIGNED CLIENTS</div>
+      <div id="sa-kpi-clients" style="font-size:18px;font-weight:bold;color:#4ade80;margin-top:2px;">1</div>
+    </div>
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">OPEN FOLLOW-UPS</div>
+      <div id="sa-kpi-tasks" style="font-size:18px;font-weight:bold;color:#38bdf8;margin-top:2px;">1</div>
+    </div>
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">ESCALATED TO ADMIN</div>
+      <div id="sa-kpi-escalated" style="font-size:18px;font-weight:bold;color:#f59e0b;margin-top:2px;">0</div>
+    </div>
+  </div>
+
+  <!-- Assign Client & Log Coaching/Escalation Note -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+    <div style="padding:12px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:12px;font-weight:bold;color:#e2e8f0;margin-bottom:8px;">1. ADD COACHING CLIENT</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <input id="sa-cli-name" type="text" placeholder="Client Name" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <input id="sa-cli-focus" type="text" placeholder="Focus (e.g. FX / Onboarding)" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+      </div>
+      <button onclick="saAddClient()" style="padding:6px 12px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Add Client</button>
+      <div id="sa-cli-list" style="font-size:11px;color:#cbd5e1;margin-top:6px;"></div>
+    </div>
+
+    <div style="padding:12px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:12px;font-weight:bold;color:#e2e8f0;margin-bottom:8px;">2. LOG TASK OR ESCALATE TO ADMIN</div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <input id="sa-task-client" type="text" placeholder="Client Name or ID" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <select id="sa-task-type" style="padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;">
+          <option value="Follow-Up">Follow-Up</option>
+          <option value="Escalate Deposit">Escalate Deposit</option>
+          <option value="Escalate Withdrawal">Escalate Withdrawal</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <input id="sa-task-note" type="text" placeholder="Note or amount ($)" style="flex:1;padding:6px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+        <button onclick="saAddTask()" style="padding:6px 12px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Log</button>
+      </div>
+      <div id="sa-task-fb" style="font-size:11px;color:#93c5fd;margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <!-- Sub Admin Task & Escalation Queue -->
+  <div style="padding:12px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+    <div style="font-size:12px;font-weight:bold;color:#e2e8f0;margin-bottom:8px;">3. SUB-ADMIN DESK QUEUE</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:#0b1220;color:#94a3b8;text-align:left;">
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">ID</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Client</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Type</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Note</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Status</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="sa-queue-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function initSubAdminDesk() {
+    const SA_QUEUE_KEY = 'metro_subadmin_queue';
+    const SA_CLIENTS_KEY = 'metro_subadmin_clients';
+    const OWNER_PROFILE_KEY = 'metro_private_broker_owner_profile';
+
+    const ownerProfile = JSON.parse(localStorage.getItem(OWNER_PROFILE_KEY) || '{}');
+    const brokerName = ownerProfile.brokerageName || 'Metro Options';
+    const ownerLabel = ownerProfile.ownerName && ownerProfile.ownerName !== 'Metro Super Master'
+      ? ownerProfile.ownerName
+      : 'Brokerage Owner';
+
+    const subEl = document.getElementById('sa-desk-subtitle');
+    if (subEl) subEl.textContent = `Brokerage Desk: ${brokerName} • Role: Sub Admin Manager`;
+
+    let clients = JSON.parse(localStorage.getItem(SA_CLIENTS_KEY) || 'null') || [
+      { id: 'sa-101', name: 'Jordan Lee', focus: 'FX Risk Coaching' }
+    ];
+
+    let tasks = JSON.parse(localStorage.getItem(SA_QUEUE_KEY) || 'null') || [
+      { id: 'SA-301', client: 'Jordan Lee (sa-101)', type: 'Follow-Up', note: 'Review initial setup & chart bias', status: 'Open' }
+    ];
+
+    function saveState() {
+      localStorage.setItem(SA_CLIENTS_KEY, JSON.stringify(clients));
+      localStorage.setItem(SA_QUEUE_KEY, JSON.stringify(tasks));
+    }
+
+    function applyLabels() {
+      document.querySelectorAll('div, span, p, small, strong').forEach(el => {
+        if (el.children.length === 0 && el.textContent) {
+          if (el.textContent.includes('Metro Super Master')) {
+            el.textContent = el.textContent.replace(/Metro Super Master/gi, ownerLabel);
+          }
+          if (el.textContent.includes('owner@metrooptions.demo')) {
+            el.textContent = el.textContent.replace(/owner@metrooptions\.demo/gi, ownerProfile.ownerEmail || 'owner@metrooptions.com');
+          }
+        }
+      });
+    }
+
+    function renderAll() {
+      document.getElementById('sa-kpi-clients').textContent = clients.length;
+      document.getElementById('sa-kpi-tasks').textContent = tasks.filter(t => t.status === 'Open').length;
+      document.getElementById('sa-kpi-escalated').textContent = tasks.filter(t => t.status === 'Escalated').length;
+
+      document.getElementById('sa-cli-list').innerHTML = clients.slice(0, 3).map(c =>
+        `<div style="padding:3px 0;border-top:1px solid #1e293b;"><strong>${c.id}</strong>: ${c.name} — ${c.focus}</div>`
+      ).join('');
+
+      document.getElementById('sa-queue-body').innerHTML = tasks.map((t, idx) => {
+        const color = t.status === 'Done' ? '#4ade80' : (t.status === 'Escalated' ? '#f59e0b' : '#38bdf8');
+        const btn = t.status === 'Open'
+          ? `<button onclick="saSetStatus(${idx}, 'Escalated')" style="padding:4px 7px;background:#d97706;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;margin-right:4px;">Escalate</button>
+             <button onclick="saSetStatus(${idx}, 'Done')" style="padding:4px 7px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;">Done</button>`
+          : `<span style="color:#64748b;font-size:11px;">Completed</span>`;
+        return `
+          <tr style="border-bottom:1px solid #1e293b;">
+            <td style="padding:7px;font-weight:bold;">${t.id}</td>
+            <td style="padding:7px;">${t.client}</td>
+            <td style="padding:7px;">${t.type}</td>
+            <td style="padding:7px;color:#cbd5e1;">${t.note}</td>
+            <td style="padding:7px;font-weight:bold;color:${color};">${t.status}</td>
+            <td style="padding:7px;">${btn}</td>
+          </tr>
+        `;
+      }).join('');
+
+      applyLabels();
+    }
+
+    window.saAddClient = function() {
+      const name = (document.getElementById('sa-cli-name').value || '').trim();
+      const focus = (document.getElementById('sa-cli-focus').value || '').trim() || 'General Desk';
+      if (!name) return;
+      clients.unshift({ id: 'sa-' + (101 + clients.length), name, focus });
+      saveState();
+      renderAll();
+      document.getElementById('sa-cli-name').value = '';
+      document.getElementById('sa-cli-focus').value = '';
+    };
+
+    window.saAddTask = function() {
+      const client = (document.getElementById('sa-task-client').value || '').trim();
+      const type = document.getElementById('sa-task-type').value;
+      const note = (document.getElementById('sa-task-note').value || '').trim() || 'Desk follow-up';
+      const fb = document.getElementById('sa-task-fb');
+      if (!client) {
+        fb.textContent = 'Enter a client name or ID first.';
+        return;
+      }
+      const status = type.startsWith('Escalate') ? 'Escalated' : 'Open';
+      tasks.unshift({ id: 'SA-' + Math.floor(302 + Math.random() * 600), client, type, note, status });
+      saveState();
+      renderAll();
+      document.getElementById('sa-task-client').value = '';
+      document.getElementById('sa-task-note').value = '';
+      fb.textContent = `Logged ${type} for ${client}.`;
+    };
+
+    window.saSetStatus = function(idx, status) {
+      if (!tasks[idx]) return;
+      tasks[idx].status = status;
+      saveState();
+      renderAll();
+    };
+
+    renderAll();
+    setTimeout(applyLabels, 300);
+  })();
+</script>
+</body>
 </html>
