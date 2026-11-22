@@ -1609,20 +1609,66 @@ function ttRenderPositions() {
   wlRenderClients();
 </script>
   <script>
-  (function fixOwnerBanner() {
-    const applyLabel = (detail) => {
-      const brokerId = (detail && (detail.brokerId || detail.broker_id)) ||
-        new URLSearchParams(window.location.search).get('broker') ||
-        'brk-1795190994598';
-      const labelText = `Broker Owner (${brokerId})`;
-      document.querySelectorAll('header, nav, div, span, p, small, strong').forEach(el => {
-        if (el.children.length === 0 && el.textContent && el.textContent.includes('undefined')) {
-          el.textContent = el.textContent.replace(/undefined\s*\(\s*undefined\s*\)/gi, labelText).replace(/undefined/gi, brokerId);
+  (function isolateBrokerOwnerProfile() {
+    const STORAGE_KEY = 'metro_private_broker_owner_profile';
+
+    function getPrivateProfile() {
+      const brokerId = new URLSearchParams(window.location.search).get('broker') || 'brk-1795190994598';
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return {
+        brokerId,
+        brokerageName: saved.brokerageName || 'Metro Options',
+        ownerName: saved.ownerName || 'Brokerage Owner',
+        ownerEmail: saved.ownerEmail || 'owner@metrooptions.com'
+      };
+    }
+
+    function applyPrivateOwnerLabels() {
+      const p = getPrivateProfile();
+
+      // Update the Owner Email input if it still holds the demo placeholder
+      document.querySelectorAll('input').forEach(inp => {
+        if (inp.value === 'owner@metrooptions.demo') {
+          inp.value = p.ownerEmail;
         }
       });
-    };
-    window.addEventListener('metro:portal-unlocked', (e) => applyLabel(e.detail));
-    setTimeout(() => applyLabel(), 400);
+
+      // Replace Super Master / demo strings across the top banners
+      document.querySelectorAll('header, nav, div, span, p, small, strong').forEach(el => {
+        if (el.children.length === 0 && el.textContent) {
+          let txt = el.textContent;
+          if (txt.includes('Metro Super Master') || txt.includes('owner@metrooptions.demo') || txt.includes('undefined')) {
+            txt = txt
+              .replace(/Metro Super Master/gi, p.ownerName)
+              .replace(/owner@metrooptions\.demo/gi, p.ownerEmail)
+              .replace(/undefined\s*\(\s*undefined\s*\)/gi, `${p.ownerName} (${p.brokerId})`)
+              .replace(/undefined/gi, p.brokerId);
+            el.textContent = txt;
+          }
+        }
+      });
+    }
+
+    // Save private owner details whenever "Save Brokerage Profile" is clicked
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (btn && btn.textContent && btn.textContent.includes('Save Brokerage Profile')) {
+        const inputs = Array.from(document.querySelectorAll('input'));
+        const nameInput = inputs.find(i => i.value && !i.value.includes('@') && isNaN(Number(i.value)));
+        const emailInput = inputs.find(i => i.value && i.value.includes('@'));
+        const current = getPrivateProfile();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          brokerId: current.brokerId,
+          brokerageName: nameInput ? nameInput.value.trim() : current.brokerageName,
+          ownerName: current.ownerName,
+          ownerEmail: emailInput ? emailInput.value.trim() : current.ownerEmail
+        }));
+        setTimeout(applyPrivateOwnerLabels, 150);
+      }
+    });
+
+    window.addEventListener('metro:portal-unlocked', () => setTimeout(applyPrivateOwnerLabels, 100));
+    setTimeout(applyPrivateOwnerLabels, 300);
   })();
 </script>
   <div id="funding-loop-widget" style="font-family:sans-serif;max-width:720px;padding:16px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#f8fafc;">
