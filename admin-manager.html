@@ -1200,5 +1200,24 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAll();
   })();
 </script>
+  <script>
+  (function syncAdminManagerOwnerLabel() {
+    const profile = JSON.parse(localStorage.getItem('metro_private_broker_owner_profile') || '{}');
+    const ownerLabel = profile.ownerName && profile.ownerName !== 'Metro Super Master'
+      ? profile.ownerName
+      : 'Brokerage Owner';
+
+    function applyLabel() {
+      document.querySelectorAll('div, span, p, small, strong').forEach(el => {
+        if (el.children.length === 0 && el.textContent && el.textContent.includes('Metro Super Master')) {
+          el.textContent = el.textContent.replace(/Metro Super Master/gi, ownerLabel);
+        }
+      });
+    }
+
+    applyLabel();
+    setTimeout(applyLabel, 300);
+  })();
+</script>
 </body>
 </html>
