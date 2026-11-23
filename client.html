@@ -1409,5 +1409,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     logHeader.appendChild(btn);
   })();
 </script>
+  <script>
+  (function initClientSidebar() {
+    if (document.getElementById('cp-side-drawer')) return;
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.textContent = '☰ Account Menu';
+    toggleBtn.style.cssText = 'position:fixed;top:12px;left:12px;z-index:9998;padding:7px 12px;background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:6px;cursor:pointer;font-size:12px;font-family:sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.4);';
+
+    const drawer = document.createElement('aside');
+    drawer.id = 'cp-side-drawer';
+    drawer.style.cssText = 'position:fixed;top:0;left:-250px;width:235px;height:100vh;z-index:9999;background:#0b1220;color:#f8fafc;border-right:1px solid #334155;padding:16px;box-sizing:border-box;font-family:sans-serif;transition:left 0.2s ease;';
+
+    drawer.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b;padding-bottom:10px;margin-bottom:14px;">
+        <strong style="font-size:14px;color:#38bdf8;">Client Navigation</strong>
+        <button id="cp-side-close" type="button" style="background:none;border:none;color:#94a3b8;font-size:16px;cursor:pointer;">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'});document.getElementById('cp-side-drawer').style.left='-250px';" style="text-align:left;padding:8px 10px;background:#0f172a;color:#e2e8f0;border:1px solid #1e293b;border-radius:5px;cursor:pointer;font-size:12px;">Account Summary</button>
+        <button type="button" onclick="document.getElementById('cp-req-amount')?.scrollIntoView({behavior:'smooth'});document.getElementById('cp-side-drawer').style.left='-250px';" style="text-align:left;padding:8px 10px;background:#0f172a;color:#e2e8f0;border:1px solid #1e293b;border-radius:5px;cursor:pointer;font-size:12px;">Deposit / Withdrawal</button>
+        <button type="button" onclick="document.getElementById('cp-activity-body')?.scrollIntoView({behavior:'smooth'});document.getElementById('cp-side-drawer').style.left='-250px';" style="text-align:left;padding:8px 10px;background:#0f172a;color:#e2e8f0;border:1px solid #1e293b;border-radius:5px;cursor:pointer;font-size:12px;">Activity & CSV Export</button>
+      </div>
+    `;
+
+    document.body.appendChild(toggleBtn);
+    document.body.appendChild(drawer);
+    toggleBtn.onclick = () => { drawer.style.left = '0'; };
+    drawer.querySelector('#cp-side-close').onclick = () => { drawer.style.left = '-250px'; };
+  })();
+</script>
 </body>
 </html>
