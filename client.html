@@ -1139,5 +1139,163 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
-</script></body>
+</script>
+  <script>
+  (function cleanMagicLinkBanner() {
+    const profile = JSON.parse(localStorage.getItem('metro_private_broker_owner_profile') || '{}');
+    const cleanEmail = profile.ownerEmail && !profile.ownerEmail.includes('.demo')
+      ? profile.ownerEmail
+      : 'support@metrooptions.com';
+    const cleanOwner = profile.ownerName && profile.ownerName !== 'Metro Super Master'
+      ? profile.ownerName
+      : 'Brokerage Owner';
+
+    function scrubBanner() {
+      document.querySelectorAll('div, span, p, a, small, strong, label, code').forEach(el => {
+        if (el.children.length === 0 && el.textContent) {
+          if (el.textContent.includes('owner@metrooptions.demo')) {
+            el.textContent = el.textContent.replace(/owner@metrooptions\.demo/gi, cleanEmail);
+          }
+          if (el.textContent.includes('Metro Super Master')) {
+            el.textContent = el.textContent.replace(/Metro Super Master/gi, cleanOwner);
+          }
+        }
+      });
+    }
+
+    scrubBanner();
+    setTimeout(scrubBanner, 250);
+    setTimeout(scrubBanner, 800);
+  })();
+</script>
+  <div id="client-portal-desk-widget" style="font-family:sans-serif;max-width:820px;margin:16px auto;padding:18px;border:1px solid #334155;border-radius:10px;background:#0b1220;color:#f8fafc;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px;border-bottom:1px solid #1e293b;padding-bottom:10px;">
+    <div>
+      <strong style="font-size:17px;">Client Account &amp; Activity Portal</strong>
+      <div id="cp-subtitle" style="font-size:12px;color:#94a3b8;margin-top:2px;">Brokerage: Metro Options &bull; Managed by Brokerage Owner</div>
+    </div>
+    <span style="font-size:11px;padding:4px 8px;border-radius:999px;background:#1e293b;color:#38bdf8;border:1px solid #334155;">Client Session Active</span>
+  </div>
+
+  <!-- Client Summary Strip -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">AVAILABLE BALANCE</div>
+      <div id="cp-balance" style="font-size:18px;font-weight:bold;color:#4ade80;margin-top:2px;">$10,000.00</div>
+    </div>
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">PENDING REQUESTS</div>
+      <div id="cp-pending" style="font-size:18px;font-weight:bold;color:#f59e0b;margin-top:2px;">0</div>
+    </div>
+    <div style="padding:10px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+      <div style="font-size:11px;color:#94a3b8;">CLIENT ID</div>
+      <div id="cp-client-id" style="font-size:18px;font-weight:bold;color:#38bdf8;margin-top:2px;">CL-101</div>
+    </div>
+  </div>
+
+  <!-- Submit Deposit Notice or Withdrawal Request -->
+  <div style="padding:12px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;margin-bottom:16px;">
+    <div style="font-size:12px;font-weight:bold;color:#e2e8f0;margin-bottom:8px;">SUBMIT DEPOSIT OR WITHDRAWAL REQUEST</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <select id="cp-req-type" style="padding:7px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;">
+        <option value="Deposit">Deposit</option>
+        <option value="Withdrawal">Withdrawal</option>
+      </select>
+      <input id="cp-req-amount" type="number" min="1" step="0.01" placeholder="Amount ($)" style="width:140px;padding:7px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+      <input id="cp-req-ref" type="text" placeholder="Payment ref / destination (optional)" style="flex:1;min-width:180px;padding:7px;border-radius:4px;border:1px solid #334155;background:#0b1220;color:#f8fafc;font-size:12px;"/>
+      <button onclick="cpSubmitRequest()" style="padding:7px 14px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Submit</button>
+    </div>
+    <div id="cp-feedback" style="font-size:11px;color:#93c5fd;margin-top:6px;"></div>
+  </div>
+
+  <!-- Client Activity Log -->
+  <div style="padding:12px;border:1px solid #1e293b;border-radius:6px;background:#0f172a;">
+    <div style="font-size:12px;font-weight:bold;color:#e2e8f0;margin-bottom:8px;">RECENT ACCOUNT ACTIVITY</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:#0b1220;color:#94a3b8;text-align:left;">
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Ref</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Type</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Amount</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Destination / Note</th>
+            <th style="padding:7px;border-bottom:1px solid #1e293b;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="cp-activity-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function initClientPortalDesk() {
+    const CP_KEY = 'metro_client_portal_state';
+    const PROFILE_KEY = 'metro_private_broker_owner_profile';
+
+    const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+    const brokerName = profile.brokerageName || 'Metro Options';
+    const ownerLabel = profile.ownerName && profile.ownerName !== 'Metro Super Master'
+      ? profile.ownerName
+      : 'Brokerage Owner';
+
+    const sub = document.getElementById('cp-subtitle');
+    if (sub) sub.textContent = `Brokerage: ${brokerName} • Managed by ${ownerLabel}`;
+
+    let state = JSON.parse(localStorage.getItem(CP_KEY) || 'null') || {
+      clientId: 'CL-101',
+      balance: 10000,
+      activity: [
+        { ref: 'TX-901', type: 'Deposit', amount: 10000, note: 'Initial practice/account allocation', status: 'Completed' }
+      ]
+    };
+
+    function save() {
+      localStorage.setItem(CP_KEY, JSON.stringify(state));
+    }
+
+    function render() {
+      document.getElementById('cp-balance').textContent = '$' + Number(state.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('cp-pending').textContent = state.activity.filter(a => a.status === 'Pending').length;
+      document.getElementById('cp-client-id').textContent = state.clientId;
+
+      document.getElementById('cp-activity-body').innerHTML = state.activity.map(row => {
+        const c = row.status === 'Completed' ? '#4ade80' : '#f59e0b';
+        return `
+          <tr style="border-bottom:1px solid #1e293b;">
+            <td style="padding:7px;font-weight:bold;">${row.ref}</td>
+            <td style="padding:7px;">${row.type}</td>
+            <td style="padding:7px;">$${Number(row.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td style="padding:7px;color:#cbd5e1;">${row.note}</td>
+            <td style="padding:7px;font-weight:bold;color:${c};">${row.status}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    window.cpSubmitRequest = function() {
+      const type = document.getElementById('cp-req-type').value;
+      const amount = Number(document.getElementById('cp-req-amount').value);
+      const note = (document.getElementById('cp-req-ref').value || '').trim() || (type === 'Deposit' ? 'Client deposit notice' : 'Client withdrawal request');
+      const fb = document.getElementById('cp-feedback');
+
+      if (!(amount > 0)) {
+        fb.textContent = 'Enter a valid amount greater than 0.';
+        return;
+      }
+
+      const ref = (type === 'Deposit' ? 'DP-' : 'WD-') + Math.floor(500 + Math.random() * 499);
+      state.activity.unshift({ ref, type, amount, note, status: 'Pending' });
+      save();
+      render();
+
+      document.getElementById('cp-req-amount').value = '';
+      document.getElementById('cp-req-ref').value = '';
+      fb.textContent = `Submitted ${type} request (${ref}) for $${amount.toFixed(2)}.`;
+    };
+
+    render();
+  })();
+</script>
+</body>
 </html>
