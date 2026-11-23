@@ -1369,5 +1369,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     syncFromShared();
   })();
 </script>
+  <script>
+  (function addClientCsvExport() {
+    const CP_KEY = 'metro_client_portal_state';
+    const logHeader = document.querySelector('#client-portal-desk-widget > div:last-child > div:first-child');
+    if (!logHeader || document.getElementById('cp-export-csv-btn')) return;
+
+    logHeader.style.display = 'flex';
+    logHeader.style.justifyContent = 'space-between';
+    logHeader.style.alignItems = 'center';
+
+    const btn = document.createElement('button');
+    btn.id = 'cp-export-csv-btn';
+    btn.type = 'button';
+    btn.textContent = 'Export CSV';
+    btn.style.cssText = 'padding:4px 9px;background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:4px;cursor:pointer;font-size:11px;';
+
+    btn.onclick = function() {
+      const state = JSON.parse(localStorage.getItem(CP_KEY) || '{}');
+      const rows = state.activity || [];
+      const headers = ['Ref', 'Type', 'Amount', 'Note', 'Status'];
+      const esc = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+      const csv = [
+        headers.map(esc).join(','),
+        ...rows.map(r => [r.ref, r.type, r.amount, r.note, r.status].map(esc).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'my-account-activity.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    logHeader.appendChild(btn);
+  })();
+</script>
 </body>
 </html>
