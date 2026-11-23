@@ -1236,5 +1236,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }, true);
   })();
 </script>
+  <script>
+  (function cleanMagicLinkBanner() {
+    const profile = JSON.parse(localStorage.getItem('metro_private_broker_owner_profile') || '{}');
+    const cleanEmail = profile.ownerEmail && !profile.ownerEmail.includes('.demo')
+      ? profile.ownerEmail
+      : 'support@metrooptions.com';
+    const cleanOwner = profile.ownerName && profile.ownerName !== 'Metro Super Master'
+      ? profile.ownerName
+      : 'Brokerage Owner';
+
+    function scrubBanner() {
+      document.querySelectorAll('div, span, p, a, small, strong, label, code').forEach(el => {
+        if (el.children.length === 0 && el.textContent) {
+          if (el.textContent.includes('owner@metrooptions.demo')) {
+            el.textContent = el.textContent.replace(/owner@metrooptions\.demo/gi, cleanEmail);
+          }
+          if (el.textContent.includes('Metro Super Master')) {
+            el.textContent = el.textContent.replace(/Metro Super Master/gi, cleanOwner);
+          }
+        }
+      });
+    }
+
+    scrubBanner();
+    setTimeout(scrubBanner, 250);
+    setTimeout(scrubBanner, 800);
+  })();
+</script>
 </body>
 </html>
