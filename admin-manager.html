@@ -1342,4 +1342,40 @@ document.addEventListener('DOMContentLoaded', () => {
     renderShared();
   })();
 </script>
+  <script>
+  (function addAdminCsvExport() {
+    const SHARED_KEY = 'metro_shared_ledger_v1';
+    const header = document.querySelector('#admin-shared-client-queue > div:first-child');
+    if (!header || document.getElementById('admin-export-csv-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'admin-export-csv-btn';
+    btn.type = 'button';
+    btn.textContent = 'Download CSV';
+    btn.style.cssText = 'padding:5px 10px;background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:4px;cursor:pointer;font-size:11px;';
+
+    btn.onclick = function() {
+      const data = JSON.parse(localStorage.getItem(SHARED_KEY) || '{"requests":[]}');
+      const rows = data.requests || [];
+      const headers = ['Ref', 'Client', 'Type', 'Amount', 'Note', 'Status', 'CreatedAt'];
+      const esc = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+      const csv = [
+        headers.map(esc).join(','),
+        ...rows.map(r => [r.ref, r.clientId, r.type, r.amount, r.note, r.status, r.createdAt || ''].map(esc).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'metro-client-requests.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    header.appendChild(btn);
+  })();
+</script>
 </html>
