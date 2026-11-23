@@ -271,5 +271,190 @@
       return String(str).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
   </script>
+  <style>
+  #metro-glamour-coin-grid {
+    font-family: sans-serif;
+    max-width: 1100px;
+    margin: 18px auto;
+    padding: 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(11, 18, 32, 0.94), rgba(225, 29, 72, 0.14) 50%, rgba(245, 158, 11, 0.14));
+    border: 1px solid rgba(245, 158, 11, 0.28);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: #f8fafc;
+    box-sizing: border-box;
+  }
+
+  .metro-glamour-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  .metro-glamour-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .metro-coin-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 150px;
+    padding: 16px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.82), rgba(159, 18, 57, 0.26) 55%, rgba(217, 119, 6, 0.22));
+    border: 1px solid rgba(245, 158, 11, 0.42);
+    box-shadow: 0 8px 24px rgba(2, 6, 23, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-sizing: border-box;
+  }
+
+  .metro-coin-card.navy-gold {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(30, 58, 138, 0.32) 55%, rgba(245, 158, 11, 0.22));
+    border-color: rgba(251, 191, 36, 0.45);
+  }
+
+  .metro-coin-card.crimson-navy {
+    background: linear-gradient(145deg, rgba(136, 19, 55, 0.34), rgba(15, 23, 42, 0.88) 60%, rgba(234, 179, 8, 0.18));
+    border-color: rgba(244, 63, 94, 0.45);
+  }
+
+  .metro-coin-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .metro-coin-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 5px;
+    background: rgba(11, 18, 32, 0.85);
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .metro-coin-meta {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .metro-coin-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+
+  .metro-coin-pair {
+    font-size: 11px;
+    color: #fcd34d;
+    letter-spacing: 0.4px;
+  }
+
+  .metro-coin-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 16px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .metro-coin-price {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .metro-coin-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fde68a;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+  }
+</style>
+
+<div id="metro-glamour-coin-grid">
+  <div class="metro-glamour-header">
+    <strong style="font-size:15px;">Featured Crypto Assets</strong>
+    <span style="font-size:11px;color:#fcd34d;">Glamour Market Cards</span>
+  </div>
+
+  <div class="metro-glamour-cards">
+    <!-- Card 1: Bitcoin -->
+    <div class="metro-coin-card">
+      <div class="metro-coin-top">
+        <img class="metro-coin-icon" src="https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" alt="Bitcoin Logo"/>
+        <div class="metro-coin-meta">
+          <span class="metro-coin-name">Bitcoin</span>
+          <span class="metro-coin-pair">BTC / USD</span>
+        </div>
+      </div>
+      <div class="metro-coin-bottom">
+        <span class="metro-coin-price">BTC</span>
+        <span class="metro-coin-tag">Primary</span>
+      </div>
+    </div>
+
+    <!-- Card 2: Ethereum -->
+    <div class="metro-coin-card navy-gold">
+      <div class="metro-coin-top">
+        <img class="metro-coin-icon" src="https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png" alt="Ethereum Logo"/>
+        <div class="metro-coin-meta">
+          <span class="metro-coin-name">Ethereum</span>
+          <span class="metro-coin-pair">ETH / USD</span>
+        </div>
+      </div>
+      <div class="metro-coin-bottom">
+        <span class="metro-coin-price">ETH</span>
+        <span class="metro-coin-tag">Smart Layer</span>
+      </div>
+    </div>
+
+    <!-- Card 3: Tether USDT -->
+    <div class="metro-coin-card crimson-navy">
+      <div class="metro-coin-top">
+        <img class="metro-coin-icon" src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" alt="Tether USDT Logo"/>
+        <div class="metro-coin-meta">
+          <span class="metro-coin-name">Tether</span>
+          <span class="metro-coin-pair">USDT / USD</span>
+        </div>
+      </div>
+      <div class="metro-coin-bottom">
+        <span class="metro-coin-price">USDT</span>
+        <span class="metro-coin-tag">Settlement</span>
+      </div>
+    </div>
+
+    <!-- Card 4: Solana -->
+    <div class="metro-coin-card navy-gold">
+      <div class="metro-coin-top">
+        <img class="metro-coin-icon" src="https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png" alt="Solana Logo"/>
+        <div class="metro-coin-meta">
+          <span class="metro-coin-name">Solana</span>
+          <span class="metro-coin-pair">SOL / USD</span>
+        </div>
+      </div>
+      <div class="metro-coin-bottom">
+        <span class="metro-coin-price">SOL</span>
+        <span class="metro-coin-tag">High Speed</span>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
