@@ -1297,5 +1297,77 @@ document.addEventListener('DOMContentLoaded', async () => {
     render();
   })();
 </script>
+  <script>
+  (function enableClientCrossPortalSync() {
+    const SHARED_KEY = 'metro_shared_ledger_v1';
+    const CP_KEY = 'metro_client_portal_state';
+
+    function getShared() {
+      return JSON.parse(localStorage.getItem(SHARED_KEY) || '{"requests":[]}');
+    }
+    function setShared(data) {
+      localStorage.setItem(SHARED_KEY, JSON.stringify(data));
+    }
+
+    // Wrap cpSubmitRequest so new requests also land in the Admin Manager queue
+    const origSubmit = window.cpSubmitRequest;
+    if (typeof origSubmit === 'function') {
+      window.cpSubmitRequest = function() {
+        origSubmit();
+        const cpState = JSON.parse(localStorage.getItem(CP_KEY) || '{}');
+        const latest = (cpState.activity || [])[0];
+        if (latest && latest.status === 'Pending') {
+          const shared = getShared();
+          if (!shared.requests.some(r => r.ref === latest.ref)) {
+            shared.requests.unshift({
+              ref: latest.ref,
+              clientId: cpState.clientId || 'CL-101',
+              type: latest.type,
+              amount: Number(latest.amount),
+              note: latest.note,
+              status: 'Pending',
+              createdAt: new Date().toLocaleString()
+            });
+            setShared(shared);
+          }
+        }
+      };
+    }
+
+    // Apply Admin Manager approvals/rejections back to the Client Portal
+    function syncFromShared() {
+      const shared = getShared();
+      const cpState = JSON.parse(localStorage.getItem(CP_KEY) || 'null');
+      if (!cpState || !Array.isArray(cpState.activity)) return;
+
+      let changed = false;
+      cpState.activity.forEach(item => {
+        const match = shared.requests.find(r => r.ref === item.ref);
+        if (match && match.status !== item.status && item.status === 'Pending') {
+          item.status = match.status;
+          if (match.status === 'Completed' || match.status === 'Approved') {
+            item.status = 'Completed';
+            if (item.type === 'Deposit') cpState.balance = Number(cpState.balance) + Number(item.amount);
+            if (item.type === 'Withdrawal') cpState.balance = Math.max(0, Number(cpState.balance) - Number(item.amount));
+          }
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        localStorage.setItem(CP_KEY, JSON.stringify(cpState));
+        const balEl = document.getElementById('cp-balance');
+        const pendEl = document.getElementById('cp-pending');
+        if (balEl) balEl.textContent = '$' + Number(cpState.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (pendEl) pendEl.textContent = cpState.activity.filter(a => a.status === 'Pending').length;
+      }
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === SHARED_KEY) syncFromShared();
+    });
+    syncFromShared();
+  })();
+</script>
 </body>
 </html>
