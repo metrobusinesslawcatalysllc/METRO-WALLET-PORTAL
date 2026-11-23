@@ -1911,5 +1911,162 @@ function ttRenderPositions() {
     drawer.querySelector('#metro-side-close').onclick = () => { drawer.style.left = '-260px'; };
   })();
 </script>
+  <div id="broker-owner-profile-editor" style="font-family:sans-serif;max-width:860px;margin:16px auto;padding:18px;border:1px solid #334155;border-radius:10px;background:#0b1220;color:#f8fafc;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid #1e293b;padding-bottom:10px;">
+    <strong style="font-size:16px;">Broker Owner Branding & Security Settings</strong>
+    <span id="bo-sync-badge" style="font-size:11px;color:#38bdf8;">Cloud Sync Ready</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:12px;">
+    <div>
+      <label style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px;">BROKERAGE NAME</label>
+      <input id="bo-broker-name" type="text" placeholder="Metro Options" style="width:100%;box-sizing:border-box;padding:8px;border-radius:5px;border:1px solid #334155;background:#0f172a;color:#f8fafc;font-size:12px;"/>
+    </div>
+    <div>
+      <label style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px;">LOGO IMAGE URL (PNG/SVG/JPG)</label>
+      <input id="bo-logo-url" type="url" placeholder="https://..." style="width:100%;box-sizing:border-box;padding:8px;border-radius:5px;border:1px solid #334155;background:#0f172a;color:#f8fafc;font-size:12px;"/>
+    </div>
+    <div>
+      <label style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px;">OWNER DISPLAY NAME</label>
+      <input id="bo-owner-name" type="text" placeholder="Brokerage Owner" style="width:100%;box-sizing:border-box;padding:8px;border-radius:5px;border:1px solid #334155;background:#0f172a;color:#f8fafc;font-size:12px;"/>
+    </div>
+    <div>
+      <label style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px;">SUPPORT / OWNER EMAIL</label>
+      <input id="bo-owner-email" type="email" placeholder="support@metrooptions.com" style="width:100%;box-sizing:border-box;padding:8px;border-radius:5px;border:1px solid #334155;background:#0f172a;color:#f8fafc;font-size:12px;"/>
+    </div>
+    <div>
+      <label style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px;">ADMIN MANAGER PIN</label>
+      <input id="bo-admin-pin" type="text" maxlength="8" placeholder="7341" style="width:100%;box-sizing:border-box;padding:8px;border-radius:5px;border:1px solid #334155;background:#0f172a;color:#f8fafc;font-size:12px;"/>
+    </div>
+    <div>
+      <label style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px;">SUB ADMIN PIN</label>
+      <input id="bo-subadmin-pin" type="text" maxlength="8" placeholder="6194" style="width:100%;box-sizing:border-box;padding:8px;border-radius:5px;border:1px solid #334155;background:#0f172a;color:#f8fafc;font-size:12px;"/>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <img id="bo-logo-preview" alt="Logo Preview" style="height:32px;max-width:140px;object-fit:contain;display:none;border:1px solid #334155;border-radius:4px;padding:2px;background:#0f172a;"/>
+      <span id="bo-save-msg" style="font-size:12px;color:#4ade80;"></span>
+    </div>
+    <button type="button" onclick="saveBrokerOwnerSettings()" style="padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:bold;">Save & Sync Profile to Google Sheets</button>
+  </div>
+</div>
+
+<script>
+  window.METRO_SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxcpeD03sFUVo7keuuncZIeAXXFZWIuBEkqqHNtz9mn3AtIkR6yaYQuu_dL5Dn-GVxw/exec';
+
+  (function initBrokerOwnerProfileEditor() {
+    const PROFILE_KEY = 'metro_private_broker_owner_profile';
+
+    function populateFields(p) {
+      document.getElementById('bo-broker-name').value = p.brokerageName || 'Metro Options';
+      document.getElementById('bo-logo-url').value = p.logoUrl || '';
+      document.getElementById('bo-owner-name').value = (p.ownerName && p.ownerName !== 'Metro Super Master') ? p.ownerName : 'Brokerage Owner';
+      document.getElementById('bo-owner-email').value = (p.ownerEmail && !p.ownerEmail.includes('.demo')) ? p.ownerEmail : 'support@metrooptions.com';
+      document.getElementById('bo-admin-pin').value = p.adminPin || '7341';
+      document.getElementById('bo-subadmin-pin').value = p.subAdminPin || '6194';
+      const img = document.getElementById('bo-logo-preview');
+      if (p.logoUrl) { img.src = p.logoUrl; img.style.display = 'inline-block'; }
+      else { img.style.display = 'none'; }
+    }
+
+    const local = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+    populateFields(local);
+
+    if (window.METRO_SHEETS_WEBAPP_URL.startsWith('http')) {
+      fetch(window.METRO_SHEETS_WEBAPP_URL + '?action=syncAll')
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.profile && Object.keys(data.profile).length) {
+            const merged = Object.assign({}, local, data.profile);
+            localStorage.setItem(PROFILE_KEY, JSON.stringify(merged));
+            populateFields(merged);
+            document.getElementById('bo-sync-badge').textContent = 'Synced with Google Sheets';
+          }
+        }).catch(() => {});
+    }
+
+    window.saveBrokerOwnerSettings = function() {
+      const updated = {
+        brokerageName: document.getElementById('bo-broker-name').value.trim() || 'Metro Options',
+        logoUrl: document.getElementById('bo-logo-url').value.trim(),
+        ownerName: document.getElementById('bo-owner-name').value.trim() || 'Brokerage Owner',
+        ownerEmail: document.getElementById('bo-owner-email').value.trim() || 'support@metrooptions.com',
+        adminPin: document.getElementById('bo-admin-pin').value.trim() || '7341',
+        subAdminPin: document.getElementById('bo-subadmin-pin').value.trim() || '6194'
+      };
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(updated));
+      populateFields(updated);
+      const msg = document.getElementById('bo-save-msg');
+      msg.textContent = 'Saved locally. Syncing to Google Sheets...';
+
+      if (window.METRO_SHEETS_WEBAPP_URL.startsWith('http')) {
+        fetch(window.METRO_SHEETS_WEBAPP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'saveProfile', profile: updated })
+        })
+        .then(r => r.json())
+        .then(() => { msg.textContent = 'Profile, Logo & PINs synced to Google Sheets.'; })
+        .catch(() => { msg.textContent = 'Saved locally (check Web App URL for cloud sync).'; });
+      }
+    };
+  })();
+</script>
+
+<script>
+  (function connectMetroGoogleSheetsBridge() {
+    const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxcpeD03sFUVo7keuuncZIeAXXFZWIuBEkqqHNtz9mn3AtIkR6yaYQuu_dL5Dn-GVxw/exec';
+    if (!WEBAPP_URL.startsWith('http')) return;
+
+    const PROFILE_KEY = 'metro_private_broker_owner_profile';
+    const SHARED_KEY = 'metro_shared_ledger_v1';
+
+    // 1. Pull latest profile (logo, brokerage name, updated PINs) & ledger from Google Sheets
+    fetch(WEBAPP_URL + '?action=syncAll')
+      .then(r => r.json())
+      .then(data => {
+        if (!data || !data.ok) return;
+        if (data.profile && Object.keys(data.profile).length) {
+          const prev = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+          const next = Object.assign({}, prev, data.profile);
+          localStorage.setItem(PROFILE_KEY, JSON.stringify(next));
+
+          // Inject custom logo badge at top of page if logoUrl is set
+          if (next.logoUrl && !document.getElementById('metro-cloud-logo-bar')) {
+            const bar = document.createElement('div');
+            bar.id = 'metro-cloud-logo-bar';
+            bar.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 12px;background:#0b1220;border-bottom:1px solid #1e293b;color:#f8fafc;font-family:sans-serif;';
+            bar.innerHTML = `<img src="${next.logoUrl}" alt="Logo" style="height:28px;max-width:130px;object-fit:contain;"/><strong style="font-size:14px;">${next.brokerageName || 'Metro Options'}</strong>`;
+            document.body.insertBefore(bar, document.body.firstChild);
+          }
+        }
+        if (Array.isArray(data.requests)) {
+          localStorage.setItem(SHARED_KEY, JSON.stringify({ requests: data.requests }));
+          window.dispatchEvent(new StorageEvent('storage', { key: SHARED_KEY }));
+        }
+      }).catch(() => {});
+
+    // 2. Push new client requests or admin approvals to Google Sheets
+    const origSetItem = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = function(key, value) {
+      origSetItem(key, value);
+      if (key === SHARED_KEY) {
+        try {
+          const parsed = JSON.parse(value || '{}');
+          const latest = (parsed.requests || [])[0];
+          if (latest) {
+            fetch(WEBAPP_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ action: 'upsertRequest', request: latest })
+            }).catch(() => {});
+          }
+        } catch (e) {}
+      }
+    };
+  })();
+</script>
 </body>
 </html>
