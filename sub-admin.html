@@ -1284,5 +1284,58 @@ document.addEventListener('DOMContentLoaded', () => {
     drawer.querySelector('#metro-side-close').onclick = () => { drawer.style.left = '-260px'; };
   })();
 </script>
+  <script>
+  (function connectMetroGoogleSheetsBridge() {
+    const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxcpeD03sFUVo7keuuncZIeAXXFZWIuBEkqqHNtz9mn3AtIkR6yaYQuu_dL5Dn-GVxw/exec';
+    if (!WEBAPP_URL.startsWith('http')) return;
+
+    const PROFILE_KEY = 'metro_private_broker_owner_profile';
+    const SHARED_KEY = 'metro_shared_ledger_v1';
+
+    // 1. Pull latest profile (logo, brokerage name, updated PINs) & ledger from Google Sheets
+    fetch(WEBAPP_URL + '?action=syncAll')
+      .then(r => r.json())
+      .then(data => {
+        if (!data || !data.ok) return;
+        if (data.profile && Object.keys(data.profile).length) {
+          const prev = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+          const next = Object.assign({}, prev, data.profile);
+          localStorage.setItem(PROFILE_KEY, JSON.stringify(next));
+
+          // Inject custom logo badge at top of page if logoUrl is set
+          if (next.logoUrl && !document.getElementById('metro-cloud-logo-bar')) {
+            const bar = document.createElement('div');
+            bar.id = 'metro-cloud-logo-bar';
+            bar.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 12px;background:#0b1220;border-bottom:1px solid #1e293b;color:#f8fafc;font-family:sans-serif;';
+            bar.innerHTML = `<img src="${next.logoUrl}" alt="Logo" style="height:28px;max-width:130px;object-fit:contain;"/><strong style="font-size:14px;">${next.brokerageName || 'Metro Options'}</strong>`;
+            document.body.insertBefore(bar, document.body.firstChild);
+          }
+        }
+        if (Array.isArray(data.requests)) {
+          localStorage.setItem(SHARED_KEY, JSON.stringify({ requests: data.requests }));
+          window.dispatchEvent(new StorageEvent('storage', { key: SHARED_KEY }));
+        }
+      }).catch(() => {});
+
+    // 2. Push new client requests or admin approvals to Google Sheets
+    const origSetItem = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = function(key, value) {
+      origSetItem(key, value);
+      if (key === SHARED_KEY) {
+        try {
+          const parsed = JSON.parse(value || '{}');
+          const latest = (parsed.requests || [])[0];
+          if (latest) {
+            fetch(WEBAPP_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ action: 'upsertRequest', request: latest })
+            }).catch(() => {});
+          }
+        } catch (e) {}
+      }
+    };
+  })();
+</script>
 </body>
 </html>
