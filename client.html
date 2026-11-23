@@ -1933,5 +1933,202 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   })();
 </script>
+  <script id="metro-changelly-deposit-bridge">
+  (function () {
+    // Set to true so Changelly opens immediately when a client submits a Deposit;
+    // set to false if you only want the Brokerage Owner to send the link from the dashboard.
+    const INSTANT_OPEN_ON_CLIENT_DEPOSIT = true;
+    const BASE_CHANGELLY_URL = "https://changelly.com/buy/btc";
+
+    function buildChangellyUrl(amountVal) {
+      const amt = parseFloat(amountVal);
+      if (!isNaN(amt) && amt > 0) {
+        return `${BASE_CHANGELLY_URL}?amount=${encodeURIComponent(amt)}`;
+      }
+      return BASE_CHANGELLY_URL;
+    }
+
+    // Attach to deposit/withdrawal form on client portal without blocking existing handlers
+    document.addEventListener(
+      "submit",
+      function (event) {
+        if (!INSTANT_OPEN_ON_CLIENT_DEPOSIT) return;
+        const form = event.target;
+        if (!form || !form.querySelector) return;
+
+        const selects = Array.from(form.querySelectorAll("select"));
+        const depositSelect = selects.find((sel) =>
+          /deposit/i.test(sel.value || "") ||
+          Array.from(sel.options || []).some((opt) => /deposit/i.test(opt.value || opt.textContent || ""))
+        );
+
+        const isDepositSelected = depositSelect
+          ? /deposit/i.test(depositSelect.value || "")
+          : /deposit/i.test(form.innerText || "");
+
+        if (!isDepositSelected) return;
+
+        const amountInput =
+          form.querySelector('input[type="number"], input[name*="amount" i], input[placeholder*="amount" i]') ||
+          form.querySelector("input");
+
+        const targetUrl = buildChangellyUrl(amountInput ? amountInput.value : "");
+        window.open(targetUrl, "_blank", "noopener,noreferrer");
+      },
+      true
+    );
+
+    // Helper available for Brokerage Owner / console link generation
+    window.metroBuildChangellyLink = buildChangellyUrl;
+  })();
+</script>
+  <style id="metro-client-wallet-box-style">
+  #metro-client-wallet-box {
+    max-width: 1100px;
+    margin: 16px auto;
+    padding: 18px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(22, 27, 38, 0.80), rgba(159, 18, 57, 0.15) 60%, rgba(217, 119, 6, 0.18));
+    border: 1px solid rgba(251, 191, 36, 0.34);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: #f8fafc;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    box-sizing: border-box;
+  }
+
+  #metro-client-wallet-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  #metro-client-wallet-display {
+    flex: 1 1 280px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(251, 191, 36, 0.32);
+    background: rgba(10, 14, 23, 0.86);
+    color: #fde68a;
+    font-family: monospace;
+    font-size: 13px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  #metro-client-wallet-box button,
+  #metro-client-wallet-box a.metro-changelly-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(253, 224, 71, 0.4);
+    background: linear-gradient(135deg, rgba(190, 24, 93, 0.88), rgba(217, 119, 6, 0.88));
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  #metro-client-wallet-box button.copy-btn {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(251, 191, 36, 0.45);
+  }
+</style>
+
+<div id="metro-client-wallet-box">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <div>
+      <strong style="font-size:15px;">Official Brokerage Deposit Wallet</strong>
+      <span id="metro-client-wallet-asset" style="margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(245,158,11,0.2);color:#fcd34d;font-size:11px;font-weight:700;">USDT (TRC20)</span>
+    </div>
+    <span id="metro-client-copy-feedback" style="font-size:12px;color:#6ee7b7;"></span>
+  </div>
+
+  <div id="metro-client-wallet-row">
+    <div id="metro-client-wallet-display">Contact Brokerage Owner for active deposit wallet address</div>
+    <button id="metro-client-copy-wallet-btn" class="copy-btn" type="button">Copy Wallet Address</button>
+    <a id="metro-client-changelly-link" class="metro-changelly-btn" href="https://changelly.com/buy/usdt" target="_blank" rel="noopener noreferrer">Open Changelly to Deposit</a>
+  </div>
+</div>
+
+<script id="metro-client-wallet-box-script">
+  (function () {
+    const STORAGE_KEY = "metro_client_deposit_wallet_v1";
+    // Optional: paste your Google Apps Script Web App URL here for cross-device sync
+    const REMOTE_SYNC_URL = "";
+
+    const assetBadge = document.getElementById("metro-client-wallet-asset");
+    const addrDisplay = document.getElementById("metro-client-wallet-display");
+    const copyBtn = document.getElementById("metro-client-copy-wallet-btn");
+    const changellyLink = document.getElementById("metro-client-changelly-link");
+    const feedbackEl = document.getElementById("metro-client-copy-feedback");
+
+    let currentAddress = "";
+
+    function renderWalletConfig(cfg) {
+      if (!cfg) return;
+      if (cfg.asset && assetBadge) assetBadge.textContent = cfg.asset;
+      if (cfg.address && addrDisplay) {
+        currentAddress = cfg.address;
+        addrDisplay.textContent = cfg.address;
+      }
+      if (cfg.changellyUrl && changellyLink) {
+        changellyLink.href = cfg.changellyUrl;
+      }
+    }
+
+    // Load from localStorage immediately
+    try {
+      const localCfg = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      renderWalletConfig(localCfg);
+    } catch (e) {}
+
+    // Live-update if Brokerage Owner saves in another browser tab
+    window.addEventListener("storage", function (e) {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          renderWalletConfig(JSON.parse(e.newValue));
+        } catch (err) {}
+      }
+    });
+
+    // Optional remote fetch from Google Apps Script bridge
+    if (REMOTE_SYNC_URL) {
+      fetch(`${REMOTE_SYNC_URL}?action=get_deposit_wallet`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.address) {
+            renderWalletConfig(data);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          }
+        })
+        .catch(() => {});
+    }
+
+    // One-click copy wallet address
+    if (copyBtn) {
+      copyBtn.addEventListener("click", async function () {
+        if (!currentAddress) {
+          if (feedbackEl) feedbackEl.textContent = "No wallet address set yet.";
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(currentAddress);
+          if (feedbackEl) feedbackEl.textContent = "Wallet address copied!";
+          setTimeout(() => {
+            if (feedbackEl) feedbackEl.textContent = "";
+          }, 3000);
+        } catch (err) {
+          if (feedbackEl) feedbackEl.textContent = "Select and copy the address manually.";
+        }
+      });
+    }
+  })();
+</script>
 </body>
 </html>
