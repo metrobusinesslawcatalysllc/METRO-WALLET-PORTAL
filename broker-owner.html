@@ -218,7 +218,7 @@
 
     <div class="card">
       <h1 id="ownerWelcome">Brokerage Owner Dashboard</h1>
-      <p class="sub">Manage your brokerage brand identity, email login session, live TradingView chart, client profit simulation, client orders, and FX rate-exchanges.</p>
+      <p class="sub">Manage your brokerage brand identity, email login session, live Trading chart, client profit simulation, client orders, and FX rate-exchanges.</p>
       <div class="meta">
         <span>Owner: <strong id="boOwnerName">-</strong> (<span id="boOwnerEmail">-</span>)</span>
         <span>Brokerage: <strong id="boBrokerName">-</strong></span>
@@ -640,7 +640,7 @@ return false;
       return `
         <div class="card">
           <h2>${roleLabel}: Live Chart &amp; Client Profit Control</h2>
-          <p class="sub">Monitor the live TradingView chart, adjust client investment profit up or down in real time, and place trades/orders or exchange FX rates for clients.</p>
+          <p class="sub">Monitor the live Trading chart, adjust client investment profit up or down in real time, and place trades/orders or exchange FX rates for clients.</p>
 
           <div class="profit-strip">
             <div class="kpi-box">
@@ -2403,7 +2403,7 @@ function ttRenderPositions() {
 
 <div id="metro-owner-wallet-config">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-    <strong style="font-size:15px;">Client Deposit Wallet & Changelly Link Setup</strong>
+    <strong style="font-size:15px;">Client Deposit Wallet & Link Setup</strong>
     <span id="metro-owner-wallet-status" style="font-size:12px;color:#fde68a;">Ready to publish to Client Portal</span>
   </div>
   <div class="metro-wallet-grid">
@@ -2422,17 +2422,17 @@ function ttRenderPositions() {
       <input id="metro-cfg-address" type="text" placeholder="Paste brokerage deposit wallet address..." />
     </div>
     <div>
-      <label for="metro-cfg-changelly">Changelly Deposit URL</label>
+      <label for="metro-cfg-changelly">Deposit URL</label>
       <input id="metro-cfg-changelly" type="text" value="https://changelly.com/buy/usdt" />
     </div>
     <div>
-      <label for="metro-cfg-bridge-url">Optional Google Apps Script Sync URL</label>
+      <label for="metro-cfg-bridge-url">Sync URL</label>
       <input id="metro-cfg-bridge-url" type="text" placeholder="https://script.google.com/macros/s/.../exec" />
     </div>
   </div>
   <div class="metro-wallet-actions">
     <button id="metro-save-wallet-btn" type="button">Save & Push to Client Portal</button>
-    <span style="font-size:12px;color:#cbd5e1;">Clients will see a Copy Address button and Changelly Deposit button on their dashboard.</span>
+    <span style="font-size:12px;color:#cbd5e1;">Clients will see a Copy Address button and Deposit button on their dashboard.</span>
   </div>
 </div>
 
@@ -2562,7 +2562,7 @@ function ttRenderPositions() {
 
     // 3. UI Label Cleanup & Switcher Visibility (Broker Owner sees all 4 portals)
     const HIDE_PHRASES = [
-      "Practice & simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value."
+      "Trade environment. Balances, FX rate conversions, and P/L controls carry real-world cash value."
     ];
     const REPLACEMENTS = [
       { from: "Simulation & Desk Overview", to: "Desk Overview" },
@@ -2658,7 +2658,7 @@ function ttRenderPositions() {
   <script id="metro-ui-label-cleanup-script">
   (function () {
     const HIDE_EXACT_OR_CONTAINS = [
-      "Practice & simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value."
+      "Trade environment. Balances, FX rate conversions, and P/L controls carry real-world cash value."
     ];
 
     const TEXT_REPLACEMENTS = [
