@@ -1739,63 +1739,136 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 </div>
-  <style id="metro-bg-selector-style">
-  #metro-bg-selector-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    max-width: 1100px;
-    margin: 14px auto;
-    padding: 12px 16px;
-    border-radius: 12px;
-    background: rgba(15, 20, 30, 0.78);
-    border: 1px solid rgba(251, 191, 36, 0.32);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    color: #f8fafc;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    font-size: 13px;
+<!-- METRO UNIFIED PORTAL PACK: ADMIN MANAGER -->
+<style id="metro-glamour-everywhere-style">
+  body {
+    background-color: #0c0f17 !important;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(225, 29, 72, 0.16), transparent 42%),
+      radial-gradient(circle at 82% 22%, rgba(245, 158, 11, 0.18), transparent 45%),
+      radial-gradient(circle at 50% 85%, rgba(30, 58, 138, 0.22), transparent 50%) !important;
+    color: #f8fafc !important;
+    min-height: 100vh;
   }
-
-  #metro-bg-selector-bar .metro-bg-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
+  .card, .panel, .box, .widget, .section-card, [class*="card"], [class*="panel"],
+  #metro-glamour-coin-grid, #metro-market-intelligence {
+    background: linear-gradient(155deg, rgba(22, 27, 38, 0.78), rgba(17, 22, 33, 0.68) 65%, rgba(180, 83, 9, 0.14)) !important;
+    border: 1px solid rgba(251, 191, 36, 0.25) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(16px) saturate(130%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(130%) !important;
+    border-radius: 14px !important;
   }
-
-  #metro-bg-selector-bar input[type="text"] {
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(251, 191, 36, 0.35);
-    background: rgba(10, 14, 23, 0.85);
-    color: #f8fafc;
-    min-width: 190px;
+  input, select, textarea {
+    background-color: rgba(15, 20, 30, 0.78) !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(251, 191, 36, 0.28) !important;
   }
-
-  #metro-bg-selector-bar button,
-  #metro-bg-selector-bar label.metro-upload-btn {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(253, 224, 71, 0.38);
-    background: linear-gradient(135deg, rgba(190, 24, 93, 0.85), rgba(217, 119, 6, 0.85));
-    color: #ffffff;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  #metro-bg-selector-bar button.secondary-btn {
-    background: rgba(30, 41, 59, 0.85);
-    border-color: rgba(148, 163, 184, 0.35);
-  }
-
-  #metro-bg-file-input {
-    display: none;
+  button:not([class*="close"]) {
+    background: linear-gradient(135deg, rgba(190, 24, 93, 0.85), rgba(217, 119, 6, 0.85)) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(253, 224, 71, 0.35) !important;
   }
 </style>
+
+<script id="metro-admin-manager-master-script">
+  (function () {
+    // 1. Changelly Deposit Bridge Helper
+    const INSTANT_OPEN_ON_CLIENT_DEPOSIT = true;
+    const BASE_CHANGELLY_URL = "https://changelly.com/buy/btc";
+
+    function buildChangellyUrl(amountVal) {
+      const amt = parseFloat(amountVal);
+      if (!isNaN(amt) && amt > 0) return `${BASE_CHANGELLY_URL}?amount=${encodeURIComponent(amt)}`;
+      return BASE_CHANGELLY_URL;
+    }
+    window.metroBuildChangellyLink = buildChangellyUrl;
+
+    document.addEventListener("submit", function (event) {
+      if (!INSTANT_OPEN_ON_CLIENT_DEPOSIT) return;
+      const form = event.target;
+      if (!form || !form.querySelector) return;
+      const selects = Array.from(form.querySelectorAll("select"));
+      const depositSelect = selects.find((sel) =>
+        /deposit/i.test(sel.value || "") ||
+        Array.from(sel.options || []).some((opt) => /deposit/i.test(opt.value || opt.textContent || ""))
+      );
+      const isDepositSelected = depositSelect
+        ? /deposit/i.test(depositSelect.value || "")
+        : /deposit/i.test(form.innerText || "");
+      if (!isDepositSelected) return;
+      const amountInput = form.querySelector('input[type="number"], input[name*="amount" i], input[placeholder*="amount" i]') || form.querySelector("input");
+      window.open(buildChangellyUrl(amountInput ? amountInput.value : ""), "_blank", "noopener,noreferrer");
+    }, true);
+
+    // 2. UI Cleanup & Switcher Rule: Admin Manager can ONLY switch between Sub Admin & Client
+    const HIDE_PHRASES = [
+      "Practice & simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value."
+    ];
+    const REPLACEMENTS = [
+      { from: "Simulation & Desk Overview", to: "Desk Overview" },
+      { from: "Synced with Google Sheets", to: "Synced" },
+      { from: "Glamour Market Cards", to: "Market Cards" }
+    ];
+
+    function classifyLink(text) {
+      const t = (text || "").toLowerCase();
+      if (t.includes("broker owner")) return "broker";
+      if (t.includes("admin manager")) return "admin";
+      if (t.includes("sub admin")) return "sub";
+      if (t.includes("client portal") || t.includes("client")) return "client";
+      return "other";
+    }
+
+    function applyAdminRules() {
+      if (!document.body) return;
+
+      // Label cleanup
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      const nodes = [];
+      let n;
+      while ((n = walker.nextNode())) nodes.push(n);
+      nodes.forEach((node) => {
+        const raw = node.nodeValue || "";
+        const trimmed = raw.trim();
+        if (!trimmed) return;
+        if (HIDE_PHRASES.some((p) => trimmed.includes(p))) {
+          const el = (node.parentElement && node.parentElement.closest("p, div, span, small, section, .banner, .disclaimer, .note")) || node.parentElement;
+          if (el && el !== document.body && el !== document.documentElement) el.style.setProperty("display", "none", "important");
+          return;
+        }
+        let updated = raw;
+        REPLACEMENTS.forEach(({ from, to }) => {
+          if (updated.includes(from)) updated = updated.split(from).join(to);
+        });
+        if (updated !== raw) node.nodeValue = updated;
+      });
+
+      // Portal Switcher: allow ONLY "sub" and "client"
+      const headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, div, span, p, strong, label"));
+      const switcherHeading = headings.find((el) => (el.textContent || "").trim().toUpperCase() === "PORTAL SWITCHER");
+      const scope = (switcherHeading && (switcherHeading.closest("section, aside, nav, div") || switcherHeading.parentElement)) || document.body;
+
+      Array.from(scope.querySelectorAll("a, button")).forEach((item) => {
+        const cat = classifyLink(item.textContent);
+        if (cat === "other") return;
+        const isAllowed = cat === "sub" || cat === "client";
+        const row = item.closest("li, .switcher-item") || item;
+        row.style.setProperty("display", isAllowed ? "" : "none", "important");
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", applyAdminRules);
+    } else {
+      applyAdminRules();
+    }
+    const obs = new MutationObserver(() => {
+      obs.disconnect();
+      applyAdminRules();
+      if (document.body) obs.observe(document.body, { childList: true, subtree: true });
+    });
+    if (document.body) obs.observe(document.body, { childList: true, subtree: true });
+  })();
+</script>
 </html>
