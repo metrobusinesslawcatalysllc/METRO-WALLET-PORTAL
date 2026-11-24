@@ -244,7 +244,7 @@
           <button class="btn btn-red" style="margin-top:0;padding:13px;" onclick="trade('SELL')">SELL</button>
         </div>
         <div id="clStatus" style="margin-top:12px;padding:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;font-size:12px;min-height:44px;">
-          Ready to execute practice orders.
+          Ready to execute orders.
         </div>
       </div>
     </div>
@@ -270,7 +270,7 @@
     </div>
     
     <div class="note">
-      Practice &amp; simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value.
+      Trade &amp; environment. Balances, FX rate conversions, and P/L controls carry real-world cash value.
     </div>
   </div>
   <script>
@@ -1299,7 +1299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       clientId: 'CL-101',
       balance: 10000,
       activity: [
-        { ref: 'TX-901', type: 'Deposit', amount: 10000, note: 'Initial practice/account allocation', status: 'Completed' }
+        { ref: 'TX-901', type: 'Deposit', amount: 10000, note: 'Initial Trade/account allocation', status: 'Completed' }
       ]
     };
 
@@ -2037,7 +2037,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // UI Label Cleanup & Hide Portal Switcher on Client Portal
     const HIDE_PHRASES = [
-      "Practice & simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value."
+      "Trade environment. Balances, FX rate conversions, and P/L controls carry real-world cash value."
     ];
     const REPLACEMENTS = [
       { from: "Simulation & Desk Overview", to: "Desk Overview" },
@@ -2104,6 +2104,37 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (document.body) obs.observe(document.body, { childList: true, subtree: true });
     });
     if (document.body) obs.observe(document.body, { childList: true, subtree: true });
+  })();
+</script>
+  <script id="metro-sync-bg">
+  (function () {
+    const BG_KEY_NAME = "metro_custom_bg_v1";
+
+    function syncBg() {
+      try {
+        const savedBg = JSON.parse(localStorage.getItem(BG_KEY_NAME) || "null");
+        if (!savedBg || !savedBg.src) {
+          document.body.style.removeProperty("background-image");
+          document.body.style.removeProperty("background-size");
+          document.body.style.removeProperty("background-position");
+          document.body.style.removeProperty("background-attachment");
+          return;
+        }
+        document.body.style.setProperty(
+          "background-image",
+          `linear-gradient(rgba(10, 14, 24, 0.58), rgba(10, 14, 24, 0.66)), url("${savedBg.src}")`,
+          "important"
+        );
+        document.body.style.setProperty("background-size", "cover", "important");
+        document.body.style.setProperty("background-position", "center center", "important");
+        document.body.style.setProperty("background-attachment", "fixed", "important");
+      } catch (e) {}
+    }
+
+    syncBg();
+    window.addEventListener("storage", function (e) {
+      if (e.key === BG_KEY_NAME) syncBg();
+    });
   })();
 </script>
 </body>
