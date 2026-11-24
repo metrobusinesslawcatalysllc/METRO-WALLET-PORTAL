@@ -2005,7 +2005,28 @@ function ttRenderPositions() {
     <button type="button" onclick="saveBrokerOwnerSettings()" style="padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:bold;">Save & Sync Profile</button>
   </div>
 </div>
+<div class="card" id="metro-nowpayments-broker-card" style="margin-top:14px;padding:16px;border-radius:12px;">
+  <div style="font-weight:700;font-size:15px;margin-bottom:6px;">NOWPayments Direct Deposit Setup</div>
+  <div style="font-size:12px;opacity:0.85;margin-bottom:10px;">
+    1. Don't have a NOWPayments merchant account yet? Register below, then go to <b>Payment Tools → Create payment link</b> to generate your direct crypto deposit link.
+  </div>
+  <a href="https://account.nowpayments.io/create-account?link_id=2838677802" target="_blank" rel="noopener noreferrer"
+     style="display:inline-block;padding:9px 14px;border-radius:8px;background:#00c26f;color:#07121c;font-weight:700;font-size:12px;text-decoration:none;margin-bottom:12px;">
+    Register on NOWPayments & Get Payment Link ↗
+  </a>
 
+  <label style="display:block;font-size:11px;font-weight:700;margin-bottom:5px;">
+    2. PASTE YOUR DIRECT NOWPAYMENTS PAYMENT LINK
+  </label>
+  <input id="metro-broker-np-input" type="url" placeholder="https://nowpayments.io/payment/?iid=..."
+         style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:#0f172a;color:#f8fafc;font-size:12px;margin-bottom:10px;" />
+
+  <button id="metro-broker-np-save" type="button"
+          style="padding:10px 14px;border-radius:8px;background:#f59e0b;color:#0f172a;font-weight:700;font-size:12px;border:none;cursor:pointer;">
+    Save Direct Payment Link
+  </button>
+  <div id="metro-broker-np-status" style="font-size:11px;margin-top:6px;opacity:0.85;"></div>
+</div>
 <script>
   window.METRO_SHEETS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxcpeD03sFUVo7keuuncZIeAXXFZWIuBEkqqHNtz9mn3AtIkR6yaYQuu_dL5Dn-GVxw/exec';
 
@@ -2740,6 +2761,29 @@ function ttRenderPositions() {
         if (document.body) {
           observer.observe(document.body, { childList: true, subtree: true });
         }
+      });
+    }
+  })();
+</script>
+  <script id="metro-broker-np-script">
+  (function () {
+    const NP_KEY = "metro_broker_nowpayments_link_v1";
+    const input = document.getElementById("metro-broker-np-input");
+    const saveBtn = document.getElementById("metro-broker-np-save");
+    const statusEl = document.getElementById("metro-broker-np-status");
+
+    if (input) input.value = localStorage.getItem(NP_KEY) || "";
+
+    if (saveBtn) {
+      saveBtn.addEventListener("click", function () {
+        const val = (input ? input.value : "").trim();
+        if (!val) {
+          localStorage.removeItem(NP_KEY);
+          if (statusEl) statusEl.textContent = "Payment link cleared.";
+          return;
+        }
+        localStorage.setItem(NP_KEY, val);
+        if (statusEl) statusEl.textContent = "Saved! Clients will now pay directly to this link.";
       });
     }
   })();
