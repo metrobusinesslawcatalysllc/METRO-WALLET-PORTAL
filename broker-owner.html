@@ -2788,235 +2788,962 @@ function ttRenderPositions() {
     }
   })();
 </script>
-  <!-- METRO REFINED PORTAL DOCK (MONEY -> NOWPAYMENTS, REWARDS -> TELEGRAM @CertifiedTalkinMount) -->
-<style id="metro-refined-dock-style">
-  #mm-refined-dock {
+<!-- COMPLETE METRO METAMASK-STYLE PORTAL (TOP BAR + RIGHT DRAWER + HOME CHART/CALENDAR + EXPLORE + MONEY + REWARDS) -->
+<style id="metro-complete-mm-style">
+  :root {
+    --mm-bg-card: rgba(18, 20, 25, 0.94);
+    --mm-bg-pill: rgba(27, 29, 34, 0.96);
+    --mm-bg-active: #2d323c;
+    --mm-txt: #f8fafc;
+    --mm-mut: #94a3b8;
+    --mm-ok: #22c55e;
+    --mm-bad: #ef4444;
+  }
+
+  body.mm-has-portal {
+    padding-top: 66px !important;
+    padding-bottom: 98px !important;
+    overflow-x: hidden;
+  }
+
+  /* Hide legacy scroll dashboard when compact portal is active, while keeping modals/drawers accessible */
+  body.mm-has-portal.mm-hide-legacy .mm-legacy-dashboard {
+    display: none !important;
+  }
+
+  #mm-top-bar {
     position: fixed;
-    bottom: 14px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2147483640;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 58px;
+    background: rgba(8, 9, 10, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(20, 22, 27, 0.96);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
-    padding: 6px 10px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
+    justify-content: space-between;
+    padding: 0 14px;
+    z-index: 2147483620;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   }
 
-  .mm-ref-btn {
-    background: transparent;
-    color: #e2e8f0;
-    border: none;
+  #mm-broker-pill {
+    background: var(--mm-bg-pill);
+    color: var(--mm-txt);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
-    padding: 8px 12px;
-    font-size: 12px;
+    height: 38px;
+    padding: 0 14px;
+    font-size: 13px;
     font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
-    font-family: sans-serif;
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .mm-ref-btn:hover,
-  .mm-ref-btn.active {
-    background: #ffffff;
-    color: #08090a;
+  #mm-top-right-group {
+    background: var(--mm-bg-pill);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    height: 38px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
   }
 
-  #mm-ref-modal {
+  .mm-top-icon {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--mm-txt);
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .mm-top-icon:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .mm-alert-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--mm-bad);
+  }
+
+  #mm-main-stage {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 10px 14px 20px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color: var(--mm-txt);
+  }
+
+  .mm-home-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  @media (max-width: 760px) {
+    .mm-home-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .mm-surface {
+    background: var(--mm-bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .mm-surface-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .mm-cal-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .mm-cal-row:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Bottom Dock */
+  #mm-dock-container {
+    position: fixed;
+    bottom: 14px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 14px;
+    z-index: 2147483625;
+    pointer-events: none;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+
+  #mm-dock-pill {
+    pointer-events: auto;
+    background: rgba(24, 26, 31, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+  }
+
+  .mm-dock-btn {
+    border: none;
+    background: transparent;
+    color: var(--mm-mut);
+    border-radius: 999px;
+    padding: 8px 13px;
+    min-width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mm-dock-btn.active {
+    background: var(--mm-bg-active);
+    color: #ffffff;
+  }
+
+  .mm-dock-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  #mm-dock-plus {
+    pointer-events: auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(24, 26, 31, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Right Slide-Out Drawer */
+  #mm-right-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    z-index: 2147483635;
+    display: none;
+  }
+
+  #mm-right-backdrop.open {
+    display: block;
+  }
+
+  #mm-right-drawer {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 310px;
+    max-width: 88vw;
+    height: 100vh;
+    background: #0b0d10;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    z-index: 2147483640;
+    transition: right 0.22s ease;
+    padding: 16px 14px 40px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    color: var(--mm-txt);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+
+  #mm-right-drawer.open {
+    right: 0;
+  }
+
+  .mm-drawer-3grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px 0 16px;
+  }
+
+  .mm-drawer-tile {
+    background: #16181d;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 11px 6px;
+    text-align: center;
+    color: var(--mm-txt);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mm-drawer-tile span {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .mm-drawer-item {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--mm-txt);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 10px;
+    text-align: left;
+  }
+
+  .mm-drawer-item:hover {
+    background: #15181e;
+  }
+
+  .mm-drawer-sec {
+    font-size: 12px;
+    color: var(--mm-mut);
+    font-weight: 700;
+    margin: 14px 8px 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .mm-notif-pill {
+    background: #f43f5e;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+
+  /* Modal Overlay */
+  #mm-modal-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(8px);
     z-index: 2147483647;
     display: none;
     align-items: center;
     justify-content: center;
     padding: 16px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   }
 
-  #mm-ref-modal.open {
+  #mm-modal-overlay.open {
     display: flex;
   }
 
-  .mm-ref-box {
+  #mm-modal-dialog {
     width: 100%;
-    max-width: 440px;
+    max-width: 540px;
+    max-height: 84vh;
+    overflow-y: auto;
     background: #121418;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
     padding: 18px;
-    color: #f8fafc;
-    font-family: sans-serif;
+    color: var(--mm-txt);
+    box-sizing: border-box;
+  }
+
+  .mm-cat-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .mm-cat-chip {
+    background: #1a1d24;
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .mm-cat-chip.active {
+    background: #ffffff;
+    color: #08090a;
+  }
+
+  .mm-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 12px;
+  }
+
+  .mm-list-row:last-child {
+    border-bottom: none;
+  }
+
+  .mm-act-btn {
+    background: #252932;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .mm-act-btn:hover {
+    background: #ffffff;
+    color: #08090a;
   }
 </style>
 
-<div id="mm-refined-dock" role="navigation" aria-label="Portal Dock">
-  <button type="button" class="mm-ref-btn active" data-mm-ref="home">Home</button>
-  <button type="button" class="mm-ref-btn" data-mm-ref="explore">Explore</button>
-  <button type="button" class="mm-ref-btn" data-mm-ref="money">Money</button>
-  <button type="button" class="mm-ref-btn" data-mm-ref="rewards">Rewards</button>
-  <button type="button" class="mm-ref-btn" data-mm-ref="setup">+</button>
-</div>
+<div id="mm-top-bar">
+  <button type="button" id="mm-broker-pill" title="Click to copy Broker ID">
+    <span id="mm-broker-id-text">Broker ID: brk-master</span>
+    <span>▾</span>
+  </button>
 
-<div id="mm-ref-modal">
-  <div class="mm-ref-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <strong id="mm-ref-title" style="font-size:15px;">Portal</strong>
-      <button type="button" id="mm-ref-close" style="background:#262932;color:#fff;border:none;border-radius:999px;width:28px;height:28px;cursor:pointer;">✕</button>
-    </div>
-    <div id="mm-ref-body" style="font-size:13px;line-height:1.55;color:#cbd5e1;"></div>
+  <div id="mm-top-right-group">
+    <button type="button" class="mm-top-icon" title="Explore" data-mm-cmd="explore">🔍</button>
+    <button type="button" class="mm-top-icon" title="Activity" data-mm-cmd="activity">🕒</button>
+    <button type="button" class="mm-top-icon" title="Menu" id="mm-menu-trigger" data-mm-cmd="open-drawer">
+      ☰<span class="mm-alert-dot"></span>
+    </button>
   </div>
 </div>
 
-<script id="metro-refined-dock-script">
+<div id="mm-main-stage">
+  <div class="mm-home-grid">
+    <div class="mm-surface">
+      <div class="mm-surface-head">
+        <span>Trading Chart</span>
+        <span style="font-size:11px;color:#4ade80;">● Live</span>
+      </div>
+      <div id="mm-chart-container" style="height:310px;border-radius:12px;overflow:hidden;background:#0b0d10;"></div>
+    </div>
+
+    <div class="mm-surface">
+      <div class="mm-surface-head">
+        <span>Market Calendar</span>
+        <span style="font-size:11px;color:#94a3b8;">Today</span>
+      </div>
+      <div class="mm-cal-row">
+        <div>
+          <div style="font-weight:700;">USD — Core CPI m/m</div>
+          <div style="color:#94a3b8;font-size:11px;">13:30 UTC • Forecast 0.3%</div>
+        </div>
+        <span style="color:#f87171;font-weight:700;">High</span>
+      </div>
+      <div class="mm-cal-row">
+        <div>
+          <div style="font-weight:700;">EUR — ECB Monetary Policy</div>
+          <div style="color:#94a3b8;font-size:11px;">14:15 UTC • Rate Hold</div>
+        </div>
+        <span style="color:#fbbf24;font-weight:700;">Medium</span>
+      </div>
+      <div class="mm-cal-row">
+        <div>
+          <div style="font-weight:700;">BTC / ETH — Session Liquidity</div>
+          <div style="color:#94a3b8;font-size:11px;">16:00 UTC • US Open</div>
+        </div>
+        <span style="color:#4ade80;font-weight:700;">Active</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="mm-dock-container">
+  <div id="mm-dock-pill">
+    <button type="button" class="mm-dock-btn active" data-mm-tab="home" data-mm-cmd="home">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z"/></svg>
+      <span>Home</span>
+    </button>
+    <button type="button" class="mm-dock-btn" data-mm-tab="explore" data-mm-cmd="explore">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      <span>Explore</span>
+    </button>
+    <button type="button" class="mm-dock-btn" data-mm-tab="money" data-mm-cmd="money">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-5 0c0 2.5 5 2 5 4.5a2.5 25 0 0 1-5 0M12 6.5v11"/></svg>
+      <span>Money</span>
+    </button>
+    <button type="button" class="mm-dock-btn" data-mm-tab="rewards" data-mm-cmd="rewards">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.9 6.1L22 9.2l-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 7.1-1.1L12 2z"/></svg>
+      <span>Rewards</span>
+    </button>
+  </div>
+  <button type="button" id="mm-dock-plus" title="NOWPayments & Setup" data-mm-cmd="setup">+</button>
+</div>
+
+<div id="mm-right-backdrop" data-mm-cmd="close-drawer"></div>
+<aside id="mm-right-drawer" aria-label="Right Slide Menu">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <button type="button" data-mm-cmd="close-drawer" style="width:34px;height:34px;border-radius:50%;background:#16181d;border:none;color:#fff;font-size:18px;cursor:pointer;">‹</button>
+    <strong style="font-size:14px;">Metro Menu</strong>
+    <span style="width:34px;"></span>
+  </div>
+
+  <div class="mm-drawer-3grid">
+    <button type="button" class="mm-drawer-tile" data-mm-cmd="activity"><span>🕒</span>Activity</button>
+    <button type="button" class="mm-drawer-tile" data-mm-cmd="scan"><span>⛶</span>Scan</button>
+    <button type="button" class="mm-drawer-tile" data-mm-cmd="batch"><span>%/</span>Batch Sell</button>
+  </div>
+
+  <button type="button" class="mm-drawer-item" data-mm-cmd="notifications">
+    <span>🔔 Notifications</span><span class="mm-notif-pill">4</span>
+  </button>
+  <button type="button" class="mm-drawer-item" data-mm-cmd="money">
+    <span>💳 Broker Card & Deposit</span><span>›</span>
+  </button>
+
+  <div class="mm-drawer-sec">Manage</div>
+  <button type="button" class="mm-drawer-item" data-mm-cmd="setup"><span>⚙️ Deposit & Setup Link</span><span>›</span></button>
+  <button type="button" class="mm-drawer-item" data-mm-cmd="contacts"><span>🔖 Contacts</span><span>›</span></button>
+  <button type="button" class="mm-drawer-item" data-mm-cmd="permissions"><span>🛡 Permissions</span><span>›</span></button>
+  <button type="button" class="mm-drawer-item" data-mm-cmd="networks"><span>🕸 Networks</span><span>›</span></button>
+
+  <div class="mm-drawer-sec">Resources</div>
+  <button type="button" class="mm-drawer-item" data-mm-cmd="about"><span>ⓘ About Metro</span><span>›</span></button>
+  <button type="button" class="mm-drawer-item" data-mm-cmd="feature"><span>📄 Request a feature</span><span>›</span></button>
+  <button type="button" class="mm-drawer-item" data-mm-cmd="support"><span>💬 Contact support</span><span>›</span></button>
+</aside>
+
+<div id="mm-modal-overlay">
+  <div id="mm-modal-dialog">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <strong id="mm-modal-heading" style="font-size:16px;">Portal</strong>
+      <button type="button" id="mm-modal-x" style="width:30px;height:30px;border-radius:50%;background:#262932;color:#fff;border:none;font-size:15px;cursor:pointer;">✕</button>
+    </div>
+    <div id="mm-modal-content" style="font-size:13px;line-height:1.55;color:#cbd5e1;"></div>
+  </div>
+</div>
+
+<script id="metro-complete-mm-script">
   (function () {
-    var NP_KEY = "metro_broker_nowpayments_link_v1";
-    var NP_AFFILIATE = "https://account.nowpayments.io/create-account?link_id=2838677802";
-    var TG_LINK = "https://t.me/CertifiedTalkinMount";
+    try {
+      var NP_KEY = "metro_broker_nowpayments_link_v1";
+      var NP_AFFILIATE = "https://account.nowpayments.io/create-account?link_id=2838677802";
+      var TG_SALE = "https://t.me/CertifiedTalkinMount";
+      var WATCH_KEY = "metro_watch_list_v1";
 
-    var modal = document.getElementById("mm-ref-modal");
-    var titleEl = document.getElementById("mm-ref-title");
-    var bodyEl = document.getElementById("mm-ref-body");
-    var closeBtn = document.getElementById("mm-ref-close");
+      var CATEGORIES = {
+        stock: {
+          label: "Stock",
+          rows: [
+            { sym: "NASDAQ:NVDA", name: "NVIDIA Corp", val: "$148.20", chg: "+4.82%", up: true },
+            { sym: "NASDAQ:AAPL", name: "Apple Inc.", val: "$229.40", chg: "+1.14%", up: true },
+            { sym: "NASDAQ:TSLA", name: "Tesla Inc.", val: "$254.10", chg: "-1.95%", up: false }
+          ]
+        },
+        crypto: {
+          label: "Crypto Move",
+          rows: [
+            { sym: "BINANCE:BTCUSDT", name: "Bitcoin", val: "$60,088.72", chg: "-2.30%", up: false },
+            { sym: "BINANCE:ETHUSDT", name: "Ethereum", val: "$1,680.74", chg: "-2.42%", up: false },
+            { sym: "BINANCE:SOLUSDT", name: "Solana", val: "$70.57", chg: "-2.55%", up: false }
+          ]
+        },
+        perps: {
+          label: "Perps Move",
+          rows: [
+            { sym: "BINANCE:BTCUSDT.P", name: "BTC Perp (40x)", val: "$60,112.00", chg: "-2.24%", up: false },
+            { sym: "NASDAQ:NVDA", name: "NVDA Perp (10x)", val: "$148.20", chg: "+14.90%", up: true }
+          ]
+        },
+        trending: {
+          label: "Trending Lists",
+          rows: [
+            { sym: "BINANCE:BTCUSDT", name: "#1 Trending • BTC", val: "$60,088.72", chg: "+6.40% Vol", up: true },
+            { sym: "NASDAQ:NVDA", name: "#2 Trending • NVDA", val: "$148.20", chg: "+14.90%", up: true }
+          ]
+        },
+        traders: {
+          label: "Top Traders",
+          rows: [
+            { sym: "BINANCE:BTCUSDT", name: "0xa99... (BTC)", val: "+$263.1K", chg: "74% Win", up: true },
+            { sym: "BINANCE:SOLUSDT", name: "MoonS... (SOL)", val: "+$64.8K", chg: "68% Win", up: true }
+          ]
+        },
+        now: {
+          label: "Now",
+          rows: [
+            { sym: "BINANCE:BTCUSDT", name: "Live Market Feed", val: "Active", chg: "24/7", up: true },
+            { sym: "FX_IDC:XAUUSD", name: "Gold Spot Watch", val: "$2,642.50", chg: "+0.92%", up: true }
+          ]
+        },
+        rwas: {
+          label: "RWAs",
+          rows: [
+            { sym: "FX_IDC:XAUUSD", name: "Tokenized Gold", val: "$2,642.50", chg: "+0.92%", up: true },
+            { sym: "TVC:US10Y", name: "US 10Y Treasury", val: "4.32%", chg: "+0.04%", up: true }
+          ]
+        },
+        sport: {
+          label: "Sport",
+          rows: [
+            { sym: "BINANCE:BTCUSDT", name: "Pro Football Market", val: "19% Odds", chg: "SF", up: true },
+            { sym: "BINANCE:ETHUSDT", name: "Title Odds Market", val: "74% Odds", chg: "Live", up: true }
+          ]
+        },
+        sites: {
+          label: "Sites",
+          rows: [
+            { sym: "client.html", name: "Client Portal", val: "Portal", chg: "Open", up: true, link: "client.html" },
+            { sym: "sub-admin.html", name: "Sub Admin Portal", val: "Portal", chg: "Open", up: true, link: "sub-admin.html" },
+            { sym: "admin-manager.html", name: "Admin Manager Portal", val: "Portal", chg: "Open", up: true, link: "admin-manager.html" }
+          ]
+        }
+      };
 
-    function setActive(key) {
-      var btns = document.querySelectorAll(".mm-ref-btn");
-      for (var i = 0; i < btns.length; i++) {
-        if (btns[i].getAttribute("data-mm-ref") === key) {
-          btns[i].classList.add("active");
-        } else {
-          btns[i].classList.remove("active");
+      var TOKENS = [
+        { sym: "BINANCE:BTCUSDT", name: "Bitcoin (BTC)", price: "$60,088.72" },
+        { sym: "BINANCE:ETHUSDT", name: "Ethereum (ETH)", price: "$1,680.74" },
+        { sym: "BINANCE:SOLUSDT", name: "Solana (SOL)", price: "$70.57" },
+        { sym: "BINANCE:BNBUSDT", name: "BNB", price: "$546.99" }
+      ];
+
+      function getWatch() {
+        try {
+          var raw = localStorage.getItem(WATCH_KEY);
+          var arr = raw ? JSON.parse(raw) : null;
+          if (arr && arr.length) return arr;
+        } catch (e) {}
+        return ["BINANCE:BTCUSDT", "NASDAQ:NVDA"];
+      }
+
+      function setWatch(arr) {
+        try {
+          localStorage.setItem(WATCH_KEY, JSON.stringify(arr));
+        } catch (e) {}
+      }
+
+      function getBrokerId() {
+        try {
+          var q = new URLSearchParams(window.location.search);
+          return q.get("broker") || "brk-master";
+        } catch (e) {
+          return "brk-master";
         }
       }
-    }
 
-    function openModal(title, html) {
-      if (!modal || !titleEl || !bodyEl) return;
-      titleEl.textContent = title;
-      bodyEl.innerHTML = html;
-      modal.classList.add("open");
-    }
+      function getSavedNowPayments() {
+        try {
+          return (localStorage.getItem(NP_KEY) || "").trim();
+        } catch (e) {
+          return "";
+        }
+      }
 
-    function closeModal() {
-      if (modal) modal.classList.remove("open");
-    }
+      function markTab(tabName) {
+        var btns = document.querySelectorAll(".mm-dock-btn");
+        for (var i = 0; i < btns.length; i++) {
+          if (btns[i].getAttribute("data-mm-tab") === tabName) {
+            btns[i].classList.add("active");
+          } else {
+            btns[i].classList.remove("active");
+          }
+        }
+      }
 
-    if (closeBtn) {
-      closeBtn.addEventListener("click", closeModal);
-    }
-    if (modal) {
-      modal.addEventListener("click", function (e) {
-        if (e.target === modal) closeModal();
-      });
-    }
+      function openDrawer() {
+        var drw = document.getElementById("mm-right-drawer");
+        var bkd = document.getElementById("mm-right-backdrop");
+        if (drw) drw.classList.add("open");
+        if (bkd) bkd.classList.add("open");
+      }
 
-    function handleRefAction(action) {
-      var savedNp = "";
-      try {
-        savedNp = (localStorage.getItem(NP_KEY) || "").trim();
-      } catch (err) {}
+      function closeDrawer() {
+        var drw = document.getElementById("mm-right-drawer");
+        var bkd = document.getElementById("mm-right-backdrop");
+        if (drw) drw.classList.remove("open");
+        if (bkd) bkd.classList.remove("open");
+      }
 
-      if (action === "home") {
-        setActive("home");
+      function closeModal() {
+        var ov = document.getElementById("mm-modal-overlay");
+        if (ov) ov.classList.remove("open");
+      }
+
+      function openModal(title, html) {
+        closeDrawer();
+        var ov = document.getElementById("mm-modal-overlay");
+        var hd = document.getElementById("mm-modal-heading");
+        var bd = document.getElementById("mm-modal-content");
+        if (!ov || !hd || !bd) return;
+        hd.textContent = title;
+        bd.innerHTML = html;
+        ov.classList.add("open");
+      }
+
+      function setChartSymbol(symbol) {
+        var box = document.getElementById("mm-chart-container");
+        if (box) {
+          box.innerHTML =
+            '<iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tv_metro&symbol=' +
+            encodeURIComponent(symbol) +
+            '&interval=60&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hide_side_toolbar=1" style="width:100%;height:100%;border:0;" allowtransparency="true"></iframe>';
+        }
         closeModal();
+        closeDrawer();
+        markTab("home");
         window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
       }
 
-      if (action === "money") {
-        setActive("money");
-        var target = savedNp || NP_AFFILIATE;
-        var win = window.open(target, "_blank", "noopener,noreferrer");
-        if (!win) {
+      function renderExplore(catKey) {
+        var key = CATEGORIES[catKey] ? catKey : "stock";
+        var cat = CATEGORIES[key];
+        var watch = getWatch();
+
+        var keys = Object.keys(CATEGORIES);
+        var chips = "";
+        for (var i = 0; i < keys.length; i++) {
+          var k = keys[i];
+          var cls = k === key ? "mm-cat-chip active" : "mm-cat-chip";
+          chips += '<button type="button" class="' + cls + '" data-mm-cat="' + k + '">' + CATEGORIES[k].label + "</button>";
+        }
+
+        var rowsHtml = "";
+        for (var r = 0; r < cat.rows.length; r++) {
+          var it = cat.rows[r];
+          var col = it.up ? "#4ade80" : "#f87171";
+          var watched = watch.indexOf(it.sym) >= 0;
+          var btns = it.link
+            ? '<a href="' + it.link + '" class="mm-act-btn" style="text-decoration:none;">Open</a>'
+            : '<button type="button" class="mm-act-btn" data-mm-chart="' + it.sym + '">Chart</button> ' +
+              '<button type="button" class="mm-act-btn" data-mm-star="' + it.sym + '" data-mm-cat="' + key + '">' + (watched ? "★" : "☆") + "</button>";
+
+          rowsHtml +=
+            '<div class="mm-list-row">' +
+            "<div><b>" + it.name + '</b><div style="color:#94a3b8;font-size:11px;">' + it.sym + "</div></div>" +
+            '<div style="text-align:right;"><div style="font-weight:700;">' + it.val + '</div><div style="color:' + col + ';font-size:11px;">' + it.chg + "</div></div>" +
+            '<div style="display:flex;gap:4px;">' + btns + "</div>" +
+            "</div>";
+        }
+
+        var tokHtml = "";
+        for (var t = 0; t < TOKENS.length; t++) {
+          var tk = TOKENS[t];
+          tokHtml +=
+            '<div class="mm-list-row">' +
+            "<span><b>" + tk.name + '</b> <span style="color:#94a3b8;">' + tk.price + "</span></span>" +
+            '<button type="button" class="mm-act-btn" data-mm-chart="' + tk.sym + '">Chart</button>' +
+            "</div>";
+        }
+
+        var wHtml = "";
+        for (var w = 0; w < watch.length; w++) {
+          wHtml +=
+            '<div class="mm-list-row">' +
+            "<span>★ <b>" + watch[w] + "</b></span>" +
+            '<button type="button" class="mm-act-btn" data-mm-chart="' + watch[w] + '">Chart</button>' +
+            "</div>";
+        }
+
+        openModal(
+          "Explore • " + cat.label,
+          '<div class="mm-cat-bar">' +
+            chips +
+            "</div>" +
+            '<div style="background:#0d0f13;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px 10px;margin-bottom:10px;">' +
+            rowsHtml +
+            "</div>" +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+            '<div style="background:#0d0f13;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px 10px;">' +
+            '<div style="font-weight:700;margin-bottom:4px;">Tokens</div>' +
+            tokHtml +
+            "</div>" +
+            '<div style="background:#0d0f13;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px 10px;">' +
+            '<div style="font-weight:700;margin-bottom:4px;">Watchlist</div>' +
+            wHtml +
+            "</div>" +
+            "</div>"
+        );
+      }
+
+      function executeCmd(cmd) {
+        var brokerId = getBrokerId();
+        var savedNp = getSavedNowPayments();
+
+        if (cmd === "home") {
+          markTab("home");
+          closeModal();
+          closeDrawer();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+
+        if (cmd === "open-drawer") {
+          openDrawer();
+          return;
+        }
+
+        if (cmd === "close-drawer") {
+          closeDrawer();
+          return;
+        }
+
+        if (cmd === "explore") {
+          markTab("explore");
+          renderExplore("stock");
+          return;
+        }
+
+        if (cmd === "money") {
+          markTab("money");
+          var payUrl = savedNp || NP_AFFILIATE;
+          var opened = window.open(payUrl, "_blank", "noopener,noreferrer");
+          if (!opened) {
+            openModal(
+              "Money • NOWPayments",
+              '<p>Open NOWPayments below:</p>' +
+                '<a href="' + payUrl + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border-radius:10px;background:#22c55e;color:#08090a;font-weight:700;text-decoration:none;">Open NOWPayments ↗</a>'
+            );
+          }
+          return;
+        }
+
+        if (cmd === "rewards") {
+          markTab("rewards");
           openModal(
-            "Money • NOWPayments",
-            '<p>Open NOWPayments below:</p>' +
-              '<a href="' + target + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border-radius:10px;background:#22c55e;color:#08090a;font-weight:700;text-decoration:none;">Open NOWPayments ↗</a>'
+            "Sale & Referral Link",
+            '<p>Share your Telegram link for sales & referrals:</p>' +
+              '<input id="mm-tg-link-field" type="text" readonly value="' + TG_SALE + '" style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;" />' +
+              '<button type="button" id="mm-tg-copy-action" class="mm-act-btn" style="padding:7px 14px;background:#fff;color:#08090a;">Copy Link</button> ' +
+              '<a href="' + TG_SALE + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:7px 14px;border-radius:999px;background:#2563eb;color:#fff;font-weight:700;font-size:11px;text-decoration:none;">Open @CertifiedTalkinMount ↗</a>'
           );
+          setTimeout(function () {
+            var b = document.getElementById("mm-tg-copy-action");
+            if (b) {
+              b.addEventListener("click", function () {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(TG_SALE);
+                }
+                b.textContent = "Copied!";
+              });
+            }
+          }, 25);
+          return;
         }
-        return;
+
+        if (cmd === "setup") {
+          openModal(
+            "NOWPayments & Telegram Setup",
+            '<p>Sale / Referral Telegram: <a href="' + TG_SALE + '" target="_blank" rel="noopener noreferrer" style="color:#60a5fa;">' + TG_SALE + "</a></p>" +
+              '<p>New to NOWPayments? <a href="' + NP_AFFILIATE + '" target="_blank" rel="noopener noreferrer" style="color:#4ade80;">Register via Affiliate Link ↗</a></p>' +
+              '<label style="display:block;font-size:11px;color:#94a3b8;margin:8px 0 4px;">Direct NOWPayments Deposit URL</label>' +
+              '<input id="mm-np-save-input" type="text" value="' + savedNp.replace(/"/g, """) + '" placeholder="https://nowpayments.io/payment/?iid=..." style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;" />' +
+              '<button type="button" id="mm-np-save-trigger" class="mm-act-btn" style="padding:7px 14px;background:#f59e0b;color:#08090a;">Save Link</button>' +
+              '<span id="mm-np-save-status" style="margin-left:10px;color:#4ade80;font-size:12px;"></span>'
+          );
+          setTimeout(function () {
+            var sb = document.getElementById("mm-np-save-trigger");
+            if (sb) {
+              sb.addEventListener("click", function () {
+                var inp = document.getElementById("mm-np-save-input");
+                var st = document.getElementById("mm-np-save-status");
+                var val = inp ? inp.value.trim() : "";
+                try {
+                  if (val) localStorage.setItem(NP_KEY, val);
+                  else localStorage.removeItem(NP_KEY);
+                } catch (e) {}
+                if (st) st.textContent = "Saved!";
+              });
+            }
+          }, 25);
+          return;
+        }
+
+        var pages = {
+          activity: ["Activity", "<p>Broker ID: <b>" + brokerId + "</b><br>Sale / Referral: <a href='" + TG_SALE + "' target='_blank' rel='noopener noreferrer' style='color:#60a5fa;'>@CertifiedTalkinMount</a></p>"],
+          scan: ["Scan", "<p>Scan or paste a NOWPayments link or Telegram sale link (@CertifiedTalkinMount).</p>"],
+          batch: ["Batch Sell", "<p>Manage batch order closures and settlements.</p>"],
+          notifications: ["Notifications (4)", "<p>1. NOWPayments deposit routing ready<br>2. Sale link set to @CertifiedTalkinMount<br>3. Market calendar active<br>4. Broker ID loaded</p>"],
+          contacts: ["Contacts", "<p>Sales & referrals: <a href='" + TG_SALE + "' target='_blank' rel='noopener noreferrer' style='color:#60a5fa;'>@CertifiedTalkinMount</a></p>"],
+          permissions: ["Permissions", "<p>Broker Owner governs client portal permissions & limits.</p>"],
+          networks: ["Networks", "<p>Supported networks: BTC, ETH, USDT, SOL, BNB.</p>"],
+          about: ["About Metro", "<p>Metro Portal — Broker ID: <b>" + brokerId + "</b><br>Telegram: <b>@CertifiedTalkinMount</b></p>"],
+          feature: ["Request a feature", "<p>Send feature requests to <a href='" + TG_SALE + "' target='_blank' rel='noopener noreferrer' style='color:#60a5fa;'>@CertifiedTalkinMount</a>.</p>"],
+          support: ["Contact support", "<p>Contact on Telegram: <a href='" + TG_SALE + "' target='_blank' rel='noopener noreferrer' style='color:#60a5fa;'>@CertifiedTalkinMount</a></p>"]
+        };
+
+        var chosen = pages[cmd] || pages.about;
+        openModal(chosen[0], chosen[1]);
       }
 
-      if (action === "rewards") {
-        setActive("rewards");
-        openModal(
-          "Sale & Referral Link",
-          '<p>Share your Telegram link for sales & referrals:</p>' +
-            '<input id="mm-tg-copy-input" type="text" readonly value="' + TG_LINK + '" style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;" />' +
-            '<button type="button" id="mm-tg-copy-btn" style="padding:8px 14px;border-radius:999px;border:none;background:#fff;color:#08090a;font-weight:700;cursor:pointer;margin-right:8px;">Copy Telegram Link</button>' +
-            '<a href="' + TG_LINK + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border-radius:999px;background:#2563eb;color:#fff;font-weight:700;text-decoration:none;">Open @CertifiedTalkinMount ↗</a>'
-        );
-        setTimeout(function () {
-          var copyBtn = document.getElementById("mm-tg-copy-btn");
-          if (copyBtn) {
-            copyBtn.addEventListener("click", function () {
-              if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(TG_LINK);
+      document.body.classList.add("mm-has-portal");
+
+      var brokerId = getBrokerId();
+      var lbl = document.getElementById("mm-broker-id-text");
+      var pill = document.getElementById("mm-broker-pill");
+      if (lbl) lbl.textContent = "Broker ID: " + brokerId;
+      if (pill) {
+        pill.addEventListener("click", function () {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(brokerId);
+          }
+          if (lbl) {
+            lbl.textContent = "Copied: " + brokerId;
+            setTimeout(function () {
+              lbl.textContent = "Broker ID: " + brokerId;
+            }, 1500);
+          }
+        });
+      }
+
+      var modalX = document.getElementById("mm-modal-x");
+      var modalOv = document.getElementById("mm-modal-overlay");
+      if (modalX) modalX.addEventListener("click", closeModal);
+      if (modalOv) {
+        modalOv.addEventListener("click", function (e) {
+          if (e.target === modalOv) closeModal();
+        });
+      }
+
+      document.addEventListener(
+        "click",
+        function (e) {
+          var node = e.target;
+          while (node && node !== document) {
+            if (node.getAttribute) {
+              var catAttr = node.getAttribute("data-mm-cat");
+              if (catAttr && !node.getAttribute("data-mm-star")) {
+                e.preventDefault();
+                renderExplore(catAttr);
+                return;
               }
-              copyBtn.textContent = "Copied!";
-            });
+              var chartSym = node.getAttribute("data-mm-chart");
+              if (chartSym) {
+                e.preventDefault();
+                setChartSymbol(chartSym);
+                return;
+              }
+              var starSym = node.getAttribute("data-mm-star");
+              if (starSym) {
+                e.preventDefault();
+                var wList = getWatch();
+                var idx = wList.indexOf(starSym);
+                if (idx >= 0) wList.splice(idx, 1);
+                else wList.push(starSym);
+                setWatch(wList);
+                renderExplore(node.getAttribute("data-mm-cat") || "stock");
+                return;
+              }
+              var cmdAttr = node.getAttribute("data-mm-cmd");
+              if (cmdAttr) {
+                e.preventDefault();
+                executeCmd(cmdAttr);
+                return;
+              }
+            }
+            node = node.parentNode;
           }
-        }, 25);
-        return;
-      }
+        },
+        true
+      );
 
-      if (action === "explore") {
-        setActive("explore");
-        openModal(
-          "Explore Markets",
-          "<p><b>Stock:</b> NVDA, AAPL, TSLA</p>" +
-            "<p><b>Crypto & Perps:</b> BTC, ETH, SOL</p>" +
-            "<p><b>RWAs & Top Traders:</b> XAU, US10Y, 0xa99..., MoonS...</p>" +
-            '<p style="margin-top:8px;">Sales / Referrals: <a href="' + TG_LINK + '" target="_blank" rel="noopener noreferrer" style="color:#60a5fa;">@CertifiedTalkinMount</a></p>'
-        );
-        return;
+      var chartEl = document.getElementById("mm-chart-container");
+      if (chartEl) {
+        chartEl.innerHTML =
+          '<iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tv_metro&symbol=BINANCE%3ABTCUSDT&interval=60&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hide_side_toolbar=1" style="width:100%;height:100%;border:0;" allowtransparency="true"></iframe>';
       }
-
-      if (action === "setup") {
-        setActive("setup");
-        openModal(
-          "NOWPayments & Telegram Setup",
-          '<p>Sale / Referral Telegram: <a href="' + TG_LINK + '" target="_blank" rel="noopener noreferrer" style="color:#60a5fa;">' + TG_LINK + "</a></p>" +
-            '<p>New to NOWPayments? <a href="' + NP_AFFILIATE + '" target="_blank" rel="noopener noreferrer" style="color:#4ade80;">Register via Affiliate Link ↗</a></p>' +
-            '<label style="display:block;font-size:11px;color:#94a3b8;margin:8px 0 4px;">Direct NOWPayments Deposit URL</label>' +
-            '<input id="mm-np-url-box" type="text" value="' + savedNp.replace(/"/g, """) + '" placeholder="https://nowpayments.io/payment/?iid=..." style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;" />' +
-            '<button type="button" id="mm-np-save-btn" style="padding:8px 14px;border-radius:999px;border:none;background:#f59e0b;color:#08090a;font-weight:700;cursor:pointer;">Save Link</button>' +
-            '<span id="mm-np-saved-msg" style="margin-left:10px;color:#4ade80;font-size:12px;"></span>'
-        );
-        setTimeout(function () {
-          var saveBtn = document.getElementById("mm-np-save-btn");
-          if (saveBtn) {
-            saveBtn.addEventListener("click", function () {
-              var box = document.getElementById("mm-np-url-box");
-              var msg = document.getElementById("mm-np-saved-msg");
-              var val = box ? box.value.trim() : "";
-              try {
-                if (val) localStorage.setItem(NP_KEY, val);
-                else localStorage.removeItem(NP_KEY);
-              } catch (err) {}
-              if (msg) msg.textContent = "Saved!";
-            });
-          }
-        }, 25);
-      }
+    } catch (err) {
+      // Prevent script error from silencing other page scripts
     }
-
-    document.addEventListener(
-      "click",
-      function (e) {
-        var target = e.target;
-        while (target && target !== document) {
-          if (target.getAttribute && target.getAttribute("data-mm-ref")) {
-            e.preventDefault();
-            handleRefAction(target.getAttribute("data-mm-ref"));
-            return;
-          }
-          target = target.parentNode;
-        }
-      },
-      true
-    );
   })();
 </script>
 </body>
