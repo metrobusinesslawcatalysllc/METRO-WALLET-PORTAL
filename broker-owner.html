@@ -2788,5 +2788,913 @@ function ttRenderPositions() {
     }
   })();
 </script>
+  <!-- METRO METAMASK-STYLE UI UPGRADE (BROKER ID HEADER, SLIDE MENU, FLOATING BOTTOM DOCK, MONEY & REWARDS) -->
+<style id="metro-mm-ui-style">
+  :root {
+    --mm-card: rgba(22, 24, 28, 0.88);
+    --mm-card-hover: rgba(30, 33, 39, 0.94);
+    --mm-pill: rgba(27, 29, 34, 0.92);
+    --mm-pill-active: #2a2d35;
+    --mm-text: #f8fafc;
+    --mm-muted: #94a3b8;
+    --mm-green: #22c55e;
+    --mm-red: #ef4444;
+    --mm-accent: #f59e0b;
+  }
+
+  body {
+    padding-top: 68px !important;
+    padding-bottom: 105px !important;
+  }
+
+  /* Top Floating Header */
+  #mm-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    background: rgba(8, 9, 10, 0.78);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 9990;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .mm-top-pill {
+    background: var(--mm-pill);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 999px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 14px;
+    color: var(--mm-text);
+    font-size: 13px;
+    font-weight: 700;
+    gap: 8px;
+    cursor: pointer;
+    max-width: 62vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mm-top-actions {
+    background: var(--mm-pill);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 999px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 6px;
+    gap: 4px;
+  }
+
+  .mm-icon-btn {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--mm-text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .mm-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .mm-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ef4444;
+  }
+
+  /* Main App Container */
+  #mm-app-shell {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 8px 16px 24px;
+  }
+
+  .mm-view {
+    display: none;
+  }
+
+  .mm-view.active {
+    display: block;
+    animation: mmFadeIn 0.18s ease;
+  }
+
+  @keyframes mmFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 4 Action Tiles (Buy, Swap, Send, Receive) */
+  .mm-action-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .mm-action-tile {
+    background: var(--mm-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--mm-text);
+    transition: background 0.15s;
+  }
+
+  .mm-action-tile:hover {
+    background: var(--mm-card-hover);
+  }
+
+  .mm-action-tile .mm-tile-icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+    display: block;
+    color: #cbd5e1;
+  }
+
+  .mm-action-tile .mm-tile-lbl {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Promo Banner & Money Strip */
+  .mm-banner {
+    background: var(--mm-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .mm-banner-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #143624;
+    color: #4ade80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .mm-money-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 16px;
+  }
+
+  .mm-apy-pill {
+    background: rgba(34, 197, 94, 0.18);
+    color: #4ade80;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+  }
+
+  .mm-pill-btn {
+    background: var(--mm-pill);
+    color: var(--mm-text);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mm-pill-btn.white {
+    background: #ffffff;
+    color: #08090a;
+    border: none;
+  }
+
+  /* Section Headers & Rows */
+  .mm-sec-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 14px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .mm-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mm-coin-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  /* Perps & Top Traders Cards */
+  .mm-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .mm-card-box {
+    background: var(--mm-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  /* Floating Bottom Pill Dock + Plus Button */
+  #mm-bottom-dock-wrap {
+    position: fixed;
+    bottom: 14px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 14px;
+    z-index: 9995;
+    pointer-events: none;
+  }
+
+  #mm-bottom-pill {
+    pointer-events: auto;
+    background: rgba(24, 26, 31, 0.94);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+  }
+
+  .mm-nav-item {
+    border: none;
+    background: transparent;
+    color: var(--mm-muted);
+    border-radius: 999px;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 64px;
+    transition: all 0.15s;
+  }
+
+  .mm-nav-item.active {
+    background: var(--mm-pill-active);
+    color: #ffffff;
+  }
+
+  .mm-nav-item svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  #mm-plus-fab {
+    pointer-events: auto;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: rgba(24, 26, 31, 0.94);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
+    flex-shrink: 0;
+  }
+
+  /* Slide-Out Drawer Menu */
+  #mm-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    z-index: 9998;
+    display: none;
+  }
+
+  #mm-drawer-backdrop.open {
+    display: block;
+  }
+
+  #mm-slide-drawer {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 295px;
+    max-width: 85vw;
+    height: 100vh;
+    background: rgba(13, 16, 21, 0.97);
+    backdrop-filter: blur(16px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 9999;
+    transition: right 0.24s ease;
+    padding: 18px 16px 32px;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  #mm-slide-drawer.open {
+    right: 0;
+  }
+
+  .mm-drawer-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    color: var(--mm-text);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 4px;
+  }
+
+  .mm-drawer-link:hover {
+    background: var(--mm-card);
+  }
+
+  .mm-ads-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid #3b82f6;
+    color: #60a5fa;
+  }
+</style>
+
+<!-- TOP BAR (DISPLAYS BROKER ID) -->
+<div id="mm-topbar">
+  <button type="button" class="mm-top-pill" id="mm-broker-id-pill" title="Click to copy Broker ID">
+    <span id="mm-active-broker-id-label">Broker ID: Loading...</span>
+    <span style="font-size:11px;opacity:0.75;">▾</span>
+  </button>
+
+  <div class="mm-top-actions">
+    <button type="button" class="mm-icon-btn" title="Search" onclick="mmSwitchTab('explore')">🔍</button>
+    <button type="button" class="mm-icon-btn" title="Activities" onclick="mmOpenDrawerSection('activities')">🕒</button>
+    <button type="button" class="mm-icon-btn" title="Menu" id="mm-open-drawer-btn">
+      ☰<span class="mm-dot"></span>
+    </button>
+  </div>
+</div>
+
+<!-- MAIN TABBED VIEWS -->
+<div id="mm-app-shell">
+
+  <!-- 1. HOME VIEW -->
+  <div id="mm-view-home" class="mm-view active">
+    <div class="mm-action-grid">
+      <button type="button" class="mm-action-tile" onclick="mmSwitchTab('money')">
+        <span class="mm-tile-icon">$</span>
+        <span class="mm-tile-lbl">Buy</span>
+      </button>
+      <button type="button" class="mm-action-tile" onclick="mmSwitchTab('explore')">
+        <span class="mm-tile-icon">⇅</span>
+        <span class="mm-tile-lbl">Swap</span>
+      </button>
+      <button type="button" class="mm-action-tile" onclick="mmSwitchTab('money')">
+        <span class="mm-tile-icon">↗</span>
+        <span class="mm-tile-lbl">Send</span>
+      </button>
+      <button type="button" class="mm-action-tile" onclick="mmSwitchTab('money')">
+        <span class="mm-tile-icon">↙</span>
+        <span class="mm-tile-lbl">Receive</span>
+      </button>
+    </div>
+
+    <div class="mm-banner" id="mm-promo-banner">
+      <div class="mm-banner-badge">M</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13px;">Broker Partner Rewards Live</div>
+        <div style="font-size:12px;color:var(--mm-muted);margin-top:2px;">
+          Refer Broker Buyers & earn instant commission tiers
+        </div>
+      </div>
+      <button type="button" onclick="document.getElementById('mm-promo-banner').style.display='none'"
+              style="background:none;border:none;color:var(--mm-muted);font-size:16px;cursor:pointer;">✕</button>
+    </div>
+
+    <div class="mm-money-strip">
+      <div>
+        <span style="font-weight:700;font-size:15px;">Money</span>
+        <span style="color:var(--mm-muted);margin-left:4px;">• 0</span>
+        <span class="mm-apy-pill">5.4% APY</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button type="button" class="mm-pill-btn" onclick="mmSwitchTab('money')">Add</button>
+        <span style="font-weight:700;font-size:15px;">$0.00</span>
+      </div>
+    </div>
+
+    <div class="mm-sec-title">Tokens <span style="color:var(--mm-muted);font-size:15px;">›</span></div>
+
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#2563eb;">$</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">Metro USD (mUSD)</div>
+          <div style="font-size:12px;color:var(--mm-green);">$1.00 • +0.02%</div>
+        </div>
+      </div>
+      <button type="button" class="mm-pill-btn" onclick="mmSwitchTab('money')">Buy</button>
+    </div>
+
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#6366f1;">Ξ</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">Ethereum</div>
+          <div style="font-size:12px;color:var(--mm-red);">$1,680.74 • -2.42%</div>
+        </div>
+      </div>
+      <button type="button" class="mm-pill-btn" onclick="mmSwitchTab('money')">Buy</button>
+    </div>
+
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#f59e0b;">₿</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">Bitcoin</div>
+          <div style="font-size:12px;color:var(--mm-red);">$60,088.72 • -2.30%</div>
+        </div>
+      </div>
+      <button type="button" class="mm-pill-btn" onclick="mmSwitchTab('money')">Buy</button>
+    </div>
+
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#14b8a6;">◎</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">Solana</div>
+          <div style="font-size:12px;color:var(--mm-red);">$70.57 • -2.55%</div>
+        </div>
+      </div>
+      <button type="button" class="mm-pill-btn" onclick="mmSwitchTab('money')">Buy</button>
+    </div>
+
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#eab308;color:#08090a;">B</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">BNB</div>
+          <div style="font-size:12px;color:var(--mm-red);">$546.99 • -1.65%</div>
+        </div>
+      </div>
+      <button type="button" class="mm-pill-btn" onclick="mmSwitchTab('money')">Buy</button>
+    </div>
+  </div>
+
+  <!-- 2. EXPLORE VIEW -->
+  <div id="mm-view-explore" class="mm-view">
+    <div class="mm-sec-title">Perps <span style="color:var(--mm-muted);font-size:15px;">›</span></div>
+    <div class="mm-grid-2">
+      <div class="mm-card-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:700;font-size:15px;">BTC</div>
+            <div style="font-size:12px;color:var(--mm-red);">-2.24% <span style="background:#262930;color:#cbd5e1;padding:1px 5px;border-radius:4px;">40x</span></div>
+          </div>
+          <div class="mm-coin-icon" style="width:30px;height:30px;background:#f59e0b;font-size:13px;">₿</div>
+        </div>
+        <svg viewBox="0 0 120 42" style="width:100%;height:42px;margin-top:10px;">
+          <polyline fill="none" stroke="#ef4444" stroke-width="2.2" points="0,32 18,30 28,10 38,24 55,22 72,34 95,31 120,39"/>
+        </svg>
+      </div>
+
+      <div class="mm-card-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:700;font-size:15px;">NVDA</div>
+            <div style="font-size:12px;color:var(--mm-green);">+14.9% <span style="background:#262930;color:#cbd5e1;padding:1px 5px;border-radius:4px;">10x</span></div>
+          </div>
+          <div class="mm-coin-icon" style="width:30px;height:30px;background:#16a34a;font-size:12px;">NV</div>
+        </div>
+        <svg viewBox="0 0 120 42" style="width:100%;height:42px;margin-top:10px;">
+          <polyline fill="none" stroke="#84cc16" stroke-width="2.2" points="0,38 14,36 22,12 45,10 75,11 100,9 120,13"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mm-sec-title">Predictions <span style="color:var(--mm-muted);font-size:15px;">›</span></div>
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#1e293b;">🏆</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;">Pro Football: 2027 Champion</div>
+          <div style="font-size:12px;color:var(--mm-muted);">19% chance on San Francisco</div>
+        </div>
+      </div>
+      <span style="color:var(--mm-muted);">›</span>
+    </div>
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#1e293b;">₿</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;">BTC Price: $65,000 Target</div>
+          <div style="font-size:12px;color:var(--mm-muted);">Live market feed</div>
+        </div>
+      </div>
+      <span style="background:rgba(34,197,94,0.16);color:#4ade80;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;">● Live 00:48</span>
+    </div>
+
+    <div class="mm-sec-title" id="mm-watchlist-anchor">Watchlist <span style="color:var(--mm-muted);font-size:15px;">›</span></div>
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#f59e0b;">₿</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">Bitcoin</div>
+          <div style="font-size:12px;color:var(--mm-muted);">$1206B cap • $34B vol</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;text-align:right;">
+        <div>
+          <div style="font-weight:700;font-size:14px;">$60,088.72</div>
+          <div style="font-size:12px;color:var(--mm-red);">-2.30%</div>
+        </div>
+        <button type="button" onclick="this.textContent=this.textContent==='☆'?'★':'☆'" style="background:none;border:none;color:#f59e0b;font-size:18px;cursor:pointer;">☆</button>
+      </div>
+    </div>
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#6366f1;">Ξ</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">Ether</div>
+          <div style="font-size:12px;color:var(--mm-muted);">$206B cap • $14B vol</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;text-align:right;">
+        <div>
+          <div style="font-weight:700;font-size:14px;">$1,680.74</div>
+          <div style="font-size:12px;color:var(--mm-red);">-2.42%</div>
+        </div>
+        <button type="button" onclick="this.textContent=this.textContent==='☆'?'★':'☆'" style="background:none;border:none;color:#f59e0b;font-size:18px;cursor:pointer;">☆</button>
+      </div>
+    </div>
+    <div class="mm-row">
+      <div class="mm-row-left">
+        <div class="mm-coin-icon" style="background:#16a34a;">🐸</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">Pepe</div>
+          <div style="font-size:12px;color:var(--mm-muted);">$1B cap • $430M vol</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;text-align:right;">
+        <div>
+          <div style="font-weight:700;font-size:14px;">$0.0₅348</div>
+          <div style="font-size:12px;color:var(--mm-green);">+1.47%</div>
+        </div>
+        <button type="button" onclick="this.textContent=this.textContent==='☆'?'★':'☆'" style="background:none;border:none;color:#f59e0b;font-size:18px;cursor:pointer;">☆</button>
+      </div>
+    </div>
+
+    <div class="mm-sec-title">Top traders <span style="color:var(--mm-muted);font-size:15px;">›</span></div>
+    <div class="mm-grid-2">
+      <div class="mm-card-box">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div class="mm-coin-icon" style="width:34px;height:34px;background:#1d4ed8;">🛡</div>
+          <div>
+            <div style="font-weight:700;font-size:13px;">0xa99...</div>
+            <div style="font-size:12px;color:var(--mm-green);font-weight:700;">+$263.1K</div>
+          </div>
+        </div>
+        <button type="button" class="mm-pill-btn white" style="width:100%;" onclick="this.textContent=this.textContent==='Follow'?'Following':'Follow'">Follow</button>
+      </div>
+      <div class="mm-card-box">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div class="mm-coin-icon" style="width:34px;height:34px;background:#ea580c;">▣</div>
+          <div>
+            <div style="font-weight:700;font-size:13px;">MoonS...</div>
+            <div style="font-size:12px;color:var(--mm-green);font-weight:700;">+$64.8K</div>
+          </div>
+        </div>
+        <button type="button" class="mm-pill-btn white" style="width:100%;" onclick="this.textContent=this.textContent==='Follow'?'Following':'Follow'">Follow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MONEY VIEW (NOWPAYMENTS & DIRECT PAYMENT SETUP) -->
+  <div id="mm-view-money" class="mm-view">
+    <div class="mm-sec-title">Money & Direct Payments</div>
+    <div class="mm-card-box" style="margin-bottom:14px;">
+      <div style="font-size:12px;color:var(--mm-muted);">AVAILABLE BROKER SETTLEMENT</div>
+      <div style="font-size:28px;font-weight:800;margin:4px 0;">$0.00 <span class="mm-apy-pill">5.4% APY</span></div>
+      <div style="font-size:12px;color:var(--mm-muted);margin-bottom:14px;">
+        Direct crypto payments settle straight to your NOWPayments merchant wallet.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="https://account.nowpayments.io/create-account?link_id=2838677802" target="_blank" rel="noopener noreferrer"
+           class="mm-pill-btn white" style="text-decoration:none;display:inline-block;">
+          Create NOWPayments Account ↗
+        </a>
+        <button type="button" class="mm-pill-btn" onclick="mmOpenSetupModal()">Configure Link</button>
+      </div>
+    </div>
+
+    <div class="mm-card-box">
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px;">Active Client Deposit Link</div>
+      <div style="font-size:12px;color:var(--mm-muted);margin-bottom:10px;">
+        Paste your direct NOWPayments payment URL (<code>https://nowpayments.io/payment/?iid=...</code>) below to sync with your Client Portal:
+      </div>
+      <input id="mm-money-np-url" type="url" placeholder="https://nowpayments.io/payment/?iid=..."
+             style="width:100%;box-sizing:border-box;padding:11px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:#0d0f12;color:#fff;font-size:13px;margin-bottom:10px;" />
+      <button type="button" id="mm-money-np-save-btn" class="mm-pill-btn white" style="width:100%;padding:11px;">
+        Save & Sync Payment Link
+      </button>
+      <div id="mm-money-np-msg" style="font-size:12px;color:#4ade80;margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- 4. REWARDS VIEW (BROKER OWNER REFERS BROKER BUYER) -->
+  <div id="mm-view-rewards" class="mm-view">
+    <div class="mm-sec-title">Broker Partner Rewards</div>
+    <div class="mm-card-box" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-weight:700;font-size:15px;">Refer a Broker Buyer</span>
+        <span class="mm-apy-pill">Tier 1 Partner</span>
+      </div>
+      <div style="font-size:12px;color:var(--mm-muted);line-height:1.5;margin-bottom:12px;">
+        Share your Broker Owner referral link with new Broker Buyers. Every onboarded Broker Buyer unlocks recurring volume rebates and setup bonuses.
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div style="background:#0d0f12;padding:10px;border-radius:12px;">
+          <div style="font-size:11px;color:var(--mm-muted);">Referred Broker Buyers</div>
+          <div id="mm-ref-count" style="font-size:18px;font-weight:800;margin-top:2px;">0</div>
+        </div>
+        <div style="background:#0d0f12;padding:10px;border-radius:12px;">
+          <div style="font-size:11px;color:var(--mm-muted);">Earned Rewards</div>
+          <div id="mm-ref-earned" style="font-size:18px;font-weight:800;color:#4ade80;margin-top:2px;">$0.00</div>
+        </div>
+      </div>
+
+      <label style="display:block;font-size:11px;color:var(--mm-muted);margin-bottom:5px;">YOUR BROKER BUYER REFERRAL LINK</label>
+      <input id="mm-broker-ref-link" type="text" readonly
+             style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:#0d0f12;color:#f8fafc;font-size:12px;margin-bottom:10px;" />
+
+      <div style="display:flex;gap:8px;">
+        <button type="button" id="mm-copy-ref-btn" class="mm-pill-btn white" style="flex:1;">Copy Referral Link</button>
+        <button type="button" id="mm-log-ref-btn" class="mm-pill-btn">+ Log Referral</button>
+      </div>
+      <div id="mm-ref-status" style="font-size:12px;color:#4ade80;margin-top:8px;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FLOATING BOTTOM PILL DOCK + ROUND PLUS BUTTON -->
+<div id="mm-bottom-dock-wrap">
+  <div id="mm-bottom-pill">
+    <button type="button" class="mm-nav-item active" data-mm-tab="home" onclick="mmSwitchTab('home')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z"/></svg>
+      <span>Home</span>
+    </button>
+    <button type="button" class="mm-nav-item" data-mm-tab="explore" onclick="mmSwitchTab('explore')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      <span>Explore</span>
+    </button>
+    <button type="button" class="mm-nav-item" data-mm-tab="money" onclick="mmSwitchTab('money')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-5 0c0 2.5 5 2 5 4.5a2.5 2.5 0 0 1-5 0M12 6.5v11"/></svg>
+      <span>Money</span>
+    </button>
+    <button type="button" class="mm-nav-item" data-mm-tab="rewards" onclick="mmSwitchTab('rewards')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.9 6.1L22 9.2l-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 7.1-1.1L12 2z"/></svg>
+      <span>Rewards</span>
+    </button>
+  </div>
+
+  <button type="button" id="mm-plus-fab" title="Quick Actions & Setup" onclick="mmOpenSetupModal()">+</button>
+</div>
+
+<!-- SLIDE-OUT MENU DRAWER -->
+<div id="mm-drawer-backdrop" onclick="mmCloseDrawer()"></div>
+<div id="mm-slide-drawer">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="font-weight:800;font-size:17px;">Metro Broker Menu</div>
+    <button type="button" onclick="mmCloseDrawer()" style="background:none;border:none;color:var(--mm-muted);font-size:20px;cursor:pointer;">✕</button>
+  </div>
+
+  <button type="button" class="mm-drawer-link" onclick="mmCloseDrawer();mmSwitchTab('home');">
+    <span>📊 Portfolio</span><span style="color:var(--mm-muted);">›</span>
+  </button>
+  <button type="button" class="mm-drawer-link" onclick="mmOpenDrawerSection('activities')">
+    <span>🕒 Activities & Journal</span><span style="color:var(--mm-muted);">›</span>
+  </button>
+  <button type="button" class="mm-drawer-link" onclick="mmCloseDrawer();mmSwitchTab('explore');setTimeout(()=>document.getElementById('mm-watchlist-anchor')?.scrollIntoView({behavior:'smooth'}),120);">
+    <span>⭐ Watchlist</span><span style="color:var(--mm-muted);">›</span>
+  </button>
+  <button type="button" class="mm-drawer-link" onclick="mmCloseDrawer();mmSwitchTab('explore');">
+    <span>📈 Trade & Perps</span><span style="color:var(--mm-muted);">›</span>
+  </button>
+  <button type="button" class="mm-drawer-link" onclick="mmCloseDrawer();mmSwitchTab('money');">
+    <span>💳 Money & NOWPayments</span><span style="color:var(--mm-muted);">›</span>
+  </button>
+  <button type="button" class="mm-drawer-link" onclick="mmCloseDrawer();mmSwitchTab('rewards');">
+    <span>🎁 Broker Buyer Rewards</span><span style="color:var(--mm-muted);">›</span>
+  </button>
+  <button type="button" class="mm-drawer-link" onclick="mmOpenDrawerSection('calendar')">
+    <span>📅 Economic Calendar</span><span class="mm-ads-badge">Live</span>
+  </button>
+  <button type="button" class="mm-drawer-link" onclick="mmOpenSetupModal()">
+    <span>⚙️ Complete Broker Setup</span><span style="color:#4ade80;font-size:12px;">Open</span>
+  </button>
+
+  <div id="mm-drawer-dynamic-box" style="margin-top:14px;padding:12px;background:#16181c;border-radius:14px;font-size:12px;color:var(--mm-muted);">
+    Tap <b>Complete Broker Setup</b> to edit your Broker Profile, PINs, Background Sync, and NOWPayments Link.
+  </div>
+</div>
+
+<script id="metro-mm-ui-script">
+  function mmSwitchTab(tabName) {
+    document.querySelectorAll(".mm-view").forEach(function (v) {
+      v.classList.remove("active");
+    });
+    document.querySelectorAll(".mm-nav-item").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.mmTab === tabName);
+    });
+    const target = document.getElementById("mm-view-" + tabName);
+    if (target) target.classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function mmOpenDrawer() {
+    document.getElementById("mm-slide-drawer")?.classList.add("open");
+    document.getElementById("mm-drawer-backdrop")?.classList.add("open");
+  }
+
+  function mmCloseDrawer() {
+    document.getElementById("mm-slide-drawer")?.classList.remove("open");
+    document.getElementById("mm-drawer-backdrop")?.classList.remove("open");
+  }
+
+  function mmOpenDrawerSection(section) {
+    mmOpenDrawer();
+    const box = document.getElementById("mm-drawer-dynamic-box");
+    if (!box) return;
+    const brokerId = new URLSearchParams(window.location.search).get("broker") || "brk-master";
+    if (section === "activities") {
+      box.innerHTML = "<b style='color:#fff;'>Recent Activities</b><br><br>• Active Broker ID: <code>" + brokerId + "</code><br>• NOWPayments payment sync ready<br>• Background sync key: <code>metro_custom_bg_v1</code>";
+    } else if (section === "calendar") {
+      box.innerHTML = "<b style='color:#fff;'>Economic Calendar</b><br><br>• USD FOMC Rate Decision — High Impact<br>• US Non-Farm Payrolls — High Impact<br>• BTC Options Expiry — Medium Impact";
+    }
+  }
+
+  function mmOpenSetupModal() {
+    mmCloseDrawer();
+    const setupTarget =
+      document.getElementById("bo-admin-pin") ||
+      document.getElementById("metro-nowpayments-broker-card") ||
+      document.querySelector(".wrap, .container, main");
+    if (setupTarget) {
+      setupTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  (function initMmBrokerFeatures() {
+    document.getElementById("mm-open-drawer-btn")?.addEventListener("click", mmOpenDrawer);
+
+    // Display actual Broker ID in the top-left pill & copy on click
+    const params = new URLSearchParams(window.location.search);
+    const brokerId = params.get("broker") || "brk-master";
+    const brokerIdLabel = document.getElementById("mm-active-broker-id-label");
+    const brokerIdPill = document.getElementById("mm-broker-id-pill");
+    if (brokerIdLabel) brokerIdLabel.textContent = "Broker ID: " + brokerId;
+    brokerIdPill?.addEventListener("click", function () {
+      navigator.clipboard?.writeText(brokerId);
+      if (brokerIdLabel) {
+        brokerIdLabel.textContent = "Copied: " + brokerId;
+        setTimeout(function () {
+          brokerIdLabel.textContent = "Broker ID: " + brokerId;
+        }, 1600);
+      }
+    });
+
+    // Sync NOWPayments link inside Money Tab
+    const NP_KEY = "metro_broker_nowpayments_link_v1";
+    const moneyInput = document.getElementById("mm-money-np-url");
+    const moneySave = document.getElementById("mm-money-np-save-btn");
+    const moneyMsg = document.getElementById("mm-money-np-msg");
+
+    if (moneyInput) moneyInput.value = localStorage.getItem(NP_KEY) || "";
+    moneySave?.addEventListener("click", function () {
+      const val = (moneyInput?.value || "").trim();
+      if (!val) {
+        localStorage.removeItem(NP_KEY);
+        if (moneyMsg) moneyMsg.textContent = "Payment link cleared.";
+        return;
+      }
+      localStorage.setItem(NP_KEY, val);
+      const legacyInput = document.getElementById("metro-broker-np-input");
+      if (legacyInput) legacyInput.value = val;
+      if (moneyMsg) moneyMsg.textContent = "Saved & synced across Client Portal!";
+    });
+
+    // Broker Owner -> Broker Buyer Referral Rewards
+    const REF_COUNT_KEY = "metro_broker_buyer_ref_count_v1";
+    const refInput = document.getElementById("mm-broker-ref-link");
+    const refCountEl = document.getElementById("mm-ref-count");
+    const refEarnedEl = document.getElementById("mm-ref-earned");
+    const refStatus = document.getElementById("mm-ref-status");
+
+    const baseUrl = window.location.origin + window.location.pathname;
+    if (refInput) refInput.value = baseUrl + "?ref_broker=" + encodeURIComponent(brokerId);
+
+    function renderRefStats() {
+      const count = parseInt(localStorage.getItem(REF_COUNT_KEY) || "0", 10);
+      if (refCountEl) refCountEl.textContent = String(count);
+      if (refEarnedEl) refEarnedEl.textContent = "$" + (count * 50).toFixed(2);
+    }
+    renderRefStats();
+
+    document.getElementById("mm-copy-ref-btn")?.addEventListener("click", function () {
+      if (!refInput) return;
+      navigator.clipboard?.writeText(refInput.value);
+      if (refStatus) refStatus.textContent = "Broker Buyer referral link copied!";
+    });
+
+    document.getElementById("mm-log-ref-btn")?.addEventListener("click", function () {
+      const next = parseInt(localStorage.getItem(REF_COUNT_KEY) || "0", 10) + 1;
+      localStorage.setItem(REF_COUNT_KEY, String(next));
+      renderRefStats();
+      if (refStatus) refStatus.textContent = "Broker Buyer referral recorded (+$50 reward)!";
+    });
+  })();
+</script>
 </body>
 </html>
