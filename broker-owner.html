@@ -2788,317 +2788,46 @@ function ttRenderPositions() {
     }
   })();
 </script>
-<!-- METRO FRESH SINGLE-SCREEN PORTAL (TELEGRAM SALE/REFERRAL LINK + NOWPAYMENTS MONEY + CLICK FIX) -->
-<style id="metro-fresh-portal-style">
-  :root {
-    --mm-card: rgba(20, 22, 27, 0.92);
-    --mm-pill: rgba(27, 29, 34, 0.96);
-    --mm-pill-active: #2d313a;
-    --mm-text: #f8fafc;
-    --mm-muted: #94a3b8;
-  }
-
-  body {
-    padding-top: 66px !important;
-    padding-bottom: 96px !important;
-    overflow-x: hidden;
-  }
-
-  #mm-topbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 58px;
-    background: rgba(8, 9, 10, 0.85);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 14px;
-    z-index: 9990;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .mm-top-pill {
-    background: var(--mm-pill);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 999px;
-    height: 38px;
-    display: inline-flex;
-    align-items: center;
-    padding: 0 14px;
-    color: var(--mm-text);
-    font-size: 13px;
-    font-weight: 700;
-    gap: 8px;
-    cursor: pointer;
-    max-width: 62vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .mm-top-actions {
-    background: var(--mm-pill);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 999px;
-    height: 38px;
-    display: inline-flex;
-    align-items: center;
-    padding: 0 6px;
-    gap: 4px;
-  }
-
-  .mm-icon-btn {
-    position: relative;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: transparent;
-    color: var(--mm-text);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 15px;
-  }
-
-  .mm-dot {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #ef4444;
-  }
-
-  #mm-app-shell {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 10px 16px 20px;
-  }
-
-  .mm-home-split {
-    display: grid;
-    grid-template-columns: 1.35fr 1fr;
-    gap: 14px;
-    align-items: start;
-  }
-
-  @media (max-width: 760px) {
-    .mm-home-split {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .mm-panel {
-    background: var(--mm-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
-    padding: 14px;
-  }
-
-  .mm-panel-title {
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .mm-cal-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 9px 10px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    margin-bottom: 8px;
-    font-size: 12px;
-  }
-
-  .mm-cal-item:last-child {
-    margin-bottom: 0;
-  }
-
-  /* Bottom Pill Dock */
-  #mm-bottom-dock-wrap {
+  <!-- METRO REFINED PORTAL DOCK (MONEY -> NOWPAYMENTS, REWARDS -> TELEGRAM @CertifiedTalkinMount) -->
+<style id="metro-refined-dock-style">
+  #mm-refined-dock {
     position: fixed;
     bottom: 14px;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2147483640;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 0 14px;
-    z-index: 9995;
-    pointer-events: none;
-  }
-
-  #mm-bottom-pill {
-    pointer-events: auto;
-    background: rgba(24, 26, 31, 0.96);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 999px;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
-  }
-
-  .mm-nav-item {
-    border: none;
-    background: transparent;
-    color: var(--mm-muted);
-    border-radius: 999px;
-    padding: 8px 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    min-width: 62px;
-  }
-
-  .mm-nav-item.active {
-    background: var(--mm-pill-active);
-    color: #ffffff;
-  }
-
-  .mm-nav-item svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  #mm-plus-fab {
-    pointer-events: auto;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: rgba(24, 26, 31, 0.96);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    font-size: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65);
-  }
-
-  /* Slide Drawer */
-  #mm-drawer-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.72);
-    z-index: 9998;
-    display: none;
-  }
-
-  #mm-drawer-backdrop.open {
-    display: block;
-  }
-
-  #mm-slide-drawer {
-    position: fixed;
-    top: 0;
-    right: -340px;
-    width: 310px;
-    max-width: 88vw;
-    height: 100vh;
-    background: #08090a;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    z-index: 9999;
-    transition: right 0.22s ease;
-    padding: 16px 14px 36px;
-    overflow-y: auto;
-    box-sizing: border-box;
-  }
-
-  #mm-slide-drawer.open {
-    right: 0;
-  }
-
-  .mm-quick-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-    margin: 12px 0 18px;
-  }
-
-  .mm-quick-tile {
-    background: #16181c;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-    padding: 12px 6px;
-    text-align: center;
-    color: #f8fafc;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .mm-quick-tile span {
-    display: block;
-    font-size: 16px;
-    margin-bottom: 5px;
-  }
-
-  .mm-menu-row {
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: #f8fafc;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 8px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 10px;
-    text-align: left;
-  }
-
-  .mm-menu-row:hover {
-    background: #14161a;
-  }
-
-  .mm-menu-group-title {
-    font-size: 13px;
-    color: #94a3b8;
-    font-weight: 600;
-    margin: 14px 8px 6px;
-  }
-
-  .mm-badge-red {
-    background: #f43f5e;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 7px;
+    background: rgba(20, 22, 27, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
+    padding: 6px 10px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6);
   }
 
-  /* Portal Modal */
-  #mm-portal-modal {
+  .mm-ref-btn {
+    background: transparent;
+    color: #e2e8f0;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: sans-serif;
+  }
+
+  .mm-ref-btn:hover,
+  .mm-ref-btn.active {
+    background: #ffffff;
+    color: #08090a;
+  }
+
+  #mm-ref-modal {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.82);
-    backdrop-filter: blur(8px);
     z-index: 2147483647;
     display: none;
     align-items: center;
@@ -3106,353 +2835,188 @@ function ttRenderPositions() {
     padding: 16px;
   }
 
-  #mm-portal-modal.open {
+  #mm-ref-modal.open {
     display: flex;
   }
 
-  .mm-modal-card {
+  .mm-ref-box {
     width: 100%;
-    max-width: 480px;
+    max-width: 440px;
     background: #121418;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 18px;
     padding: 18px;
     color: #f8fafc;
+    font-family: sans-serif;
   }
 </style>
 
-<div id="mm-topbar">
-  <button type="button" class="mm-top-pill" id="mm-broker-id-pill" title="Click to copy Broker ID">
-    <span id="mm-active-broker-id-label">Broker ID: Loading...</span>
-    <span>▾</span>
-  </button>
-
-  <div class="mm-top-actions">
-    <button type="button" class="mm-icon-btn" title="Explore Portal" data-mm-action="explore">🔍</button>
-    <button type="button" class="mm-icon-btn" title="Activity Portal" data-mm-action="activity">🕒</button>
-    <button type="button" class="mm-icon-btn" title="Menu" data-mm-action="drawer">
-      ☰<span class="mm-dot"></span>
-    </button>
-  </div>
+<div id="mm-refined-dock" role="navigation" aria-label="Portal Dock">
+  <button type="button" class="mm-ref-btn active" data-mm-ref="home">Home</button>
+  <button type="button" class="mm-ref-btn" data-mm-ref="explore">Explore</button>
+  <button type="button" class="mm-ref-btn" data-mm-ref="money">Money</button>
+  <button type="button" class="mm-ref-btn" data-mm-ref="rewards">Rewards</button>
+  <button type="button" class="mm-ref-btn" data-mm-ref="setup">+</button>
 </div>
 
-<!-- MAIN HOME VIEW: TRADING CHART + MARKET CALENDAR ONLY -->
-<div id="mm-app-shell">
-  <div class="mm-home-split">
-    <div class="mm-panel">
-      <div class="mm-panel-title">
-        <span>Trading Chart</span>
-        <span style="font-size:11px;color:#4ade80;">● Live</span>
-      </div>
-      <div id="mm-tradingview-widget" style="height:310px;border-radius:12px;overflow:hidden;background:#0b0d10;"></div>
-    </div>
-
-    <div class="mm-panel">
-      <div class="mm-panel-title">
-        <span>Market Calendar</span>
-        <span style="font-size:11px;color:#94a3b8;">Today</span>
-      </div>
-      <div class="mm-cal-item">
-        <div>
-          <div style="font-weight:700;">USD — Core CPI m/m</div>
-          <div style="color:#94a3b8;font-size:11px;">13:30 UTC • Forecast 0.3%</div>
-        </div>
-        <span style="color:#f87171;font-weight:700;">High</span>
-      </div>
-      <div class="mm-cal-item">
-        <div>
-          <div style="font-weight:700;">EUR — ECB Monetary Policy</div>
-          <div style="color:#94a3b8;font-size:11px;">14:15 UTC • Rate Hold</div>
-        </div>
-        <span style="color:#fbbf24;font-weight:700;">Medium</span>
-      </div>
-      <div class="mm-cal-item">
-        <div>
-          <div style="font-weight:700;">BTC / ETH — Session Liquidity</div>
-          <div style="color:#94a3b8;font-size:11px;">16:00 UTC • US Open</div>
-        </div>
-        <span style="color:#4ade80;font-weight:700;">Active</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- BOTTOM PILL DOCK -->
-<div id="mm-bottom-dock-wrap">
-  <div id="mm-bottom-pill">
-    <button type="button" class="mm-nav-item active" data-mm-tab="home" data-mm-action="home">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z"/></svg>
-      <span>Home</span>
-    </button>
-    <button type="button" class="mm-nav-item" data-mm-tab="explore" data-mm-action="explore">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-      <span>Explore</span>
-    </button>
-    <button type="button" class="mm-nav-item" data-mm-tab="money" data-mm-action="money">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-5 0c0 2.5 5 2 5 4.5a2.5 2.5 0 0 1-5 0M12 6.5v11"/></svg>
-      <span>Money</span>
-    </button>
-    <button type="button" class="mm-nav-item" data-mm-tab="rewards" data-mm-action="rewards">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.9 6.1L22 9.2l-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 7.1-1.1L12 2z"/></svg>
-      <span>Rewards</span>
-    </button>
-  </div>
-  <button type="button" id="mm-plus-fab" title="NOWPayments & Setup Portal" data-mm-action="setup">+</button>
-</div>
-
-<!-- SLIDE MENU DRAWER -->
-<div id="mm-drawer-backdrop" data-mm-action="close-drawer"></div>
-<div id="mm-slide-drawer">
-  <div style="display:flex;align-items:center;justify-content:space-between;">
-    <button type="button" data-mm-action="close-drawer" style="width:36px;height:36px;border-radius:50%;background:#16181c;border:none;color:#fff;font-size:18px;cursor:pointer;">‹</button>
-    <span style="font-weight:700;font-size:14px;">Portal Menu</span>
-    <span style="width:36px;"></span>
-  </div>
-
-  <div class="mm-quick-3">
-    <button type="button" class="mm-quick-tile" data-mm-action="activity"><span>🕒</span>Activity</button>
-    <button type="button" class="mm-quick-tile" data-mm-action="scan"><span>⛶</span>Scan</button>
-    <button type="button" class="mm-quick-tile" data-mm-action="batch"><span>%/</span>Batch Sell</button>
-  </div>
-
-  <button type="button" class="mm-menu-row" data-mm-action="notifications">
-    <span>🔔 Notifications</span><span class="mm-badge-red">4</span>
-  </button>
-  <button type="button" class="mm-menu-row" data-mm-action="money">
-    <span>💳 Broker Card & Deposit</span><span>›</span>
-  </button>
-
-  <div class="mm-menu-group-title">Manage</div>
-  <button type="button" class="mm-menu-row" data-mm-action="setup"><span>⚙️ Settings & Deposit Link</span><span>›</span></button>
-  <button type="button" class="mm-menu-row" data-mm-action="contacts"><span>🔖 Contacts</span><span>›</span></button>
-  <button type="button" class="mm-menu-row" data-mm-action="permissions"><span>🛡 Permissions</span><span>›</span></button>
-  <button type="button" class="mm-menu-row" data-mm-action="networks"><span>🕸 Networks</span><span>›</span></button>
-
-  <div class="mm-menu-group-title">Resources</div>
-  <button type="button" class="mm-menu-row" data-mm-action="about"><span>ⓘ About Metro</span><span>›</span></button>
-  <button type="button" class="mm-menu-row" data-mm-action="feature"><span>📄 Request a feature</span><span>›</span></button>
-  <button type="button" class="mm-menu-row" data-mm-action="support"><span>💬 Contact support</span><span>›</span></button>
-</div>
-
-<!-- PORTAL MODAL -->
-<div id="mm-portal-modal">
-  <div class="mm-modal-card">
+<div id="mm-ref-modal">
+  <div class="mm-ref-box">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <strong id="mm-portal-title" style="font-size:16px;">Portal</strong>
-      <button type="button" id="mm-portal-close-btn" style="background:#262932;border:none;color:#fff;border-radius:999px;width:30px;height:30px;font-size:15px;cursor:pointer;">✕</button>
+      <strong id="mm-ref-title" style="font-size:15px;">Portal</strong>
+      <button type="button" id="mm-ref-close" style="background:#262932;color:#fff;border:none;border-radius:999px;width:28px;height:28px;cursor:pointer;">✕</button>
     </div>
-    <div id="mm-portal-body" style="font-size:13px;line-height:1.55;color:#cbd5e1;"></div>
+    <div id="mm-ref-body" style="font-size:13px;line-height:1.55;color:#cbd5e1;"></div>
   </div>
 </div>
 
-<script id="metro-fresh-portal-script">
+<script id="metro-refined-dock-script">
   (function () {
-    const NP_KEY = "metro_broker_nowpayments_link_v1";
-    const NP_AFFILIATE = "https://account.nowpayments.io/create-account?link_id=2838677802";
-    const TELEGRAM_SALE_LINK = "https://t.me/CertifiedTalkinMount";
+    var NP_KEY = "metro_broker_nowpayments_link_v1";
+    var NP_AFFILIATE = "https://account.nowpayments.io/create-account?link_id=2838677802";
+    var TG_LINK = "https://t.me/CertifiedTalkinMount";
 
-    function setActiveTab(tab) {
-      document.querySelectorAll(".mm-nav-item").forEach(function (btn) {
-        btn.classList.toggle("active", btn.dataset.mmTab === tab);
-      });
-    }
+    var modal = document.getElementById("mm-ref-modal");
+    var titleEl = document.getElementById("mm-ref-title");
+    var bodyEl = document.getElementById("mm-ref-body");
+    var closeBtn = document.getElementById("mm-ref-close");
 
-    function openDrawer() {
-      document.getElementById("mm-slide-drawer")?.classList.add("open");
-      document.getElementById("mm-drawer-backdrop")?.classList.add("open");
-    }
-
-    function closeDrawer() {
-      document.getElementById("mm-slide-drawer")?.classList.remove("open");
-      document.getElementById("mm-drawer-backdrop")?.classList.remove("open");
-    }
-
-    function closeModal() {
-      const modal = document.getElementById("mm-portal-modal");
-      if (modal) modal.classList.remove("open");
+    function setActive(key) {
+      var btns = document.querySelectorAll(".mm-ref-btn");
+      for (var i = 0; i < btns.length; i++) {
+        if (btns[i].getAttribute("data-mm-ref") === key) {
+          btns[i].classList.add("active");
+        } else {
+          btns[i].classList.remove("active");
+        }
+      }
     }
 
     function openModal(title, html) {
-      closeDrawer();
-      const modal = document.getElementById("mm-portal-modal");
-      const titleEl = document.getElementById("mm-portal-title");
-      const bodyEl = document.getElementById("mm-portal-body");
       if (!modal || !titleEl || !bodyEl) return;
       titleEl.textContent = title;
       bodyEl.innerHTML = html;
       modal.classList.add("open");
     }
 
-    function runAction(action) {
-      const savedNp = (localStorage.getItem(NP_KEY) || "").trim();
-      const brokerId = new URLSearchParams(window.location.search).get("broker") || "brk-master";
+    function closeModal() {
+      if (modal) modal.classList.remove("open");
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeModal);
+    }
+    if (modal) {
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    function handleRefAction(action) {
+      var savedNp = "";
+      try {
+        savedNp = (localStorage.getItem(NP_KEY) || "").trim();
+      } catch (err) {}
 
       if (action === "home") {
-        setActiveTab("home");
+        setActive("home");
         closeModal();
-        closeDrawer();
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
 
-      if (action === "drawer") {
-        openDrawer();
-        return;
-      }
-
-      if (action === "close-drawer") {
-        closeDrawer();
-        return;
-      }
-
       if (action === "money") {
-        setActiveTab("money");
-        const targetUrl = savedNp || NP_AFFILIATE;
-        const win = window.open(targetUrl, "_blank", "noopener,noreferrer");
+        setActive("money");
+        var target = savedNp || NP_AFFILIATE;
+        var win = window.open(target, "_blank", "noopener,noreferrer");
         if (!win) {
           openModal(
-            "Money • NOWPayments Deposit",
-            '<p>Click below to open NOWPayments for deposit:</p>' +
-              '<a href="' + targetUrl + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:9px 14px;border-radius:10px;background:#22c55e;color:#08090a;font-weight:700;text-decoration:none;margin-bottom:10px;">Open NOWPayments ↗</a>' +
-              '<div style="font-size:12px;color:#94a3b8;">Sale / Referral Telegram: <a href="' + TELEGRAM_SALE_LINK + '" target="_blank" rel="noopener noreferrer" style="color:#60a5fa;">@CertifiedTalkinMount</a></div>'
+            "Money • NOWPayments",
+            '<p>Open NOWPayments below:</p>' +
+              '<a href="' + target + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border-radius:10px;background:#22c55e;color:#08090a;font-weight:700;text-decoration:none;">Open NOWPayments ↗</a>'
           );
         }
         return;
       }
 
       if (action === "rewards") {
-        setActiveTab("rewards");
+        setActive("rewards");
         openModal(
-          "Sale & Referral Link (@CertifiedTalkinMount)",
-          '<p>Share your Telegram sale & referral link directly:</p>' +
-            '<input id="mm-tg-ref-input" readonly value="' + TELEGRAM_SALE_LINK + '" style="width:100%;box-sizing:border-box;padding:9px;border-radius:10px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;"/>' +
-            '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-            '<button type="button" id="mm-copy-tg-btn" style="padding:8px 14px;border-radius:999px;border:none;background:#fff;color:#08090a;font-weight:700;cursor:pointer;">Copy Link</button>' +
-            '<a href="' + TELEGRAM_SALE_LINK + '" target="_blank" rel="noopener noreferrer" style="padding:8px 14px;border-radius:999px;background:#2563eb;color:#fff;font-weight:700;text-decoration:none;">Open Telegram ↗</a>' +
-            "</div>"
+          "Sale & Referral Link",
+          '<p>Share your Telegram link for sales & referrals:</p>' +
+            '<input id="mm-tg-copy-input" type="text" readonly value="' + TG_LINK + '" style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;" />' +
+            '<button type="button" id="mm-tg-copy-btn" style="padding:8px 14px;border-radius:999px;border:none;background:#fff;color:#08090a;font-weight:700;cursor:pointer;margin-right:8px;">Copy Telegram Link</button>' +
+            '<a href="' + TG_LINK + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border-radius:999px;background:#2563eb;color:#fff;font-weight:700;text-decoration:none;">Open @CertifiedTalkinMount ↗</a>'
         );
         setTimeout(function () {
-          document.getElementById("mm-copy-tg-btn")?.addEventListener("click", function () {
-            navigator.clipboard?.writeText(TELEGRAM_SALE_LINK);
-            this.textContent = "Copied!";
-          });
-        }, 20);
+          var copyBtn = document.getElementById("mm-tg-copy-btn");
+          if (copyBtn) {
+            copyBtn.addEventListener("click", function () {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(TG_LINK);
+              }
+              copyBtn.textContent = "Copied!";
+            });
+          }
+        }, 25);
         return;
       }
 
       if (action === "explore") {
-        setActiveTab("explore");
+        setActive("explore");
         openModal(
           "Explore Markets",
-          "<p><b>Stock:</b> NVDA, AAPL, TSLA  |  <b>Crypto:</b> BTC, ETH, SOL</p>" +
-            "<p><b>Perps:</b> BTC 40x, NVDA 10x  |  <b>RWAs:</b> Gold (XAU), US10Y</p>" +
-            "<p><b>Trending & Top Traders:</b> 0xa99... (+$263.1K), MoonS... (+$64.8K)</p>" +
-            '<div style="margin-top:10px;font-size:12px;color:#94a3b8;">Sales & Referrals: <a href="' + TELEGRAM_SALE_LINK + '" target="_blank" rel="noopener noreferrer" style="color:#60a5fa;">@CertifiedTalkinMount</a></div>'
+          "<p><b>Stock:</b> NVDA, AAPL, TSLA</p>" +
+            "<p><b>Crypto & Perps:</b> BTC, ETH, SOL</p>" +
+            "<p><b>RWAs & Top Traders:</b> XAU, US10Y, 0xa99..., MoonS...</p>" +
+            '<p style="margin-top:8px;">Sales / Referrals: <a href="' + TG_LINK + '" target="_blank" rel="noopener noreferrer" style="color:#60a5fa;">@CertifiedTalkinMount</a></p>'
         );
         return;
       }
 
       if (action === "setup") {
+        setActive("setup");
         openModal(
-          "NOWPayments & Sale Link Setup",
-          '<p>Sale / Referral Link: <a href="' + TELEGRAM_SALE_LINK + '" target="_blank" rel="noopener noreferrer" style="color:#60a5fa;">' + TELEGRAM_SALE_LINK + "</a></p>" +
-            '<p style="margin-top:6px;">New to NOWPayments? <a href="' + NP_AFFILIATE + '" target="_blank" rel="noopener noreferrer" style="color:#4ade80;">Register via Affiliate Link ↗</a></p>' +
-            '<label style="display:block;font-size:11px;margin:8px 0 4px;color:#94a3b8;">Direct NOWPayments Deposit Link (<code>' + NP_KEY + '</code>)</label>' +
-            '<input id="mm-fresh-np-input" value="' + savedNp.replace(/"/g, """) + '" placeholder="https://nowpayments.io/payment/?iid=..." style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;"/>' +
-            '<button type="button" id="mm-fresh-np-save" style="padding:8px 14px;border-radius:999px;border:none;background:#f59e0b;color:#08090a;font-weight:700;cursor:pointer;">Save Deposit Link</button>' +
-            '<span id="mm-fresh-np-msg" style="margin-left:10px;color:#4ade80;font-size:12px;"></span>'
+          "NOWPayments & Telegram Setup",
+          '<p>Sale / Referral Telegram: <a href="' + TG_LINK + '" target="_blank" rel="noopener noreferrer" style="color:#60a5fa;">' + TG_LINK + "</a></p>" +
+            '<p>New to NOWPayments? <a href="' + NP_AFFILIATE + '" target="_blank" rel="noopener noreferrer" style="color:#4ade80;">Register via Affiliate Link ↗</a></p>' +
+            '<label style="display:block;font-size:11px;color:#94a3b8;margin:8px 0 4px;">Direct NOWPayments Deposit URL</label>' +
+            '<input id="mm-np-url-box" type="text" value="' + savedNp.replace(/"/g, """) + '" placeholder="https://nowpayments.io/payment/?iid=..." style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;" />' +
+            '<button type="button" id="mm-np-save-btn" style="padding:8px 14px;border-radius:999px;border:none;background:#f59e0b;color:#08090a;font-weight:700;cursor:pointer;">Save Link</button>' +
+            '<span id="mm-np-saved-msg" style="margin-left:10px;color:#4ade80;font-size:12px;"></span>'
         );
         setTimeout(function () {
-          document.getElementById("mm-fresh-np-save")?.addEventListener("click", function () {
-            const v = (document.getElementById("mm-fresh-np-input")?.value || "").trim();
-            if (v) localStorage.setItem(NP_KEY, v);
-            else localStorage.removeItem(NP_KEY);
-            const m = document.getElementById("mm-fresh-np-msg");
-            if (m) m.textContent = "Saved!";
-          });
-        }, 20);
-        return;
+          var saveBtn = document.getElementById("mm-np-save-btn");
+          if (saveBtn) {
+            saveBtn.addEventListener("click", function () {
+              var box = document.getElementById("mm-np-url-box");
+              var msg = document.getElementById("mm-np-saved-msg");
+              var val = box ? box.value.trim() : "";
+              try {
+                if (val) localStorage.setItem(NP_KEY, val);
+                else localStorage.removeItem(NP_KEY);
+              } catch (err) {}
+              if (msg) msg.textContent = "Saved!";
+            });
+          }
+        }, 25);
       }
-
-      const infoMap = {
-        activity: ["Activity Portal", "<p>Active Broker ID: <b>" + brokerId + "</b><br>Sale / Referral: <a href='" + TELEGRAM_SALE_LINK + "' target='_blank' rel='noopener noreferrer' style='color:#60a5fa;'>@CertifiedTalkinMount</a></p>"],
-        scan: ["Scan Portal", "<p>Scan or paste a NOWPayments payment link or Telegram sale link (@CertifiedTalkinMount).</p>"],
-        batch: ["Batch Sell Portal", "<p>Manage batch position closes and settlements.</p>"],
-        notifications: ["Notifications (4)", "<p>1. NOWPayments deposit routing active<br>2. Telegram sale link set to @CertifiedTalkinMount<br>3. Market calendar ready<br>4. Broker ID synced</p>"],
-        contacts: ["Contacts Portal", "<p>Sales & referral inquiries route to <a href='" + TELEGRAM_SALE_LINK + "' target='_blank' rel='noopener noreferrer' style='color:#60a5fa;'>@CertifiedTalkinMount</a>.</p>"],
-        permissions: ["Permissions Portal", "<p>Role access & PIN controls for Broker Owner.</p>"],
-        networks: ["Networks Portal", "<p>Supported networks: BTC, ETH, USDT, SOL, BNB.</p>"],
-        about: ["About Metro", "<p>Metro Portal — Broker ID: <b>" + brokerId + "</b><br>Sale / Referral: <b>@CertifiedTalkinMount</b></p>"],
-        feature: ["Request a Feature", "<p>Send feature requests to <a href='" + TELEGRAM_SALE_LINK + "' target='_blank' rel='noopener noreferrer' style='color:#60a5fa;'>@CertifiedTalkinMount</a>.</p>"],
-        support: ["Contact Support", "<p>Reach support or sales on Telegram: <a href='" + TELEGRAM_SALE_LINK + "' target='_blank' rel='noopener noreferrer' style='color:#60a5fa;'>@CertifiedTalkinMount</a>.</p>"]
-      };
-
-      const entry = infoMap[action] || infoMap.about;
-      openModal(entry[0], entry[1]);
     }
-
-    document.getElementById("mm-portal-close-btn")?.addEventListener("click", closeModal);
-    document.getElementById("mm-portal-modal")?.addEventListener("click", function (e) {
-      if (e.target === this) closeModal();
-    });
 
     document.addEventListener(
       "click",
       function (e) {
-        const el = e.target.closest("[data-mm-action], button, a, [role='button']");
-        if (!el) return;
-        if (el.closest("#mm-portal-modal")) return;
-
-        if (el.dataset && el.dataset.mmAction) {
-          e.preventDefault();
-          runAction(el.dataset.mmAction);
-          return;
-        }
-
-        const txt = (el.textContent || "").trim().toLowerCase();
-        const tab = (el.dataset && el.dataset.mmTab) || "";
-        if (tab === "home" || txt === "home") {
-          e.preventDefault();
-          runAction("home");
-        } else if (tab === "explore" || txt === "explore") {
-          e.preventDefault();
-          runAction("explore");
-        } else if (tab === "money" || txt === "money") {
-          e.preventDefault();
-          runAction("money");
-        } else if (tab === "rewards" || txt === "rewards") {
-          e.preventDefault();
-          runAction("rewards");
-        } else if (el.id === "mm-plus-fab" || txt === "+") {
-          e.preventDefault();
-          runAction("setup");
+        var target = e.target;
+        while (target && target !== document) {
+          if (target.getAttribute && target.getAttribute("data-mm-ref")) {
+            e.preventDefault();
+            handleRefAction(target.getAttribute("data-mm-ref"));
+            return;
+          }
+          target = target.parentNode;
         }
       },
       true
     );
-
-    // Broker ID pill setup
-    const params = new URLSearchParams(window.location.search);
-    const brokerId = params.get("broker") || "brk-master";
-    const labelEl = document.getElementById("mm-active-broker-id-label");
-    const pillEl = document.getElementById("mm-broker-id-pill");
-    if (labelEl) labelEl.textContent = "Broker ID: " + brokerId;
-    pillEl?.addEventListener("click", function () {
-      navigator.clipboard?.writeText(brokerId);
-      if (labelEl) {
-        labelEl.textContent = "Copied: " + brokerId;
-        setTimeout(function () {
-          labelEl.textContent = "Broker ID: " + brokerId;
-        }, 1500);
-      }
-    });
-
-    // TradingView Chart embed
-    const tvBox = document.getElementById("mm-tradingview-widget");
-    if (tvBox) {
-      tvBox.innerHTML =
-        '<iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tv_mm&symbol=BINANCE%3ABTCUSDT&interval=60&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hide_side_toolbar=1" style="width:100%;height:100%;border:0;" allowtransparency="true"></iframe>';
-    }
   })();
 </script>
 </body>
