@@ -1870,4 +1870,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.body) obs.observe(document.body, { childList: true, subtree: true });
   })();
 </script>
+  <script id="metro-sync-bg">
+  (function () {
+    const BG_KEY_NAME = "metro_custom_bg_v1";
+
+    function syncBg() {
+      try {
+        const savedBg = JSON.parse(localStorage.getItem(BG_KEY_NAME) || "null");
+        if (!savedBg || !savedBg.src) {
+          document.body.style.removeProperty("background-image");
+          document.body.style.removeProperty("background-size");
+          document.body.style.removeProperty("background-position");
+          document.body.style.removeProperty("background-attachment");
+          return;
+        }
+        document.body.style.setProperty(
+          "background-image",
+          `linear-gradient(rgba(10, 14, 24, 0.58), rgba(10, 14, 24, 0.66)), url("${savedBg.src}")`,
+          "important"
+        );
+        document.body.style.setProperty("background-size", "cover", "important");
+        document.body.style.setProperty("background-position", "center center", "important");
+        document.body.style.setProperty("background-attachment", "fixed", "important");
+      } catch (e) {}
+    }
+
+    syncBg();
+    window.addEventListener("storage", function (e) {
+      if (e.key === BG_KEY_NAME) syncBg();
+    });
+  })();
+</script>
 </html>
