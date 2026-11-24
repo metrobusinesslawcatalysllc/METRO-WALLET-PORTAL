@@ -2685,5 +2685,94 @@ function ttRenderPositions() {
     }
   })();
 </script>
+  <script id="metro-ui-label-cleanup-script">
+  (function () {
+    const HIDE_EXACT_OR_CONTAINS = [
+      "Practice & simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value."
+    ];
+
+    const TEXT_REPLACEMENTS = [
+      { from: "Simulation & Desk Overview", to: "Desk Overview" },
+      { from: "Synced with Google Sheets", to: "Synced" },
+      { from: "Glamour Market Cards", to: "Market Cards" }
+    ];
+
+    function cleanDomLabels(root) {
+      if (!root) return;
+
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      const textNodes = [];
+      let currentNode;
+
+      while ((currentNode = walker.nextNode())) {
+        textNodes.push(currentNode);
+      }
+
+      textNodes.forEach((node) => {
+        const raw = node.nodeValue || "";
+        const trimmed = raw.trim();
+        if (!trimmed) return;
+
+        // 1. Hide simulation disclaimer line/banner
+        const shouldHide = HIDE_EXACT_OR_CONTAINS.some((phrase) =>
+          trimmed.includes(phrase)
+        );
+        if (shouldHide) {
+          const targetEl =
+            node.parentElement &&
+            node.parentElement.closest(
+              "p, div, span, small, section, .banner, .disclaimer, .note"
+            ) || node.parentElement;
+
+          if (targetEl && targetEl !== document.body && targetEl !== document.documentElement) {
+            targetEl.style.setProperty("display", "none", "important");
+          }
+          return;
+        }
+
+        // 2. Replace exact / substring labels cleanly
+        let updated = raw;
+        TEXT_REPLACEMENTS.forEach(({ from, to }) => {
+          if (updated.includes(from)) {
+            updated = updated.split(from).join(to);
+          }
+        });
+
+        if (updated !== raw) {
+          node.nodeValue = updated;
+        }
+      });
+    }
+
+    function runCleanup() {
+      cleanDomLabels(document.body);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", runCleanup);
+    } else {
+      runCleanup();
+    }
+
+    // Re-run if dynamic sections or scripts render after initial load
+    const observer = new MutationObserver(() => {
+      observer.disconnect();
+      runCleanup();
+      if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+      }
+    });
+
+    if (document.body) {
+      observer.observe(document.body, { childList: true, subtree: true });
+    } else {
+      document.addEventListener("DOMContentLoaded", () => {
+        if (document.body) {
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+      });
+    }
+  })();
+</script>
 </body>
 </html>
