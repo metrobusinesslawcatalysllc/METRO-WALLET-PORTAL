@@ -3696,5 +3696,612 @@ function ttRenderPositions() {
     });
   })();
 </script>
+  <!-- METRO EXPANDED EXPLORE HUB + TOKENS/WATCHLIST/CHART + BROKER & CLIENT PORTAL SUITE -->
+<style id="metro-expanded-portal-style">
+  .mm-exp-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .mm-exp-tab {
+    background: #181a20;
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    padding: 6px 11px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .mm-exp-tab.active {
+    background: #ffffff;
+    color: #08090a;
+  }
+
+  .mm-subgrid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 760px) {
+    .mm-subgrid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .mm-mini-card {
+    background: rgba(15, 17, 21, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px;
+  }
+
+  .mm-asset-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .mm-asset-line:last-child {
+    border-bottom: none;
+  }
+
+  .mm-btn-sm {
+    background: #242832;
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .mm-btn-sm:hover {
+    background: #ffffff;
+    color: #08090a;
+  }
+</style>
+
+<script id="metro-expanded-portal-script">
+  (function () {
+    const WATCHLIST_KEY = "metro_watchlist_symbols_v1";
+    const ORDERS_KEY = "metro_portal_orders_v1";
+    const ALERTS_KEY = "metro_portal_alerts_v1";
+
+    const EXPLORE_DATA = {
+      stock: {
+        title: "Stock Markets",
+        items: [
+          { sym: "NASDAQ:NVDA", name: "NVIDIA Corp", price: "$148.20", chg: "+4.82%", pos: true },
+          { sym: "NASDAQ:AAPL", name: "Apple Inc.", price: "$229.40", chg: "+1.14%", pos: true },
+          { sym: "NASDAQ:TSLA", name: "Tesla Inc.", price: "$254.10", chg: "-1.95%", pos: false },
+          { sym: "NYSE:MSFT", name: "Microsoft Corp", price: "$426.80", chg: "+0.78%", pos: true }
+        ]
+      },
+      crypto: {
+        title: "Crypto Move",
+        items: [
+          { sym: "BINANCE:BTCUSDT", name: "Bitcoin Move", price: "$60,088.72", chg: "-2.30%", pos: false },
+          { sym: "BINANCE:ETHUSDT", name: "Ethereum Move", price: "$1,680.74", chg: "-2.42%", pos: false },
+          { sym: "BINANCE:SOLUSDT", name: "Solana Move", price: "$70.57", chg: "-2.55%", pos: false },
+          { sym: "BINANCE:BNBUSDT", name: "BNB Move", price: "$546.99", chg: "-1.65%", pos: false }
+        ]
+      },
+      perps: {
+        title: "Perps Move",
+        items: [
+          { sym: "BINANCE:BTCUSDT.P", name: "BTC Perp (40x)", price: "$60,112.00", chg: "-2.24%", pos: false },
+          { sym: "NASDAQ:NVDA", name: "NVDA Perp (10x)", price: "$148.20", chg: "+14.90%", pos: true },
+          { sym: "BINANCE:ETHUSDT.P", name: "ETH Perp (25x)", price: "$1,682.10", chg: "-1.88%", pos: false }
+        ]
+      },
+      trending: {
+        title: "Trending Lists",
+        items: [
+          { sym: "BINANCE:BTCUSDT", name: "#1 Trending • BTC", price: "$60,088.72", chg: "+6.40% Vol", pos: true },
+          { sym: "NASDAQ:NVDA", name: "#2 Trending • NVDA", price: "$148.20", chg: "+14.90%", pos: true },
+          { sym: "BINANCE:PEPEUSDT", name: "#3 Trending • PEPE", price: "$0.0₅348", chg: "+1.47%", pos: true }
+        ]
+      },
+      traders: {
+        title: "Top Traders",
+        items: [
+          { sym: "BINANCE:BTCUSDT", name: "0xa99... (BTC Scalper)", price: "+$263.1K PnL", chg: "Win 74%", pos: true },
+          { sym: "BINANCE:SOLUSDT", name: "MoonS... (Momentum)", price: "+$64.8K PnL", chg: "Win 68%", pos: true },
+          { sym: "FX_IDC:EURUSD", name: "FXDesk_US (Macro)", price: "+$41.2K PnL", chg: "Win 71%", pos: true }
+        ]
+      },
+      now: {
+        title: "Now • Live Feed",
+        items: [
+          { sym: "BINANCE:BTCUSDT", name: "US Liquidity Window Open", price: "Live Now", chg: "High Vol", pos: true },
+          { sym: "FX_IDC:XAUUSD", name: "Gold Spot Breakout Watch", price: "$2,642.50", chg: "+0.92%", pos: true }
+        ]
+      },
+      rwas: {
+        title: "RWAs (Real World Assets)",
+        items: [
+          { sym: "FX_IDC:XAUUSD", name: "Tokenized Gold (XAU)", price: "$2,642.50", chg: "+0.92%", pos: true },
+          { sym: "TVC:US10Y", name: "US Treasury 10Y Yield", price: "4.32%", chg: "+0.04%", pos: true }
+        ]
+      },
+      sport: {
+        title: "Sport Markets",
+        items: [
+          { sym: "BINANCE:BTCUSDT", name: "Pro Football Championship", price: "19% Odds", chg: "SF", pos: true },
+          { sym: "BINANCE:ETHUSDT", name: "EPL Title Market", price: "74% Odds", chg: "ARS", pos: true }
+        ]
+      },
+      sites: {
+        title: "Sites & Portals",
+        items: [
+          { sym: "client.html", name: "Client Trading Portal", price: "Portal", chg: "Open", pos: true, url: "client.html" },
+          { sym: "sub-admin.html", name: "Sub Admin Portal", price: "Portal", chg: "Open", pos: true, url: "sub-admin.html" },
+          { sym: "admin-manager.html", name: "Admin Manager Portal", price: "Portal", chg: "Open", pos: true, url: "admin-manager.html" }
+        ]
+      }
+    };
+
+    const TOKENS_LIST = [
+      { sym: "BINANCE:BTCUSDT", name: "Bitcoin (BTC)", price: "$60,088.72", chg: "-2.30%", pos: false },
+      { sym: "BINANCE:ETHUSDT", name: "Ethereum (ETH)", price: "$1,680.74", chg: "-2.42%", pos: false },
+      { sym: "BINANCE:SOLUSDT", name: "Solana (SOL)", price: "$70.57", chg: "-2.55%", pos: false },
+      { sym: "BINANCE:BNBUSDT", name: "BNB", price: "$546.99", chg: "-1.65%", pos: false }
+    ];
+
+    function getWatchlist() {
+      try {
+        const arr = JSON.parse(localStorage.getItem(WATCHLIST_KEY) || "null");
+        return Array.isArray(arr) && arr.length ? arr : ["BINANCE:BTCUSDT", "NASDAQ:NVDA", "FX_IDC:EURUSD"];
+      } catch (e) {
+        return ["BINANCE:BTCUSDT", "NASDAQ:NVDA"];
+      }
+    }
+
+    function saveWatchlist(list) {
+      localStorage.setItem(WATCHLIST_KEY, JSON.stringify(Array.from(new Set(list))));
+    }
+
+    window.mmSetChartSymbol = function (symbol) {
+      const tvBox = document.getElementById("mm-tradingview-widget");
+      if (tvBox) {
+        tvBox.innerHTML =
+          '<iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tv_mm&symbol=' +
+          encodeURIComponent(symbol) +
+          '&interval=60&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hide_side_toolbar=1" style="width:100%;height:100%;border:0;" allowtransparency="true"></iframe>';
+      }
+      if (typeof mmClosePortal === "function") mmClosePortal();
+      if (typeof mmSetActiveNav === "function") mmSetActiveNav("home");
+    };
+
+    window.mmToggleWatch = function (symbol, category) {
+      const current = getWatchlist();
+      const idx = current.indexOf(symbol);
+      if (idx >= 0) current.splice(idx, 1);
+      else current.push(symbol);
+      saveWatchlist(current);
+      renderExploreCategory(category || "stock");
+    };
+
+    function renderExploreCategory(catKey) {
+      const bodyEl = document.getElementById("mm-portal-body");
+      const titleEl = document.getElementById("mm-portal-title");
+      if (!bodyEl || !titleEl) return;
+
+      const cat = EXPLORE_DATA[catKey] || EXPLORE_DATA.stock;
+      const watch = getWatchlist();
+      titleEl.textContent = "Explore • " + cat.title;
+
+      const tabsHtml = Object.keys(EXPLORE_DATA)
+        .map(function (k) {
+          const activeClass = k === catKey ? "mm-exp-tab active" : "mm-exp-tab";
+          const labelMap = {
+            stock: "Stock",
+            crypto: "Crypto Move",
+            perps: "Perps Move",
+            trending: "Trending Lists",
+            traders: "Top Traders",
+            now: "Now",
+            rwas: "RWAs",
+            sport: "Sport",
+            sites: "Sites"
+          };
+          return '<button type="button" class="' + activeClass + '" onclick="window.__mmRenderExp(\'' + k + '\')">' + labelMap[k] + "</button>";
+        })
+        .join("");
+
+      const rowsHtml = cat.items
+        .map(function (it) {
+          const isWatched = watch.indexOf(it.sym) >= 0;
+          const color = it.pos ? "#4ade80" : "#f87171";
+          const actionBtn = it.url
+            ? '<a href="' + it.url + '" class="mm-btn-sm" style="text-decoration:none;">Open</a>'
+            : '<button type="button" class="mm-btn-sm" onclick="window.mmSetChartSymbol(\'' + it.sym + '\')">Chart</button>' +
+              '<button type="button" class="mm-btn-sm" onclick="window.mmToggleWatch(\'' + it.sym + '\',\'' + catKey + '\')">' +
+              (isWatched ? "★" : "☆") +
+              "</button>";
+          return (
+            '<div class="mm-asset-line">' +
+            '<div><b>' + it.name + '</b><div style="color:#94a3b8;font-size:11px;">' + it.sym + "</div></div>" +
+            '<div style="text-align:right;"><div style="font-weight:700;">' + it.price + '</div><div style="color:' + color + ';font-size:11px;">' + it.chg + "</div></div>" +
+            '<div style="display:flex;gap:5px;">' + actionBtn + "</div>" +
+            "</div>"
+          );
+        })
+        .join("");
+
+      const tokensHtml = TOKENS_LIST.map(function (t) {
+        return (
+          '<div class="mm-asset-line"><span><b>' +
+          t.name +
+          '</b> <span style="color:#94a3b8;">' +
+          t.price +
+          '</span></span><button type="button" class="mm-btn-sm" onclick="window.mmSetChartSymbol(\'' +
+          t.sym +
+          "')\">Load</button></div>"
+        );
+      }).join("");
+
+      const watchHtml = watch
+        .map(function (sym) {
+          return (
+            '<div class="mm-asset-line"><span>★ <b>' +
+            sym +
+            '</b></span><button type="button" class="mm-btn-sm" onclick="window.mmSetChartSymbol(\'' +
+            sym +
+            "')\">Chart</button></div>"
+          );
+        })
+        .join("");
+
+      bodyEl.innerHTML =
+        '<div class="mm-exp-tabs">' +
+        tabsHtml +
+        "</div>" +
+        '<div class="mm-mini-card">' +
+        rowsHtml +
+        "</div>" +
+        '<div class="mm-subgrid-2">' +
+        '<div class="mm-mini-card"><div style="font-weight:700;margin-bottom:6px;">Tokens</div>' +
+        tokensHtml +
+        "</div>" +
+        '<div class="mm-mini-card"><div style="font-weight:700;margin-bottom:6px;">Watchlist</div>' +
+        watchHtml +
+        "</div>" +
+        "</div>";
+    }
+
+    window.__mmRenderExp = renderExploreCategory;
+
+    // Enhance mmOpenPortal if present to open full Explore + Trading/Broker/Client tools
+    const prevOpenPortal = window.mmOpenPortal;
+    window.mmOpenPortal = function (portalKey) {
+      if (portalKey === "explore") {
+        if (typeof mmSetActiveNav === "function") mmSetActiveNav("explore");
+        const modal = document.getElementById("mm-portal-modal");
+        if (modal) modal.classList.add("open");
+        renderExploreCategory("stock");
+        return;
+      }
+
+      if (typeof prevOpenPortal === "function") {
+        prevOpenPortal(portalKey);
+      }
+
+      const bodyEl = document.getElementById("mm-portal-body");
+      const titleEl = document.getElementById("mm-portal-title");
+      if (!bodyEl || !titleEl) return;
+
+      if (portalKey === "setup" || portalKey === "batch" || portalKey === "activity") {
+        let orders = [];
+        try {
+          orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+        } catch (e) {}
+
+        const extraHtml =
+          '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:12px 0;"/>' +
+          '<div style="font-weight:700;margin-bottom:6px;">Quick Order Ticket & Watchlist Chart Switcher</div>' +
+          '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
+          '<input id="mm-quick-sym" value="BINANCE:BTCUSDT" style="flex:1;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.14);font-size:12px;"/>' +
+          '<input id="mm-quick-amt" placeholder="Size ($)" value="100" style="width:80px;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.14);font-size:12px;"/>' +
+          "</div>" +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          '<button type="button" class="mm-btn-sm" onclick="window.mmSetChartSymbol(document.getElementById(\'mm-quick-sym\').value)">Update Chart</button>' +
+          '<button type="button" class="mm-btn-sm" onclick="const s=document.getElementById(\'mm-quick-sym\').value.trim();const a=document.getElementById(\'mm-quick-amt\').value.trim();const cur=JSON.parse(localStorage.getItem(\'' +
+          ORDERS_KEY +
+          '\')||\'[]\');cur.unshift({sym:s,amt:a,ts:new Date().toLocaleTimeString()});localStorage.setItem(\'' +
+          ORDERS_KEY +
+          '\',JSON.stringify(cur.slice(0,8)));this.textContent=\'Order Logged (\'+(cur.length)+\')\';">Place Order</button>' +
+          "</div>" +
+          '<div style="margin-top:8px;font-size:11px;color:#94a3b8;">Recent Orders: ' +
+          (orders.length ? orders.map(function (o) { return o.sym + " $" + o.amt; }).join(" • ") : "None yet") +
+          "</div>";
+
+        bodyEl.insertAdjacentHTML("beforeend", extraHtml);
+      }
+    };
+  })();
+</script>
+  <!-- METRO BROKER-CONTROLLED CLIENT FEATURES & ADMIN MANAGER LIMITS -->
+<style id="metro-role-controls-style">
+  .mm-ctrl-card {
+    background: rgba(18, 20, 25, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 14px;
+    color: #f8fafc;
+    font-size: 12px;
+  }
+
+  .mm-ctrl-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    gap: 10px;
+  }
+
+  .mm-ctrl-row:last-child {
+    border-bottom: none;
+  }
+
+  .mm-ctrl-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+  }
+
+  .mm-ctrl-badge.on {
+    background: rgba(34, 197, 94, 0.18);
+    color: #4ade80;
+  }
+
+  .mm-ctrl-badge.off {
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171;
+  }
+</style>
+
+<script id="metro-role-controls-script">
+  (function () {
+    const CTRL_KEY = "metro_broker_client_controls_v1";
+    const NP_KEY = "metro_broker_nowpayments_link_v1";
+    const ORDERS_KEY = "metro_portal_orders_v1";
+    const ALERTS_KEY = "metro_portal_alerts_v1";
+
+    const DEFAULT_CONTROLS = {
+      allowDeposit: true,
+      allowOrderTicket: true,
+      allowAlerts: true,
+      allowJournal: true,
+      maxOrderUsd: 500,
+      adminCanToggleOrders: true,
+      adminCanEditAlerts: true,
+      clientStatus: "Active"
+    };
+
+    function getControls() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CTRL_KEY) || "null");
+        return Object.assign({}, DEFAULT_CONTROLS, saved || {});
+      } catch (e) {
+        return Object.assign({}, DEFAULT_CONTROLS);
+      }
+    }
+
+    function saveControls(next) {
+      localStorage.setItem(CTRL_KEY, JSON.stringify(Object.assign({}, DEFAULT_CONTROLS, next)));
+    }
+
+    function detectRole() {
+      const file = (window.location.pathname || "").toLowerCase();
+      if (file.indexOf("broker-owner") >= 0) return "broker_owner";
+      if (file.indexOf("admin-manager") >= 0) return "admin_manager";
+      return "client";
+    }
+
+    // Override Money routing for clients to respect Broker Owner's allowDeposit flag
+    const prevMoneyFn = window.mmOpenNowPaymentsDeposit;
+    window.mmOpenNowPaymentsDeposit = function () {
+      const role = detectRole();
+      const ctrl = getControls();
+      if (role === "client" && !ctrl.allowDeposit) {
+        if (typeof mmOpenPortal === "function") {
+          mmOpenPortal("client_suite");
+        }
+        return;
+      }
+      if (typeof prevMoneyFn === "function") {
+        prevMoneyFn();
+      } else {
+        const saved = (localStorage.getItem(NP_KEY) || "").trim();
+        if (saved) window.open(saved, "_blank", "noopener,noreferrer");
+      }
+    };
+
+    function buildClientSuiteHtml(role, ctrl) {
+      let orders = [];
+      let alerts = [];
+      try {
+        orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+        alerts = JSON.parse(localStorage.getItem(ALERTS_KEY) || "[]");
+      } catch (e) {}
+
+      const statusBadge =
+        '<div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">' +
+        '<span>Account Status: <b style="color:#4ade80;">' + ctrl.clientStatus + "</b></span>" +
+        '<span class="mm-ctrl-badge">Max Order: $' + ctrl.maxOrderUsd + "</span>" +
+        "</div>";
+
+      const depositSection = ctrl.allowDeposit
+        ? '<div class="mm-ctrl-card" style="margin-bottom:10px;">' +
+          '<div style="font-weight:700;margin-bottom:4px;">1. Deposit Funds (NOWPayments)</div>' +
+          '<div style="color:#94a3b8;margin-bottom:8px;">Opens Broker Owner deposit link directly.</div>' +
+          '<button type="button" class="mm-btn-sm" onclick="window.mmOpenNowPaymentsDeposit()">Open NOWPayments Deposit ↗</button>' +
+          "</div>"
+        : '<div class="mm-ctrl-card" style="margin-bottom:10px;opacity:0.75;">' +
+          '<div style="font-weight:700;color:#f87171;">1. Deposits Currently Paused by Broker Owner</div>' +
+          "</div>";
+
+      const orderSection = ctrl.allowOrderTicket
+        ? '<div class="mm-ctrl-card" style="margin-bottom:10px;">' +
+          '<div style="font-weight:700;margin-bottom:6px;">2. Client Order Ticket (Max $' + ctrl.maxOrderUsd + ")</div>" +
+          '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
+          '<input id="mm-cli-sym" value="BINANCE:BTCUSDT" style="flex:1;padding:7px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.14);"/>' +
+          '<input id="mm-cli-usd" type="number" max="' + ctrl.maxOrderUsd + '" value="' + Math.min(100, ctrl.maxOrderUsd) + '" style="width:84px;padding:7px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.14);"/>' +
+          "</div>" +
+          '<button type="button" class="mm-btn-sm" onclick="window.__mmPlaceClientOrder()">Submit Order</button>' +
+          '<div id="mm-cli-order-msg" style="color:#4ade80;margin-top:6px;"></div>' +
+          '<div style="color:#94a3b8;margin-top:6px;font-size:11px;">Recent: ' +
+          (orders.length ? orders.slice(0, 3).map(function (o) { return o.sym + " $" + o.usd; }).join(" | ") : "No orders yet") +
+          "</div></div>"
+        : '<div class="mm-ctrl-card" style="margin-bottom:10px;opacity:0.75;">' +
+          '<div style="font-weight:700;color:#f87171;">2. Order Ticket Disabled by Broker Owner</div>' +
+          "</div>";
+
+      const alertsSection = ctrl.allowAlerts
+        ? '<div class="mm-ctrl-card" style="margin-bottom:10px;">' +
+          '<div style="font-weight:700;margin-bottom:6px;">3. Price Alert</div>' +
+          '<div style="display:flex;gap:6px;">' +
+          '<input id="mm-cli-alert-txt" placeholder="e.g. BTC above $62,000" style="flex:1;padding:7px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.14);"/>' +
+          '<button type="button" class="mm-btn-sm" onclick="window.__mmAddClientAlert()">Add</button>' +
+          "</div>" +
+          '<div style="color:#94a3b8;margin-top:6px;font-size:11px;">Active Alerts: ' +
+          (alerts.length ? alerts.slice(0, 3).join(" • ") : "None") +
+          "</div></div>"
+        : "";
+
+      const govNote =
+        '<div style="font-size:11px;color:#94a3b8;">Governance: Managed by <b>Broker Owner</b>; monitored/limited by <b>Admin Manager</b>.</div>';
+
+      return statusBadge + depositSection + orderSection + alertsSection + govNote;
+    }
+
+    function buildBrokerOrAdminControlsHtml(role, ctrl) {
+      const isOwner = role === "broker_owner";
+      const canEdit = isOwner ? true : Boolean(ctrl.adminCanToggleOrders);
+
+      return (
+        '<div class="mm-ctrl-card">' +
+        '<div style="font-weight:700;margin-bottom:8px;">' +
+        (isOwner ? "Broker Owner — Full Client Controls" : "Admin Manager — Limited Client Controls") +
+        "</div>" +
+        '<div class="mm-ctrl-row">' +
+        "<span>Client NOWPayments Deposit</span>" +
+        (isOwner
+          ? '<button type="button" class="mm-btn-sm" onclick="window.__mmToggleCtrl(\'allowDeposit\')">' + (ctrl.allowDeposit ? "Enabled" : "Disabled") + "</button>"
+          : '<span class="mm-ctrl-badge ' + (ctrl.allowDeposit ? "on" : "off") + '">' + (ctrl.allowDeposit ? "Enabled (Owner Lock)" : "Disabled (Owner Lock)") + "</span>") +
+        "</div>" +
+        '<div class="mm-ctrl-row">' +
+        "<span>Client Order Ticket</span>" +
+        (canEdit
+          ? '<button type="button" class="mm-btn-sm" onclick="window.__mmToggleCtrl(\'allowOrderTicket\')">' + (ctrl.allowOrderTicket ? "Enabled" : "Disabled") + "</button>"
+          : '<span class="mm-ctrl-badge">Locked</span>') +
+        "</div>" +
+        '<div class="mm-ctrl-row">' +
+        "<span>Client Price Alerts</span>" +
+        '<button type="button" class="mm-btn-sm" onclick="window.__mmToggleCtrl(\'allowAlerts\')">' + (ctrl.allowAlerts ? "Enabled" : "Disabled") + "</button>" +
+        "</div>" +
+        '<div class="mm-ctrl-row">' +
+        "<span>Max Order Cap (USD)</span>" +
+        (isOwner
+          ? '<input id="mm-cap-input" type="number" value="' + ctrl.maxOrderUsd + '" style="width:76px;padding:4px 7px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.14);"/><button type="button" class="mm-btn-sm" onclick="window.__mmSaveCap()">Set</button>'
+          : '<span class="mm-ctrl-badge">$' + ctrl.maxOrderUsd + " (Owner Cap)</span>") +
+        "</div>" +
+        '<div id="mm-ctrl-save-msg" style="color:#4ade80;margin-top:8px;"></div>' +
+        "</div>"
+      );
+    }
+
+    window.__mmPlaceClientOrder = function () {
+      const ctrl = getControls();
+      const sym = (document.getElementById("mm-cli-sym")?.value || "BINANCE:BTCUSDT").trim();
+      const usd = parseFloat(document.getElementById("mm-cli-usd")?.value || "0");
+      const msgEl = document.getElementById("mm-cli-order-msg");
+      if (!usd || usd <= 0) {
+        if (msgEl) msgEl.textContent = "Enter a valid amount.";
+        return;
+      }
+      if (usd > ctrl.maxOrderUsd) {
+        if (msgEl) msgEl.textContent = "Order exceeds Broker Owner max limit ($" + ctrl.maxOrderUsd + ").";
+        return;
+      }
+      let list = [];
+      try {
+        list = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+      } catch (e) {}
+      list.unshift({ sym: sym, usd: usd, ts: new Date().toLocaleTimeString() });
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(list.slice(0, 12)));
+      if (msgEl) msgEl.textContent = "Order placed: " + sym + " ($" + usd + ")";
+    };
+
+    window.__mmAddClientAlert = function () {
+      const txt = (document.getElementById("mm-cli-alert-txt")?.value || "").trim();
+      if (!txt) return;
+      let list = [];
+      try {
+        list = JSON.parse(localStorage.getItem(ALERTS_KEY) || "[]");
+      } catch (e) {}
+      list.unshift(txt);
+      localStorage.setItem(ALERTS_KEY, JSON.stringify(list.slice(0, 10)));
+      if (typeof mmOpenPortal === "function") mmOpenPortal("client_suite");
+    };
+
+    window.__mmToggleCtrl = function (field) {
+      const ctrl = getControls();
+      ctrl[field] = !ctrl[field];
+      saveControls(ctrl);
+      if (typeof mmOpenPortal === "function") mmOpenPortal("governance");
+    };
+
+    window.__mmSaveCap = function () {
+      const val = parseFloat(document.getElementById("mm-cap-input")?.value || "500");
+      if (!val || val <= 0) return;
+      const ctrl = getControls();
+      ctrl.maxOrderUsd = val;
+      saveControls(ctrl);
+      const msg = document.getElementById("mm-ctrl-save-msg");
+      if (msg) msg.textContent = "Max order cap updated to $" + val;
+    };
+
+    // Inject Client Suite & Governance portal entries into mmOpenPortal
+    const prevOpenPortal = window.mmOpenPortal;
+    window.mmOpenPortal = function (portalKey) {
+      if (typeof prevOpenPortal === "function") {
+        prevOpenPortal(portalKey);
+      }
+      const role = detectRole();
+      const ctrl = getControls();
+      const modal = document.getElementById("mm-portal-modal");
+      const titleEl = document.getElementById("mm-portal-title");
+      const bodyEl = document.getElementById("mm-portal-body");
+      if (!modal || !titleEl || !bodyEl) return;
+
+      if (portalKey === "client_suite" || (role === "client" && (portalKey === "setup" || portalKey === "batch"))) {
+        titleEl.textContent = "Client Dashboard Tools";
+        bodyEl.innerHTML = buildClientSuiteHtml(role, ctrl);
+        modal.classList.add("open");
+      } else if (portalKey === "governance" || (role !== "client" && portalKey === "permissions")) {
+        titleEl.textContent = "Client Controls & Limits";
+        bodyEl.innerHTML = buildBrokerOrAdminControlsHtml(role, ctrl);
+        modal.classList.add("open");
+      }
+    };
+  })();
+</script>
 </body>
 </html>
