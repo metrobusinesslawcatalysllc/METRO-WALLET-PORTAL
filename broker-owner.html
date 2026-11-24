@@ -4303,5 +4303,155 @@ function ttRenderPositions() {
     };
   })();
 </script>
+  <!-- BULLETPROOF CLICK HANDLER FOR BOTTOM DOCK & PORTALS -->
+<div id="mm-fix-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:2147483647;display:none;align-items:center;justify-content:center;padding:16px;">
+  <div style="width:100%;max-width:480px;background:#121418;border:1px solid rgba(255,255,255,0.16);border-radius:18px;padding:18px;color:#f8fafc;font-family:sans-serif;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <strong id="mm-fix-title" style="font-size:16px;">Portal</strong>
+      <button type="button" id="mm-fix-close" style="background:#262932;border:none;color:#fff;border-radius:999px;width:30px;height:30px;cursor:pointer;font-size:15px;">✕</button>
+    </div>
+    <div id="mm-fix-body" style="font-size:13px;line-height:1.55;color:#cbd5e1;"></div>
+  </div>
+</div>
+
+<script id="metro-click-fix-script">
+  (function () {
+    const NP_KEY = "metro_broker_nowpayments_link_v1";
+    const NP_AFFILIATE = "https://account.nowpayments.io/create-account?link_id=2838677802";
+
+    const modal = document.getElementById("mm-fix-modal");
+    const titleEl = document.getElementById("mm-fix-title");
+    const bodyEl = document.getElementById("mm-fix-body");
+    const closeBtn = document.getElementById("mm-fix-close");
+
+    function openFixModal(title, html) {
+      if (!modal || !titleEl || !bodyEl) return;
+      titleEl.textContent = title;
+      bodyEl.innerHTML = html;
+      modal.style.display = "flex";
+    }
+
+    function closeFixModal() {
+      if (modal) modal.style.display = "none";
+    }
+
+    closeBtn?.addEventListener("click", closeFixModal);
+    modal?.addEventListener("click", function (e) {
+      if (e.target === modal) closeFixModal();
+    });
+
+    function handleAction(action) {
+      const savedNp = (localStorage.getItem(NP_KEY) || "").trim();
+
+      if (action === "home") {
+        closeFixModal();
+        document.getElementById("mm-slide-drawer")?.classList.remove("open");
+        document.getElementById("mm-drawer-backdrop")?.classList.remove("open");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      if (action === "money") {
+        const target = savedNp || NP_AFFILIATE;
+        const win = window.open(target, "_blank", "noopener,noreferrer");
+        if (!win) {
+          openFixModal(
+            "Money • NOWPayments Deposit",
+            '<p>Popup was blocked. Click below to open NOWPayments:</p>' +
+              '<a href="' + target + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:9px 14px;border-radius:10px;background:#22c55e;color:#08090a;font-weight:700;text-decoration:none;margin-bottom:10px;">Open NOWPayments ↗</a>' +
+              '<div style="margin-top:8px;font-size:12px;color:#94a3b8;">Affiliate link: ' + NP_AFFILIATE + "</div>"
+          );
+        }
+        return;
+      }
+
+      if (action === "explore") {
+        openFixModal(
+          "Explore Markets",
+          "<p><b>Stock:</b> NVDA, AAPL, TSLA  |  <b>Crypto:</b> BTC, ETH, SOL</p>" +
+            "<p><b>Perps:</b> BTC 40x, NVDA 10x  |  <b>RWAs:</b> Gold (XAU), US10Y</p>" +
+            "<p><b>Trending & Top Traders:</b> 0xa99... (+$263.1K), MoonS... (+$64.8K)</p>" +
+            '<button type="button" onclick="window.location.href=\'client.html\'" style="padding:7px 12px;border-radius:8px;border:none;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;margin-right:6px;">Client Portal</button>' +
+            '<button type="button" onclick="window.location.href=\'sub-admin.html\'" style="padding:7px 12px;border-radius:8px;border:none;background:#334155;color:#fff;font-weight:700;cursor:pointer;">Sub Admin</button>'
+        );
+        return;
+      }
+
+      if (action === "rewards") {
+        const brokerId = new URLSearchParams(window.location.search).get("broker") || "brk-master";
+        const refUrl = window.location.origin + window.location.pathname + "?ref_broker=" + encodeURIComponent(brokerId);
+        openFixModal(
+          "Broker Owner → Broker Buyer Rewards",
+          '<p>Share your Broker Buyer referral link:</p>' +
+            '<input id="mm-fix-ref" readonly value="' + refUrl + '" style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;"/>' +
+            '<button type="button" id="mm-fix-copy-ref" style="padding:8px 14px;border-radius:999px;border:none;background:#fff;color:#08090a;font-weight:700;cursor:pointer;">Copy Referral Link</button>'
+        );
+        setTimeout(function () {
+          document.getElementById("mm-fix-copy-ref")?.addEventListener("click", function () {
+            const inp = document.getElementById("mm-fix-ref");
+            if (inp) navigator.clipboard?.writeText(inp.value);
+            this.textContent = "Copied!";
+          });
+        }, 30);
+        return;
+      }
+
+      if (action === "plus") {
+        openFixModal(
+          "NOWPayments Payment Link Setup",
+          '<p>New merchant? <a href="' + NP_AFFILIATE + '" target="_blank" rel="noopener noreferrer" style="color:#4ade80;">Register via NOWPayments Affiliate Link ↗</a></p>' +
+            '<label style="display:block;font-size:11px;margin:8px 0 4px;color:#94a3b8;">Direct Payment Link (<code>' + NP_KEY + '</code>)</label>' +
+            '<input id="mm-fix-np-input" value="' + savedNp.replace(/"/g, """) + '" placeholder="https://nowpayments.io/payment/?iid=..." style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#08090a;color:#fff;border:1px solid rgba(255,255,255,0.16);margin-bottom:10px;"/>' +
+            '<button type="button" id="mm-fix-np-save" style="padding:8px 14px;border-radius:999px;border:none;background:#f59e0b;color:#08090a;font-weight:700;cursor:pointer;">Save Payment Link</button>' +
+            '<span id="mm-fix-np-status" style="margin-left:10px;color:#4ade80;font-size:12px;"></span>'
+        );
+        setTimeout(function () {
+          document.getElementById("mm-fix-np-save")?.addEventListener("click", function () {
+            const val = (document.getElementById("mm-fix-np-input")?.value || "").trim();
+            if (val) localStorage.setItem(NP_KEY, val);
+            else localStorage.removeItem(NP_KEY);
+            const st = document.getElementById("mm-fix-np-status");
+            if (st) st.textContent = "Saved!";
+          });
+        }, 30);
+      }
+    }
+
+    // Delegate clicks across any button/element matching Home, Explore, Money, Rewards, or +
+    document.addEventListener(
+      "click",
+      function (e) {
+        const btn = e.target.closest("button, a, [role='button']");
+        if (!btn) return;
+        if (btn.closest("#mm-fix-modal")) return;
+
+        const txt = (btn.textContent || "").trim().toLowerCase();
+        const tab = (btn.dataset && btn.dataset.mmTab) || "";
+
+        if (tab === "home" || txt === "home") {
+          e.preventDefault();
+          handleAction("home");
+        } else if (tab === "explore" || txt === "explore") {
+          e.preventDefault();
+          handleAction("explore");
+        } else if (tab === "money" || txt === "money") {
+          e.preventDefault();
+          handleAction("money");
+        } else if (tab === "rewards" || txt === "rewards") {
+          e.preventDefault();
+          handleAction("rewards");
+        } else if (btn.id === "mm-plus-fab" || txt === "+") {
+          e.preventDefault();
+          handleAction("plus");
+        }
+      },
+      true
+    );
+
+    window.mmOpenPortal = function (k) { handleAction(k); };
+    window.mmOpenNowPaymentsDeposit = function () { handleAction("money"); };
+    window.mmSelectHome = function () { handleAction("home"); };
+  })();
+</script>
 </body>
 </html>
