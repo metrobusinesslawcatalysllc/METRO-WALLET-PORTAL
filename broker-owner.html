@@ -2306,64 +2306,62 @@ function ttRenderPositions() {
     </div>
   </div>
 </div>
-  <style id="metro-bg-selector-style">
+  <!-- METRO UNIFIED PORTAL PACK: BROKER OWNER -->
+<style id="metro-glamour-everywhere-style">
+  body {
+    background-color: #0c0f17 !important;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(225, 29, 72, 0.16), transparent 42%),
+      radial-gradient(circle at 82% 22%, rgba(245, 158, 11, 0.18), transparent 45%),
+      radial-gradient(circle at 50% 85%, rgba(30, 58, 138, 0.22), transparent 50%) !important;
+    color: #f8fafc !important;
+    min-height: 100vh;
+  }
+  .card, .panel, .box, .widget, .section-card, [class*="card"], [class*="panel"],
+  #metro-glamour-coin-grid, #broker-owner-profile-editor, #metro-market-intelligence {
+    background: linear-gradient(155deg, rgba(22, 27, 38, 0.78), rgba(17, 22, 33, 0.68) 65%, rgba(180, 83, 9, 0.14)) !important;
+    border: 1px solid rgba(251, 191, 36, 0.25) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(16px) saturate(130%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(130%) !important;
+    border-radius: 14px !important;
+  }
+  .metro-coin-card.navy-gold, .metro-coin-card.crimson-navy, .metro-coin-card {
+    background: linear-gradient(145deg, rgba(24, 29, 41, 0.78), rgba(159, 18, 57, 0.14) 55%, rgba(217, 119, 6, 0.18)) !important;
+    border: 1px solid rgba(251, 191, 36, 0.32) !important;
+  }
+  input, select, textarea {
+    background-color: rgba(15, 20, 30, 0.78) !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(251, 191, 36, 0.28) !important;
+  }
+  button:not([class*="close"]) {
+    background: linear-gradient(135deg, rgba(190, 24, 93, 0.85), rgba(217, 119, 6, 0.85)) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(253, 224, 71, 0.35) !important;
+  }
+</style>
+
+<style id="metro-bg-selector-style">
   #metro-bg-selector-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    max-width: 1100px;
-    margin: 14px auto;
-    padding: 12px 16px;
-    border-radius: 12px;
-    background: rgba(15, 20, 30, 0.78);
-    border: 1px solid rgba(251, 191, 36, 0.32);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    color: #f8fafc;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    font-size: 13px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px; max-width: 1100px; margin: 14px auto; padding: 12px 16px; border-radius: 12px;
+    background: rgba(15, 20, 30, 0.78); border: 1px solid rgba(251, 191, 36, 0.32);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px;
   }
-
-  #metro-bg-selector-bar .metro-bg-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-  }
-
+  #metro-bg-selector-bar .metro-bg-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   #metro-bg-selector-bar input[type="text"] {
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(251, 191, 36, 0.35);
-    background: rgba(10, 14, 23, 0.85);
-    color: #f8fafc;
-    min-width: 190px;
+    padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.35);
+    background: rgba(10, 14, 23, 0.85); color: #f8fafc; min-width: 190px;
   }
-
-  #metro-bg-selector-bar button,
-  #metro-bg-selector-bar label.metro-upload-btn {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(253, 224, 71, 0.38);
+  #metro-bg-selector-bar button, #metro-bg-selector-bar label.metro-upload-btn {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(253, 224, 71, 0.38);
     background: linear-gradient(135deg, rgba(190, 24, 93, 0.85), rgba(217, 119, 6, 0.85));
-    color: #ffffff;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    color: #ffffff; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
   }
-
-  #metro-bg-selector-bar button.secondary-btn {
-    background: rgba(30, 41, 59, 0.85);
-    border-color: rgba(148, 163, 184, 0.35);
-  }
-
-  #metro-bg-file-input {
-    display: none;
-  }
+  #metro-bg-selector-bar button.secondary-btn { background: rgba(30, 41, 59, 0.85) !important; border-color: rgba(148, 163, 184, 0.35) !important; }
+  #metro-bg-file-input { display: none; }
 </style>
 
 <div id="metro-bg-selector-bar">
@@ -2380,14 +2378,73 @@ function ttRenderPositions() {
   </div>
 </div>
 
-<script id="metro-bg-selector-script">
+<style id="metro-owner-wallet-config-style">
+  #metro-owner-wallet-config {
+    max-width: 1100px; margin: 16px auto; padding: 18px; border-radius: 14px;
+    background: linear-gradient(145deg, rgba(22, 27, 38, 0.82), rgba(159, 18, 57, 0.16) 60%, rgba(217, 119, 6, 0.18));
+    border: 1px solid rgba(251, 191, 36, 0.34); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; box-sizing: border-box;
+  }
+  #metro-owner-wallet-config .metro-wallet-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px;
+  }
+  #metro-owner-wallet-config label { display: block; font-size: 11px; color: #fcd34d; margin-bottom: 5px; font-weight: 600; }
+  #metro-owner-wallet-config input, #metro-owner-wallet-config select {
+    width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.32);
+    background: rgba(11, 16, 26, 0.86); color: #f8fafc; font-size: 13px; box-sizing: border-box;
+  }
+  #metro-owner-wallet-config .metro-wallet-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+  #metro-owner-wallet-config button {
+    padding: 9px 16px; border-radius: 8px; border: 1px solid rgba(253, 224, 71, 0.4);
+    background: linear-gradient(135deg, rgba(190, 24, 93, 0.88), rgba(217, 119, 6, 0.88));
+    color: #ffffff; font-weight: 700; cursor: pointer;
+  }
+</style>
+
+<div id="metro-owner-wallet-config">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <strong style="font-size:15px;">Client Deposit Wallet & Changelly Link Setup</strong>
+    <span id="metro-owner-wallet-status" style="font-size:12px;color:#fde68a;">Ready to publish to Client Portal</span>
+  </div>
+  <div class="metro-wallet-grid">
+    <div>
+      <label for="metro-cfg-asset">Asset / Network</label>
+      <select id="metro-cfg-asset">
+        <option value="USDT (TRC20)">USDT (TRC20)</option>
+        <option value="USDT (ERC20)">USDT (ERC20)</option>
+        <option value="Bitcoin (BTC)">Bitcoin (BTC)</option>
+        <option value="Ethereum (ETH)">Ethereum (ETH)</option>
+        <option value="Solana (SOL)">Solana (SOL)</option>
+      </select>
+    </div>
+    <div>
+      <label for="metro-cfg-address">Deposit Wallet Address</label>
+      <input id="metro-cfg-address" type="text" placeholder="Paste brokerage deposit wallet address..." />
+    </div>
+    <div>
+      <label for="metro-cfg-changelly">Changelly Deposit URL</label>
+      <input id="metro-cfg-changelly" type="text" value="https://changelly.com/buy/usdt" />
+    </div>
+    <div>
+      <label for="metro-cfg-bridge-url">Optional Google Apps Script Sync URL</label>
+      <input id="metro-cfg-bridge-url" type="text" placeholder="https://script.google.com/macros/s/.../exec" />
+    </div>
+  </div>
+  <div class="metro-wallet-actions">
+    <button id="metro-save-wallet-btn" type="button">Save & Push to Client Portal</button>
+    <span style="font-size:12px;color:#cbd5e1;">Clients will see a Copy Address button and Changelly Deposit button on their dashboard.</span>
+  </div>
+</div>
+
+<script id="metro-broker-owner-master-script">
   (function () {
-    const STORAGE_KEY = "metro_custom_bg_v1";
+    // 1. Custom Background Selector (Broker Owner Only)
+    const BG_KEY = "metro_custom_bg_v1";
     const fileInput = document.getElementById("metro-bg-file-input");
     const urlInput = document.getElementById("metro-bg-url-input");
     const applyUrlBtn = document.getElementById("metro-bg-apply-url");
     const resetBtn = document.getElementById("metro-bg-reset");
-    const statusEl = document.getElementById("metro-bg-status");
+    const bgStatusEl = document.getElementById("metro-bg-status");
 
     function applyBackground(imageSource, labelText) {
       if (!imageSource) {
@@ -2395,10 +2452,9 @@ function ttRenderPositions() {
         document.body.style.setProperty("background-size", "", "important");
         document.body.style.setProperty("background-position", "", "important");
         document.body.style.setProperty("background-attachment", "", "important");
-        if (statusEl) statusEl.textContent = labelText || "Default Glamour Blur";
+        if (bgStatusEl) bgStatusEl.textContent = labelText || "Default Glamour Blur";
         return;
       }
-
       document.body.style.setProperty(
         "background-image",
         `linear-gradient(rgba(10, 14, 24, 0.58), rgba(10, 14, 24, 0.66)), url("${imageSource}")`,
@@ -2407,75 +2463,147 @@ function ttRenderPositions() {
       document.body.style.setProperty("background-size", "cover", "important");
       document.body.style.setProperty("background-position", "center center", "important");
       document.body.style.setProperty("background-attachment", "fixed", "important");
-      if (statusEl) statusEl.textContent = labelText || "Custom Background Active";
+      if (bgStatusEl) bgStatusEl.textContent = labelText || "Custom Background Active";
     }
 
-    // Load saved background on page load
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.src) {
-          applyBackground(parsed.src, parsed.label || "Saved Custom Background");
-        }
-      }
-    } catch (err) {
-      console.warn("Could not load saved background:", err);
-    }
+      const savedBg = JSON.parse(localStorage.getItem(BG_KEY) || "null");
+      if (savedBg && savedBg.src) applyBackground(savedBg.src, savedBg.label || "Saved Custom Background");
+    } catch (e) {}
 
-    // Handle local image upload from PC
     if (fileInput) {
       fileInput.addEventListener("change", function (event) {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = function (e) {
           const dataUrl = e.target.result;
           const label = `Uploaded: ${file.name}`;
           applyBackground(dataUrl, label);
           try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ src: dataUrl, label }));
-          } catch (storageErr) {
-            if (statusEl) {
-              statusEl.textContent = "Applied for this session (image too large to save)";
-            }
+            localStorage.setItem(BG_KEY, JSON.stringify({ src: dataUrl, label }));
+          } catch (err) {
+            if (bgStatusEl) bgStatusEl.textContent = "Applied for session (image too large to save)";
           }
         };
         reader.readAsDataURL(file);
       });
     }
 
-    // Handle external image URL
     if (applyUrlBtn && urlInput) {
       applyUrlBtn.addEventListener("click", function () {
         const cleanUrl = urlInput.value.trim();
         if (!cleanUrl) return;
         applyBackground(cleanUrl, "Custom URL Background");
         try {
-          localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify({ src: cleanUrl, label: "Custom URL Background" })
-          );
-        } catch (storageErr) {
-          console.warn("Could not save background URL:", storageErr);
-        }
+          localStorage.setItem(BG_KEY, JSON.stringify({ src: cleanUrl, label: "Custom URL Background" }));
+        } catch (e) {}
       });
     }
 
-    // Reset to default theme
     if (resetBtn) {
       resetBtn.addEventListener("click", function () {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch (storageErr) {
-          console.warn("Could not clear background:", storageErr);
-        }
+        try { localStorage.removeItem(BG_KEY); } catch (e) {}
         if (urlInput) urlInput.value = "";
         if (fileInput) fileInput.value = "";
         applyBackground("", "Default Glamour Blur");
       });
     }
+
+    // 2. Deposit Wallet & Changelly Configurator
+    const WALLET_KEY = "metro_client_deposit_wallet_v1";
+    const assetEl = document.getElementById("metro-cfg-asset");
+    const addrEl = document.getElementById("metro-cfg-address");
+    const linkEl = document.getElementById("metro-cfg-changelly");
+    const bridgeEl = document.getElementById("metro-cfg-bridge-url");
+    const saveBtn = document.getElementById("metro-save-wallet-btn");
+    const walletStatusEl = document.getElementById("metro-owner-wallet-status");
+
+    try {
+      const savedW = JSON.parse(localStorage.getItem(WALLET_KEY) || "null");
+      if (savedW) {
+        if (savedW.asset && assetEl) assetEl.value = savedW.asset;
+        if (savedW.address && addrEl) addrEl.value = savedW.address;
+        if (savedW.changellyUrl && linkEl) linkEl.value = savedW.changellyUrl;
+        if (savedW.bridgeUrl && bridgeEl) bridgeEl.value = savedW.bridgeUrl;
+      }
+    } catch (e) {}
+
+    if (saveBtn) {
+      saveBtn.addEventListener("click", async function () {
+        const payload = {
+          asset: assetEl ? assetEl.value.trim() : "USDT (TRC20)",
+          address: addrEl ? addrEl.value.trim() : "",
+          changellyUrl: linkEl && linkEl.value.trim() ? linkEl.value.trim() : "https://changelly.com/buy/usdt",
+          bridgeUrl: bridgeEl ? bridgeEl.value.trim() : "",
+          updatedAt: new Date().toISOString()
+        };
+        if (!payload.address) {
+          if (walletStatusEl) walletStatusEl.textContent = "Please enter a deposit wallet address first.";
+          return;
+        }
+        localStorage.setItem(WALLET_KEY, JSON.stringify(payload));
+        if (walletStatusEl) walletStatusEl.textContent = "Saved locally for Client Portal!";
+        if (payload.bridgeUrl) {
+          try {
+            await fetch(payload.bridgeUrl, {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "save_deposit_wallet", ...payload })
+            });
+            if (walletStatusEl) walletStatusEl.textContent = "Saved & synced to Google Sheets bridge!";
+          } catch (err) {
+            if (walletStatusEl) walletStatusEl.textContent = "Saved locally (remote sync skipped).";
+          }
+        }
+      });
+    }
+
+    // 3. UI Label Cleanup & Switcher Visibility (Broker Owner sees all 4 portals)
+    const HIDE_PHRASES = [
+      "Practice & simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value."
+    ];
+    const REPLACEMENTS = [
+      { from: "Simulation & Desk Overview", to: "Desk Overview" },
+      { from: "Synced with Google Sheets", to: "Synced" },
+      { from: "Glamour Market Cards", to: "Market Cards" }
+    ];
+
+    function runOwnerCleanup() {
+      if (!document.body) return;
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      const nodes = [];
+      let n;
+      while ((n = walker.nextNode())) nodes.push(n);
+      nodes.forEach((node) => {
+        const raw = node.nodeValue || "";
+        const trimmed = raw.trim();
+        if (!trimmed) return;
+        if (HIDE_PHRASES.some((p) => trimmed.includes(p))) {
+          const el = (node.parentElement && node.parentElement.closest("p, div, span, small, section, .banner, .disclaimer, .note")) || node.parentElement;
+          if (el && el !== document.body && el !== document.documentElement) el.style.setProperty("display", "none", "important");
+          return;
+        }
+        let updated = raw;
+        REPLACEMENTS.forEach(({ from, to }) => {
+          if (updated.includes(from)) updated = updated.split(from).join(to);
+        });
+        if (updated !== raw) node.nodeValue = updated;
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", runOwnerCleanup);
+    } else {
+      runOwnerCleanup();
+    }
+    const obs = new MutationObserver(() => {
+      obs.disconnect();
+      runOwnerCleanup();
+      if (document.body) obs.observe(document.body, { childList: true, subtree: true });
+    });
+    if (document.body) obs.observe(document.body, { childList: true, subtree: true });
   })();
 </script>
   <script id="metro-changelly-deposit-bridge">
