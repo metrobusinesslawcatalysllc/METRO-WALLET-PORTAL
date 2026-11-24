@@ -224,7 +224,7 @@
       <div class="grid">
         <div><label>Desk Manager Name</label><input type="text" id="amMgr" /></div>
         <div><label>Sub-Admin / Coach</label><input type="text" id="amSub" /></div>
-        <div><label>Client Practice Balance ($)</label><input type="number" id="amBal" step="100" /></div>
+        <div><label>Client Balance ($)</label><input type="number" id="amBal" step="100" /></div>
       </div>
       <button class="btn btn-blue" onclick="saveAM()">Save Desk Settings</button>
       <div class="msg" id="amMsg"></div>
@@ -232,7 +232,7 @@
     <div id="amDeskMount"></div>
     
     <div class="note">
-      Practice &amp; simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value.
+      Trade &amp; Trade environment. Balances, FX rate conversions, and P/L controls carry real-world cash value.
     </div>
   </div>
   <script>
@@ -1802,7 +1802,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. UI Cleanup & Switcher Rule: Admin Manager can ONLY switch between Sub Admin & Client
     const HIDE_PHRASES = [
-      "Practice & simulation environment only. Virtual balances, FX rate conversions, and simulated P/L controls carry zero real-world cash value."
+      "Trade environment. Balances, FX rate conversions, and P/L controls carry real-world cash value."
     ];
     const REPLACEMENTS = [
       { from: "Simulation & Desk Overview", to: "Desk Overview" },
