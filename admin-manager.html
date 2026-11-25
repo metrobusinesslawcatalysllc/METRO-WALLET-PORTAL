@@ -232,7 +232,7 @@
     <div id="amDeskMount"></div>
     
     <div class="note">
-      Trade &amp; Trade environment. Balances, FX rate conversions, and P/L controls carry real-world cash value.
+
     </div>
   </div>
   <script>
@@ -894,15 +894,62 @@
       document.getElementById("amSub").value = b.subAdmin;
       document.getElementById("amBal").value = b.balance;
     }
-    function saveAM() {
-      updateActiveBroker(b => ({
-        ...b,
-        manager: document.getElementById("amMgr").value.trim() || b.manager,
-        subAdmin: document.getElementById("amSub").value.trim() || b.subAdmin,
-        balance: Math.max(0, parseFloat(document.getElementById("amBal").value) || 0)
-      }));
-      document.getElementById("amMsg").innerText = "Saved desk settings.";
+  async function saveAM() {
+  updateActiveBroker(b => ({
+    ...b,
+    manager: document.getElementById("amMgr").value.trim() || b.manager,
+    subAdmin: document.getElementById("amSub").value.trim() || b.subAdmin,
+    balance: Math.max(0, parseFloat(document.getElementById("amBal").value) || 0)
+  }));
+  document.getElementById("amMsg").innerText = "Saved desk settings.";
+
+  try {
+    const managerName = document.getElementById("amMgr")?.value?.trim() || "";
+    const subAdminName = document.getElementById("amSub")?.value?.trim() || "";
+    const activeBrokerId =
+      new URLSearchParams(window.location.search).get("broker_id") ||
+      localStorage.getItem("metro_broker_id") ||
+      "brk_metro_01";
+    const activeRole =
+      new URLSearchParams(window.location.search).get("role") ||
+      localStorage.getItem("metro_role") ||
+      "broker_owner";
+
+    if (managerName) {
+      await upsertToD1({
+        type: "user",
+        brokerId: activeBrokerId,
+        role: activeRole,
+        user: {
+          user_id: "usr_mgr_01",
+          broker_id: activeBrokerId,
+          manager_id: "usr_owner_01",
+          role: "admin_manager",
+          full_name: managerName,
+          status: "active",
+        },
+      });
     }
+
+    if (subAdminName) {
+      await upsertToD1({
+        type: "user",
+        brokerId: activeBrokerId,
+        role: activeRole,
+        user: {
+          user_id: "usr_sub_01",
+          broker_id: activeBrokerId,
+          manager_id: "usr_mgr_01",
+          role: "sub_admin",
+          full_name: subAdminName,
+          status: "active",
+        },
+      });
+    }
+  } catch (err) {
+    console.error("D1 saveAM sync failed:", err);
+  }
+}
     initAM();
     initDeskWorkspace("am");
     
