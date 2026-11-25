@@ -1118,7 +1118,28 @@
     <p id="pin-gate-error" style="display:none;margin:12px 0 0;font-size:13px;color:#f87171;"></p>
   </div>
 </div>
+<script>
+  (function () {
+    var MASTER_PIN = "9901";
+    var gate = document.getElementById("role-pin-gate");
+    var form = document.getElementById("staff-pin-form");
+    var input = document.getElementById("staff-pin-input");
+    var err = document.getElementById("pin-gate-error");
 
+    if (form && gate && input) {
+      form.addEventListener("submit", function (e) {
+        var entered = (input.value || "").trim();
+        if (entered === MASTER_PIN) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          localStorage.setItem("metro_super_master_pin_v1", MASTER_PIN);
+          gate.style.display = "none";
+          if (err) err.style.display = "none";
+        }
+      }, true);
+    }
+  })();
+</script>
 <script>
 const APPS_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbyzM3tcP1dZKfqjQvBqKvn_d0faxXVzMmAo2VTGGv3gBdQDwdcAhN1F3FwbQk2Gj1dI0w/exec';
