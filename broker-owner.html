@@ -2788,218 +2788,145 @@ function ttRenderPositions() {
     }
   })();
 </script>
-<!-- REFINED HORIZONTAL & COMPACT CONTROL STYLING -->
-<style id="metro-page-pager-style">
-  #metro-pager-bar {
-    position: sticky;
-    top: 8px;
-    z-index: 9999;
+  <!-- ZERO-JS HORIZONTAL PAGE-BY-PAGE TEMPLATE -->
+<style id="metro-radio-tpl-style">
+  .metro-radio-wrap {
+    max-width: 1160px;
+    margin: 12px auto 24px;
+    padding: 0 12px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color: #f8fafc;
+  }
+
+  .metro-radio-wrap input[type="radio"].metro-tab-state {
+    display: none;
+  }
+
+  .metro-radio-nav {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    max-width: 1100px;
-    margin: 8px auto 12px;
+    gap: 8px;
     padding: 8px 10px;
+    margin-bottom: 14px;
     background: rgba(15, 18, 24, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 16px;
-    backdrop-filter: blur(10px);
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   }
 
-  .metro-pg-btn {
+  .metro-radio-nav label {
     background: #1e222b;
     color: #e2e8f0;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
-    padding: 6px 11px;
-    font-size: 11px;
+    padding: 8px 15px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    white-space: nowrap;
+    user-select: none;
   }
 
-  .metro-pg-btn.active {
+  #metro-r-p1:checked ~ .metro-radio-nav label[for="metro-r-p1"],
+  #metro-r-p2:checked ~ .metro-radio-nav label[for="metro-r-p2"],
+  #metro-r-p3:checked ~ .metro-radio-nav label[for="metro-r-p3"],
+  #metro-r-p4:checked ~ .metro-radio-nav label[for="metro-r-p4"] {
     background: #ffffff;
     color: #08090a;
   }
 
-  .metro-pg-btn.nav {
-    background: #2563eb;
-    color: #ffffff;
+  .metro-radio-page {
+    display: none;
   }
 
-  .metro-pg-hidden {
-    display: none !important;
+  #metro-r-p1:checked ~ .metro-page-1,
+  #metro-r-p2:checked ~ .metro-page-2,
+  #metro-r-p3:checked ~ .metro-page-3,
+  #metro-r-p4:checked ~ .metro-page-4 {
+    display: block;
   }
 
-  /* Side-by-side horizontal pairs on wider screens */
-  @media (min-width: 720px) {
-    .metro-pg-pair {
-      display: grid !important;
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      gap: 12px !important;
-      align-items: start !important;
+  .metro-2col-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+  }
+
+  @media (max-width: 760px) {
+    .metro-2col-grid {
+      grid-template-columns: 1fr;
     }
   }
-</style>
-  <!-- COMPLETE PAGE-BY-PAGE HORIZONTAL SWITCHER -->
-<style id="metro-page-pager-style">
-  #metro-pager-bar {
-    position: sticky;
-    top: 8px;
-    z-index: 9999;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    max-width: 1100px;
-    margin: 8px auto 12px;
-    padding: 8px 10px;
-    background: rgba(15, 18, 24, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+
+  .metro-box {
+    background: rgba(18, 20, 26, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
-    backdrop-filter: blur(10px);
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  }
-
-  .metro-pg-btn {
-    background: #1e222b;
-    color: #e2e8f0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 999px;
-    padding: 6px 11px;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .metro-pg-btn.active {
-    background: #ffffff;
-    color: #08090a;
-  }
-
-  .metro-pg-btn.nav {
-    background: #2563eb;
-    color: #ffffff;
-  }
-
-  .metro-pg-hidden {
-    display: none !important;
-  }
-
-  @media (min-width: 720px) {
-    .metro-pg-pair {
-      display: grid !important;
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      gap: 12px !important;
-      align-items: start !important;
-    }
+    padding: 16px;
   }
 </style>
 
-<script id="metro-page-pager-script">
-  (function () {
-    try {
-      var pages = Array.prototype.slice.call(
-        document.querySelectorAll("section, .card, .panel, .box, .widget")
-      ).filter(function (el) {
-        if (!el || el.offsetHeight < 80 || el.offsetWidth < 200) return false;
-        var inner = el.querySelectorAll("section, .card, .panel, .box, .widget");
-        return inner.length === 0;
-      });
+<div class="metro-radio-wrap">
+  <input type="radio" name="metro-owner-pages" id="metro-r-p1" class="metro-tab-state" checked />
+  <input type="radio" name="metro-owner-pages" id="metro-r-p2" class="metro-tab-state" />
+  <input type="radio" name="metro-owner-pages" id="metro-r-p3" class="metro-tab-state" />
+  <input type="radio" name="metro-owner-pages" id="metro-r-p4" class="metro-tab-state" />
 
-      if (!pages.length) return;
+  <div class="metro-radio-nav">
+    <label for="metro-r-p1">1. Desk &amp; Live Chart</label>
+    <label for="metro-r-p2">2. Tenants &amp; Deposits</label>
+    <label for="metro-r-p3">3. Orders &amp; FX</label>
+    <label for="metro-r-p4">4. Theme &amp; Sync</label>
+  </div>
 
-      var currentIndex = 0;
-      var allMode = true;
+  <!-- PAGE 1: LEFT / RIGHT SIDE-BY-SIDE -->
+  <div class="metro-radio-page metro-page-1">
+    <div class="metro-2col-grid">
+      <div class="metro-box">
+        <strong>Left: Live Chart &amp; Profit Control</strong>
+        <!-- Move your Live Trading Chart & Active Profit Mode card here -->
+      </div>
+      <div class="metro-box">
+        <strong>Right: Session Mode &amp; Bias</strong>
+        <!-- Move your Mode / Bias / Pump / Drop controls here -->
+      </div>
+    </div>
+  </div>
 
-      var bar = document.createElement("div");
-      bar.id = "metro-pager-bar";
+  <!-- PAGE 2: TENANTS & DEPOSITS -->
+  <div class="metro-radio-page metro-page-2">
+    <div class="metro-2col-grid">
+      <div class="metro-box">
+        <strong>Left: Tenant Profile &amp; PINs</strong>
+        <!-- Move Brokerage Name, Email, Practice Balance, Admin/Sub-Admin PINs here -->
+      </div>
+      <div class="metro-box">
+        <strong>Right: Client Deposit Wallet &amp; NOWPayments</strong>
+        <!-- Move Deposit Wallet, NOWPayments link & @CertifiedTalkinMount referral link here -->
+      </div>
+    </div>
+  </div>
 
-      var prevBtn = document.createElement("button");
-      prevBtn.type = "button";
-      prevBtn.className = "metro-pg-btn nav";
-      prevBtn.textContent = "‹ Prev";
+  <!-- PAGE 3: ORDERS & FX -->
+  <div class="metro-radio-page metro-page-3">
+    <div class="metro-box">
+      <strong>Place Trade / Order &amp; FX Exchange</strong>
+      <!-- Move your Trade / Order & FX rate-exchange section here -->
+    </div>
+  </div>
 
-      var nextBtn = document.createElement("button");
-      nextBtn.type = "button";
-      nextBtn.className = "metro-pg-btn nav";
-      nextBtn.textContent = "Next ›";
-
-      var allBtn = document.createElement("button");
-      allBtn.type = "button";
-      allBtn.className = "metro-pg-btn active";
-      allBtn.textContent = "All Pages";
-
-      var pageBtns = [];
-
-      function syncView() {
-        for (var i = 0; i < pages.length; i++) {
-          if (allMode || i === currentIndex) {
-            pages[i].classList.remove("metro-pg-hidden");
-          } else {
-            pages[i].classList.add("metro-pg-hidden");
-          }
-        }
-
-        allBtn.classList.toggle("active", allMode);
-        for (var b = 0; b < pageBtns.length; b++) {
-          pageBtns[b].classList.toggle("active", !allMode && b === currentIndex);
-        }
-      }
-
-      prevBtn.addEventListener("click", function () {
-        allMode = false;
-        currentIndex = (currentIndex - 1 + pages.length) % pages.length;
-        syncView();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-
-      nextBtn.addEventListener("click", function () {
-        allMode = false;
-        currentIndex = (currentIndex + 1) % pages.length;
-        syncView();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-
-      allBtn.addEventListener("click", function () {
-        allMode = true;
-        syncView();
-      });
-
-      bar.appendChild(prevBtn);
-      bar.appendChild(allBtn);
-
-      pages.forEach(function (sec, idx) {
-        var h = sec.querySelector("h1, h2, h3, h4, strong, .title, .card-title");
-        var txt = h && h.textContent ? h.textContent.trim() : "Page " + (idx + 1);
-        if (txt.length > 22) txt = txt.slice(0, 22) + "...";
-
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "metro-pg-btn";
-        btn.textContent = (idx + 1) + ". " + txt;
-        btn.addEventListener("click", function () {
-          allMode = false;
-          currentIndex = idx;
-          syncView();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-        pageBtns.push(btn);
-        bar.appendChild(btn);
-      });
-
-      bar.appendChild(nextBtn);
-
-      var parent = pages[0].parentNode;
-      if (parent) {
-        parent.insertBefore(bar, pages[0]);
-      }
-    } catch (err) {}
-  })();
-</script>
+  <!-- PAGE 4: THEME & SYNC -->
+  <div class="metro-radio-page metro-page-4">
+    <div class="metro-2col-grid">
+      <div class="metro-box">
+        <strong>Left: Portal Background</strong>
+        <!-- Move Portal Background Upload / URL / Reset controls here -->
+      </div>
+      <div class="metro-box">
+        <strong>Right: Google Apps Script Sync</strong>
+        <!-- Move your Sync URL & Publish controls here -->
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
