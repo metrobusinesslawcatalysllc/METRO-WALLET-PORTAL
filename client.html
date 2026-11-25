@@ -2137,5 +2137,101 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   })();
 </script>
+  <script>
+  (function () {
+    var DEFAULT_NOWPAYMENTS = "https://account.nowpayments.io/create-account?link_id=2838677802";
+    var params = new URLSearchParams(window.location.search);
+    var brokerId = (params.get("broker") || "").trim();
+
+    function getSavedValue(keys) {
+      for (var i = 0; i < keys.length; i++) {
+        var val = localStorage.getItem(keys[i]);
+        if (val && val.trim()) return val.trim();
+      }
+      return "";
+    }
+
+    function renderNowPaymentsInDepositBar(nowUrl, walletAddr) {
+      var finalUrl = (nowUrl || "").trim() || DEFAULT_NOWPAYMENTS;
+
+      // Find the existing "Open Changelly to Deposit" button/link in the deposit bar
+      var buttons = Array.from(document.querySelectorAll("a, button"));
+      var changellyBtn = buttons.find(function (el) {
+        return /changelly/i.test(el.textContent || "");
+      });
+
+      if (!changellyBtn || !changellyBtn.parentElement) return;
+
+      var barContainer = changellyBtn.parentElement;
+
+      // Update displayed wallet address if a custom one was saved in Broker Owner
+      if (walletAddr) {
+        var card = barContainer.closest("div") || document.body;
+        var addrNodes = card.querySelectorAll("div, span, p, code, input");
+        addrNodes.forEach(function (node) {
+          if (node.children.length === 0 && /0x[a-fA-F0-9]{10,}|@ethermail\.io|T[a-zA-Z0-9]{25,}/.test(node.textContent || "")) {
+            node.textContent = walletAddr;
+          }
+        });
+      }
+
+      // Create or update the "Open NOWPayments to Deposit" button matching Changelly's style
+      var nowBtn = document.getElementById("metro-nowpayments-deposit-btn");
+      if (!nowBtn) {
+        nowBtn = document.createElement("a");
+        nowBtn.id = "metro-nowpayments-deposit-btn";
+        nowBtn.target = "_blank";
+        nowBtn.rel = "noopener noreferrer";
+        nowBtn.className = changellyBtn.className;
+        nowBtn.style.cssText = changellyBtn.style.cssText;
+        nowBtn.style.background = "#00c26f";
+        nowBtn.style.color = "#ffffff";
+        nowBtn.style.textDecoration = "none";
+        nowBtn.style.display = "inline-flex";
+        nowBtn.style.alignItems = "center";
+        nowBtn.style.justifyContent = "center";
+        nowBtn.style.marginLeft = "8px";
+        nowBtn.textContent = "Open NOWPayments to Deposit";
+        barContainer.appendChild(nowBtn);
+      }
+
+      nowBtn.href = finalUrl;
+    }
+
+    // 1. Check localStorage keys saved by Broker Owner
+    var savedNowLink = getSavedValue([
+      brokerId ? "metro_broker_nowpayments_link_v1_" + brokerId : "",
+      "metro_broker_nowpayments_link_v1",
+      "nowpayments_link",
+      "metro_nowpayments_url"
+    ].filter(Boolean));
+
+    var savedWallet = getSavedValue([
+      brokerId ? "metro_broker_deposit_wallet_v1_" + brokerId : "",
+      "metro_broker_deposit_wallet_v1",
+      "deposit_wallet",
+      "metro_deposit_wallet"
+    ].filter(Boolean));
+
+    renderNowPaymentsInDepositBar(savedNowLink, savedWallet);
+
+    // 2. Also sync from APPS_SCRIPT_URL if available so mobile/other browsers get the Broker Owner update
+    if (typeof APPS_SCRIPT_URL !== "undefined" && APPS_SCRIPT_URL) {
+      var sep = APPS_SCRIPT_URL.indexOf("?") === -1 ? "?" : "&";
+      var url = APPS_SCRIPT_URL + sep + "action=getConfig" + (brokerId ? "&broker=" + encodeURIComponent(brokerId) : "");
+      fetch(url)
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (!data) return;
+          var remoteNow = data.nowpaymentsLink || data.nowpayments_link || savedNowLink;
+          var remoteWallet = data.depositWallet || data.deposit_wallet || savedWallet;
+          if (remoteNow) localStorage.setItem("metro_broker_nowpayments_link_v1", remoteNow);
+          if (remoteWallet) localStorage.setItem("metro_broker_deposit_wallet_v1", remoteWallet);
+          renderNowPaymentsInDepositBar(remoteNow, remoteWallet);
+        })
+        .catch(function () {});
+    }
+  })();
+</script>
 </body>
 </html>
