@@ -2788,7 +2788,7 @@ function ttRenderPositions() {
     }
   })();
 </script>
-  <!-- HORIZONTAL PAGE-BY-PAGE SECTION SWITCHER -->
+<!-- REFINED HORIZONTAL & COMPACT CONTROL STYLING -->
 <style id="metro-page-pager-style">
   #metro-pager-bar {
     position: sticky;
@@ -2797,13 +2797,13 @@ function ttRenderPositions() {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
-    max-width: 1200px;
-    margin: 10px auto 14px;
-    padding: 8px 12px;
-    background: rgba(15, 18, 24, 0.94);
+    gap: 6px;
+    max-width: 1100px;
+    margin: 8px auto 12px;
+    padding: 8px 10px;
+    background: rgba(15, 18, 24, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
+    border-radius: 16px;
     backdrop-filter: blur(10px);
     font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   }
@@ -2813,8 +2813,8 @@ function ttRenderPositions() {
     color: #e2e8f0;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
-    padding: 7px 13px;
-    font-size: 12px;
+    padding: 6px 11px;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
     white-space: nowrap;
@@ -2833,108 +2833,16 @@ function ttRenderPositions() {
   .metro-pg-hidden {
     display: none !important;
   }
+
+  /* Side-by-side horizontal pairs on wider screens */
+  @media (min-width: 720px) {
+    .metro-pg-pair {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 12px !important;
+      align-items: start !important;
+    }
+  }
 </style>
-
-<script id="metro-page-pager-script">
-  (function () {
-    try {
-      var pages = Array.prototype.slice.call(
-        document.querySelectorAll("section, .card, .panel, .box, .widget")
-      ).filter(function (el) {
-        if (!el || el.offsetHeight < 80 || el.offsetWidth < 200) return false;
-        var inner = el.querySelectorAll("section, .card, .panel, .box, .widget");
-        return inner.length === 0;
-      });
-
-      if (!pages.length) return;
-
-      var currentIndex = 0;
-      var allMode = true;
-
-      var bar = document.createElement("div");
-      bar.id = "metro-pager-bar";
-
-      var prevBtn = document.createElement("button");
-      prevBtn.type = "button";
-      prevBtn.className = "metro-pg-btn nav";
-      prevBtn.textContent = "‹ Prev";
-
-      var nextBtn = document.createElement("button");
-      nextBtn.type = "button";
-      nextBtn.className = "metro-pg-btn nav";
-      nextBtn.textContent = "Next ›";
-
-      var allBtn = document.createElement("button");
-      allBtn.type = "button";
-      allBtn.className = "metro-pg-btn active";
-      allBtn.textContent = "All Pages";
-
-      var pageBtns = [];
-
-      function syncView() {
-        for (var i = 0; i < pages.length; i++) {
-          if (allMode || i === currentIndex) {
-            pages[i].classList.remove("metro-pg-hidden");
-          } else {
-            pages[i].classList.add("metro-pg-hidden");
-          }
-        }
-
-        allBtn.classList.toggle("active", allMode);
-        for (var b = 0; b < pageBtns.length; b++) {
-          pageBtns[b].classList.toggle("active", !allMode && b === currentIndex);
-        }
-      }
-
-      prevBtn.addEventListener("click", function () {
-        allMode = false;
-        currentIndex = (currentIndex - 1 + pages.length) % pages.length;
-        syncView();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-
-      nextBtn.addEventListener("click", function () {
-        allMode = false;
-        currentIndex = (currentIndex + 1) % pages.length;
-        syncView();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-
-      allBtn.addEventListener("click", function () {
-        allMode = true;
-        syncView();
-      });
-
-      bar.appendChild(prevBtn);
-      bar.appendChild(allBtn);
-
-      pages.forEach(function (sec, idx) {
-        var h = sec.querySelector("h1, h2, h3, h4, strong, .title, .card-title");
-        var txt = h && h.textContent ? h.textContent.trim() : "Page " + (idx + 1);
-        if (txt.length > 22) txt = txt.slice(0, 22) + "...";
-
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "metro-pg-btn";
-        btn.textContent = (idx + 1) + ". " + txt;
-        btn.addEventListener("click", function () {
-          allMode = false;
-          currentIndex = idx;
-          syncView();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-        pageBtns.push(btn);
-        bar.appendChild(btn);
-      });
-
-      bar.appendChild(nextBtn);
-
-      var parent = pages[0].parentNode;
-      if (parent) {
-        parent.insertBefore(bar, pages[0]);
-      }
-    } catch (err) {}
-  })();
-</script>
 </body>
 </html>
