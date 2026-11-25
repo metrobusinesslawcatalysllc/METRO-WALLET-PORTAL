@@ -1921,4 +1921,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   })();
 </script>
+  <script>
+async function upsertToD1({ type, brokerId, role = "broker_owner", user = null, broker = null }) {
+  const activeBrokerId =
+    brokerId ||
+    new URLSearchParams(window.location.search).get("broker_id") ||
+    localStorage.getItem("metro_broker_id") ||
+    "brk_metro_01";
+
+  const activeRole =
+    role ||
+    new URLSearchParams(window.location.search).get("role") ||
+    localStorage.getItem("metro_role") ||
+    "broker_owner";
+
+  const payload = {
+    type,
+    broker_id: activeBrokerId,
+    ...(type === "user" ? { user } : {}),
+    ...(type === "broker" ? { broker } : {}),
+  };
+
+  const res = await fetch("https://metro-wallet-api.metrobusinesscatalystllc.workers.dev/api/upsert", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Broker-Id": activeBrokerId,
+      "X-Role": activeRole,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || `Upsert failed (${res.status})`);
+  }
+  return data;
+}
+</script>
 </html>
