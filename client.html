@@ -2254,18 +2254,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 3500);
   })();
 </script>
-  <script>
+<script>
   (function () {
-    var headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, div, span"));
-    var targetHeading = headings.find(function (el) {
-      return el.children.length === 0 && /Client Account & Activity Portal/i.test((el.textContent || "").trim());
-    });
-    if (targetHeading) {
-      var panel = targetHeading.closest("section, article, .card, .panel, [class*='portal'], [class*='account']") || targetHeading.parentElement;
-      if (panel && panel !== document.body) {
-        panel.style.display = "none";
+    function hideAccountActivityPortal() {
+      var headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, div, span, p"));
+      var targetHeading = headings.find(function (el) {
+        return el.children.length === 0 && /Client Account & Activity Portal/i.test((el.textContent || "").trim());
+      });
+      if (!targetHeading) return false;
+
+      var card =
+        targetHeading.closest("section, article, .card, .panel, [class*='card'], [class*='panel'], [class*='portal'], [class*='account']") ||
+        targetHeading.parentElement;
+
+      // Walk up one more level if the matched box only wraps the header/balance row
+      if (card && card.parentElement && card.parentElement !== document.body && !/SUBMIT DEPOSIT/i.test(card.textContent || "")) {
+        card = card.parentElement;
       }
+
+      if (card && card !== document.body && card !== document.documentElement) {
+        card.style.setProperty("display", "none", "important");
+        return true;
+      }
+      return false;
     }
+
+    hideAccountActivityPortal();
+
+    var observer = new MutationObserver(function () {
+      hideAccountActivityPortal();
+    });
+    observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
+
+    setTimeout(function () {
+      hideAccountActivityPortal();
+      observer.disconnect();
+    }, 5000);
   })();
 </script>
 </body>
