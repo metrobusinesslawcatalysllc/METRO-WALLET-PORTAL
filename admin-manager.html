@@ -915,7 +915,7 @@
       localStorage.getItem("metro_role") ||
       "broker_owner";
 
- if (managerName) {
+if (managerName) {
       await upsertToD1({
         type: "user",
         brokerId: activeBrokerId,
