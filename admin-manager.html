@@ -915,7 +915,7 @@
       localStorage.getItem("metro_role") ||
       "broker_owner";
 
-    if (managerName) {
+ if (managerName) {
       await upsertToD1({
         type: "user",
         brokerId: activeBrokerId,
@@ -925,6 +925,7 @@
           broker_id: activeBrokerId,
           manager_id: "usr_owner_01",
           role: "admin_manager",
+          email: `manager_${activeBrokerId}@metrooptions.local`,
           full_name: managerName,
           status: "active",
         },
@@ -941,15 +942,12 @@
           broker_id: activeBrokerId,
           manager_id: "usr_mgr_01",
           role: "sub_admin",
+          email: `subadmin_${activeBrokerId}@metrooptions.local`,
           full_name: subAdminName,
           status: "active",
         },
       });
     }
-  } catch (err) {
-    console.error("D1 saveAM sync failed:", err);
-  }
-}
     initAM();
     initDeskWorkspace("am");
     
