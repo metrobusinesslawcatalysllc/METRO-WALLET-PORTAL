@@ -945,11 +945,16 @@ if (managerName) {
           email: `subadmin_${activeBrokerId}@metrooptions.local`,
           full_name: subAdminName,
           status: "active",
-        },
+},
       });
     }
-    initAM();
-    initDeskWorkspace("am");
+  } catch (err) {
+    console.error("D1 saveAM sync failed:", err);
+  }
+}
+
+initAM();
+initDeskWorkspace("am");
     
   </script>
 <div id="role-pin-gate" style="position:fixed;inset:0;background:rgba(10,14,22,0.96);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;">
