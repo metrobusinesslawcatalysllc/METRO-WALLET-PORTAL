@@ -213,22 +213,15 @@ $("subManagerSelect").innerHTML = managers.length
               <td><span class="badge">${escapeHtml(m.id)}</span></td>
               <td>${escapeHtml(m.tenant_id || "-")}</td>
             </tr>`).join("")
-        : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
+       : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
 
-      $("subManagerSelect").innerHTML = managers.length
-        ? managers.map((m) => `<option value="${escapeHtml(m.id)}" data-tenant="${escapeHtml(m.tenant_id || "")}">${escapeHtml(m.name)} (${escapeHtml(m.id)})</option>`).join("")
-        : `<option value="">Create an Admin Manager first</option>`;
-
-      $("subTableBody").innerHTML = subadmins.length
-        ? subadmins.map((s) => `
-            <tr>
-              <td>${escapeHtml(s.name)}</td>
-              <td>${escapeHtml(s.email)}</td>
-              <td>${escapeHtml(s.manager_id || "-")}</td>
-              <td>${escapeHtml(s.tenant_id || "-")}</td>
-            </tr>`).join("")
-        : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
-    }
+        $("subManagerSelect").innerHTML = managers.length
+  ? managers.map((m) => {
+      const mid = m.user_id || m.id || "";
+      const label = m.name || m.email || mid;
+      return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || "")}">${escapeHtml(label)}</option>`;
+    }).join("")
+  : `<option value="">Create an Admin Manager first</option>`;
 
     async function registerAdminManager() {
       const brokerId = $("brokerIdInput").value.trim();
