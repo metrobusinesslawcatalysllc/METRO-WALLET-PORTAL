@@ -185,22 +185,25 @@ function escapeHtml(str) {
         $("mgrSubmitBtn").disabled = !state.registrationEnabled;
         $("subSubmitBtn").disabled = !state.registrationEnabled;
 
-        $("brokerSummary").textContent =
-          `Broker: ${broker.name || broker.id} | Registration: ${state.registrationEnabled ? "UNLOCKED" : "LOCKED"} | Caps: ${state.maxManagers} Managers / ${state.maxSubadminsPerManager} Sub-Admins per Manager`;
+       $("mgrTableBody").innerHTML = managers.length
+  ? managers.map((m) => {
+      const mid = m.user_id || m.id || "";
+      return `<tr>
+        <td>${escapeHtml(m.name || "")}</td>
+        <td>${escapeHtml(m.email || "")}</td>
+        <td><span class="badge">${escapeHtml(mid)}</span></td>
+        <td>${escapeHtml(m.tenant_id || "-")}</td>
+      </tr>`;
+    }).join("")
+  : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
 
-        if (!state.registrationEnabled) {
-          showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
-        }
-
-        renderTables();
-      } catch (err) {
-        showBanner("err", "Sync error: " + err.message);
-      }
-    }
-
-    function renderTables() {
-      const managers = state.users.filter((u) => u.role === "admin_manager");
-      const subadmins = state.users.filter((u) => u.role === "sub_admin");
+$("subManagerSelect").innerHTML = managers.length
+  ? managers.map((m) => {
+      const mid = m.user_id || m.id || "";
+      const label = m.name || m.email || mid;
+      return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || "")}">${escapeHtml(label)}</option>`;
+    }).join("")
+  : `<option value="">Create an Admin Manager first</option>`;
 
       $("mgrTableBody").innerHTML = managers.length
         ? managers.map((m) => `
