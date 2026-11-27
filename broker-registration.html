@@ -181,58 +181,58 @@ function escapeHtml(str) {
         state.registrationEnabled = Number(broker.registration_enabled) === 1;
         state.maxManagers = Number(broker.max_admin_managers || 50);
         state.maxSubadminsPerManager = Number(broker.max_subadmins_per_manager || 15);
-
-        $("mgrSubmitBtn").disabled = !state.registrationEnabled;
+$("mgrSubmitBtn").disabled = !state.registrationEnabled;
         $("subSubmitBtn").disabled = !state.registrationEnabled;
 
-       $("mgrTableBody").innerHTML = managers.length
-  ? managers.map((m) => {
-      const mid = m.user_id || m.id || "";
-      return `<tr>
-        <td>${escapeHtml(m.name || "")}</td>
-        <td>${escapeHtml(m.email || "")}</td>
-        <td><span class="badge">${escapeHtml(mid)}</span></td>
-        <td>${escapeHtml(m.tenant_id || "-")}</td>
-      </tr>`;
-    }).join("")
-  : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
+        $("brokerSummary").textContent =
+          `Broker: ${escapeHtml(broker.broker_name || broker.name || broker.broker_id || broker.id || brokerId)} | Registration: ${state.registrationEnabled ? "UNLOCKED" : "LOCKED"} | Caps: ${state.maxManagers} Managers / ${state.maxSubadminsPerManager} Sub-Admins per Manager`;
 
-$("subManagerSelect").innerHTML = managers.length
-  ? managers.map((m) => {
-      const mid = m.user_id || m.id || "";
-      const label = m.name || m.email || mid;
-      return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || "")}">${escapeHtml(label)}</option>`;
-    }).join("")
-  : `<option value="">Create an Admin Manager first</option>`;
+        if (!state.registrationEnabled) {
+          showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
+        }
+
+        renderTables();
+      } catch (err) {
+        showBanner("err", "Sync error: " + err.message);
+      }
+    }
+
+    function renderTables() {
+      const managers = state.users.filter((u) => u.role === "admin_manager");
+      const subadmins = state.users.filter((u) => u.role === "sub_admin");
 
       $("mgrTableBody").innerHTML = managers.length
-        ? managers.map((m) => `
-            <tr>
-              <td>${escapeHtml(m.name)}</td>
-              <td>${escapeHtml(m.email)}</td>
-              <td><span class="badge">${escapeHtml(m.id)}</span></td>
+        ? managers.map((m) => {
+            const mid = m.user_id || m.id || "";
+            return `<tr>
+              <td>${escapeHtml(m.name || "")}</td>
+              <td>${escapeHtml(m.email || "")}</td>
+              <td><span class="badge">${escapeHtml(mid)}</span></td>
               <td>${escapeHtml(m.tenant_id || "-")}</td>
-            </tr>`).join("")
-       : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
+            </tr>`;
+          }).join("")
+        : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
 
-        $("subManagerSelect").innerHTML = managers.length
-  ? managers.map((m) => {
-      const mid = m.user_id || m.id || "";
-      const label = m.name || m.email || mid;
-      return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || "")}">${escapeHtml(label)}</option>`;
-    }).join("")
-  : `<option value="">Create an Admin Manager first</option>`;
+      $("subManagerSelect").innerHTML = managers.length
+        ? managers.map((m) => {
+            const mid = m.user_id || m.id || "";
+            const label = m.name || m.email || mid;
+            return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || "")}">${escapeHtml(label)}</option>`;
+          }).join("")
+        : `<option value="">Create an Admin Manager first</option>`;
+
+      $("subTableBody").innerHTML = subadmins.length
+        ? subadmins.map((s) => `
+          <tr>
+            <td>${escapeHtml(s.name || "")}</td>
+            <td>${escapeHtml(s.email || "")}</td>
+            <td>${escapeHtml(s.manager_id || "-")}</td>
+            <td>${escapeHtml(s.tenant_id || "-")}</td>
+          </tr>`).join("")
+        : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
+    }
 
     async function registerAdminManager() {
-      const brokerId = $("brokerIdInput").value.trim();
-      const name = $("mgrName").value.trim();
-      const email = $("mgrEmail").value.trim();
-      const password = $("mgrPassword").value;
-
-      if (!name || !email || password.length < 6) {
-        return showBanner("err", "Enter Full Name, Email, and a Password (at least 6 characters).");
-      }
-
       const btn = $("mgrSubmitBtn");
       btn.disabled = true;
       btn.textContent = "Creating...";
