@@ -372,51 +372,54 @@
         : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
     }
 
-    async function syncBrokerData() {
-      const brokerId = ($("brokerIdInput").value || "").trim() || state.brokerId || "brk_metro_01";
-      state.brokerId = brokerId;
+   async function syncBrokerData() {
+  const brokerId = ($("brokerIdInput").value || "").trim() || state.brokerId || "brk_metro_01";
+  state.brokerId = brokerId;
 
-      try {
-        const res = await fetch(`/api/state?broker_id=${encodeURIComponent(brokerId)}`, { cache: "no-store" });
-        const data = await res.json().catch(() => ({}));
+  try {
+    const url = "/api/state?broker_id=" + encodeURIComponent(brokerId);
+    const res = await fetch(url, { cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
 
-        if (!res.ok || data.ok === false) {
-          throw new Error(data.error || `Failed to load broker data (${res.status})`);
-        }
-
-        const broker = data.broker || data.tenant || data || {};
-        state.users = Array.isArray(data.users)
-          ? data.users
-          : [
-              ...(Array.isArray(data.managers) ? data.managers.map((u) => ({ ...u, role: u.role || "admin_manager" })) : []),
-              ...(Array.isArray(data.subadmins) ? data.subadmins.map((u) => ({ ...u, role: u.role || "sub_admin" })) : [])
-            ];
-
-        state.registrationEnabled =
-          broker.registration_enabled === undefined
-            ? true
-            : Boolean(Number(broker.registration_enabled));
-        state.maxManagers = broker.max_managers ?? broker.maxManagers ?? "∞";
-        state.maxSubadminsPerManager =
-          broker.max_subadmins_per_manager ?? broker.maxSubadminsPerManager ?? "∞";
-
-        $("mgrSubmitBtn").disabled = !state.registrationEnabled;
-        $("subSubmitBtn").disabled = !state.registrationEnabled;
-
-        const bName = broker.broker_name || broker.name || broker.broker_id || broker.id || brokerId;
-        $("brokerSummary").textContent =
-          `Broker: ${bName} | Registration: ${state.registrationEnabled ? "UNLOCKED" : "LOCKED"} | Caps: ${state.maxManagers} Managers / ${state.maxSubadminsPerManager} Sub-Admins per Manager`;
-
-        if (!state.registrationEnabled) {
-          showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
-        }
-      } catch (err) {
-        showBanner("err", "Sync error: " + err.message);
-      } finally {
-        renderTables();
-      }
+    if (!res.ok || data.ok === false) {
+      throw new Error(data.error || ("Failed to load broker data (" + res.status + ")"));
     }
 
+    const broker = data.broker || data.tenant || data || {};
+    state.users = Array.isArray(data.users)
+      ? data.users
+      : [
+          ...(Array.isArray(data.managers) ? data.managers.map((u) => ({ ...u, role: u.role || "admin_manager" })) : []),
+          ...(Array.isArray(data.subadmins) ? data.subadmins.map((u) => ({ ...u, role: u.role || "sub_admin" })) : [])
+        ];
+
+    state.registrationEnabled =
+      broker.registration_enabled === undefined
+        ? true
+        : Boolean(Number(broker.registration_enabled));
+    state.maxManagers = broker.max_managers ?? broker.maxManagers ?? "∞";
+    state.maxSubadminsPerManager =
+      broker.max_subadmins_per_manager ?? broker.maxSubadminsPerManager ?? "∞";
+
+    $("mgrSubmitBtn").disabled = !state.registrationEnabled;
+    $("subSubmitBtn").disabled = !state.registrationEnabled;
+
+    const bName = broker.broker_name || broker.name || broker.broker_id || broker.id || brokerId;
+    const statusLabel = state.registrationEnabled ? "UNLOCKED" : "LOCKED";
+    $("brokerSummary").textContent =
+      "Broker: " + bName +
+      " | Registration: " + statusLabel +
+      " | Caps: " + state.maxManagers + " Managers / " + state.maxSubadminsPerManager + " Sub-Admins per Manager";
+
+    if (!state.registrationEnabled) {
+      showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
+    }
+  } catch (err) {
+    showBanner("err", "Sync error: " + err.message);
+  } finally {
+    renderTables();
+  }
+}
     async function registerAdminManager() {
       const brokerId = ($("brokerIdInput").value || "").trim() || state.brokerId;
       const name = ($("mgrName").value || "").trim();
