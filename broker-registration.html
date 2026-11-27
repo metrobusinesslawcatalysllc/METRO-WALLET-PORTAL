@@ -147,17 +147,17 @@
     }
 
  function escapeHtml(str) {
+  const map = {
+    "&": "&",
+    "<": "<",
+    ">": ">"
+  };
+  map[String.fromCharCode(34)] = """;
+  map[String.fromCharCode(39)] = "'";
   return String(str || "").replace(/[&<>"']/g, function (c) {
-    return {
-      "&": "&",
-      "<": "<",
-      ">": ">",
-      '"': """,
-      "'": "'"
-    }[c] || c;
+    return map[c] || c;
   });
 }
-
     async function syncBrokerData() {
       const brokerId = $("brokerIdInput").value.trim();
       if (!brokerId) return showBanner("err", "Please enter a Broker ID.");
