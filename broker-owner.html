@@ -4544,86 +4544,130 @@ function ttRenderPositions() {
     refreshManagerClients();
   })();
 </script>
-  <script>
+<script>
   (function () {
     const byId = (id) => document.getElementById(id);
 
     const STORAGE_KEYS = {
-      owners: "mfx_demoOwners_v1",
-      managers: "mfx_demoManagers_v1",
-      subAdmins: "mfx_demoSubAdmins_v1",
-      clients: "mfx_demoClients_v1",
-      rules: "mfx_perClientRules_v1",
-      session: "mfx_activeSession_v1",
-      unlockedManagers: "mfx_unlockedManagers_v1"
+      owners: "mfx_v2_owners",
+      managers: "mfx_v2_managers",
+      subAdmins: "mfx_v2_subAdmins",
+      clients: "mfx_v2_clients",
+      rules: "mfx_v2_perClientRules",
+      session: "mfx_v2_activeSession",
+      unlockedManagers: "mfx_v2_unlockedManagers"
+    };
+
+    const SUPER_MASTER = {
+      id: "super_master",
+      name: "Super Master (Platform Builder)",
+      email: "supermaster@platform.local",
+      password: "superpassword123",
+      pin: "0000"
     };
 
     const defaultOwners = {
-      own_main: {
-        id: "own_main",
-        name: "Primary Broker Owner",
+      own_mfx: {
+        id: "own_mfx",
+        brand: "mFX Options",
+        domain: "mfxoptions.com",
+        name: "mFX Options Owner",
         email: "owner@mfxoptions.com",
         password: "password123",
         pin: "9001"
       },
       own_metro: {
         id: "own_metro",
-        name: "Metro Broker Owner",
-        email: "owner@metrooptions.com",
+        brand: "Metroptions",
+        domain: "metroptions.com",
+        name: "Metroptions Owner",
+        email: "owner@metroptions.com",
         password: "password123",
         pin: "9002"
+      },
+      own_fxiq: {
+        id: "own_fxiq",
+        brand: "FXiq Matterx",
+        domain: "fxiqmatterx.com",
+        name: "FXiq Matterx Owner",
+        email: "owner@fxiqmatterx.com",
+        password: "password123",
+        pin: "9003"
       }
     };
 
     const defaultManagers = {
       mgr_a: {
         id: "mgr_a",
+        owner_id: "own_mfx",
         name: "Admin Manager A",
-        email: "mgra@metrooptions.com",
+        email: "mgra@mfxoptions.com",
         password: "password123",
         pin: "1111"
       },
       mgr_b: {
         id: "mgr_b",
+        owner_id: "own_metro",
         name: "Admin Manager B",
-        email: "mgrb@metrooptions.com",
+        email: "mgrb@metroptions.com",
         password: "password123",
         pin: "2222"
+      },
+      mgr_c: {
+        id: "mgr_c",
+        owner_id: "own_fxiq",
+        name: "Admin Manager C",
+        email: "mgrc@fxiqmatterx.com",
+        password: "password123",
+        pin: "4444"
       }
     };
 
     const defaultSubAdmins = [
       {
         id: "sub_01",
-        name: "Sub Admin A1",
+        owner_id: "own_mfx",
         manager_id: "mgr_a",
         client_id: "cli_01",
-        email: "sub1@metrooptions.com",
+        name: "Sub Admin A1",
+        email: "sub1@mfxoptions.com",
         password: "password123",
         pin: "3331"
       },
       {
         id: "sub_02",
-        name: "Sub Admin B1",
+        owner_id: "own_metro",
         manager_id: "mgr_b",
         client_id: "cli_06",
-        email: "sub2@metrooptions.com",
+        name: "Sub Admin B1",
+        email: "sub2@metroptions.com",
         password: "password123",
         pin: "3332"
+      },
+      {
+        id: "sub_03",
+        owner_id: "own_fxiq",
+        manager_id: "mgr_c",
+        client_id: "cli_11",
+        name: "Sub Admin C1",
+        email: "sub3@fxiqmatterx.com",
+        password: "password123",
+        pin: "3333"
       }
     ];
 
     const defaultClients = [
-      { id: "cli_01", name: "Client A1", manager_id: "mgr_a", email: "a1@metrooptions.com", password: "password123", basePnl: 100 },
-      { id: "cli_02", name: "Client A2", manager_id: "mgr_a", email: "a2@metrooptions.com", password: "password123", basePnl: 50 },
-      { id: "cli_03", name: "Client A3", manager_id: "mgr_a", email: "a3@metrooptions.com", password: "password123", basePnl: -20 },
-      { id: "cli_04", name: "Client A4", manager_id: "mgr_a", email: "a4@metrooptions.com", password: "password123", basePnl: 80 },
-      { id: "cli_05", name: "Client A5", manager_id: "mgr_a", email: "a5@metrooptions.com", password: "password123", basePnl: 120 },
-      { id: "cli_06", name: "Client B1", manager_id: "mgr_b", email: "b1@metrooptions.com", password: "password123", basePnl: 200 },
-      { id: "cli_07", name: "Client B2", manager_id: "mgr_b", email: "b2@metrooptions.com", password: "password123", basePnl: -40 },
-      { id: "cli_08", name: "Client B3", manager_id: "mgr_b", email: "b3@metrooptions.com", password: "password123", basePnl: 75 },
-      { id: "cli_09", name: "Client B4", manager_id: "mgr_b", email: "b4@metrooptions.com", password: "password123", basePnl: 30 },
-      { id: "cli_10", name: "Client B5", manager_id: "mgr_b", email: "b5@metrooptions.com", password: "password123", basePnl: -15 }
+      { id: "cli_01", owner_id: "own_mfx", manager_id: "mgr_a", sub_admin_id: "sub_01", name: "Client A1", email: "a1@mfxoptions.com", password: "password123", basePnl: 100 },
+      { id: "cli_02", owner_id: "own_mfx", manager_id: "mgr_a", sub_admin_id: "", name: "Client A2", email: "a2@mfxoptions.com", password: "password123", basePnl: 50 },
+      { id: "cli_03", owner_id: "own_mfx", manager_id: "mgr_a", sub_admin_id: "", name: "Client A3", email: "a3@mfxoptions.com", password: "password123", basePnl: -20 },
+      { id: "cli_04", owner_id: "own_mfx", manager_id: "mgr_a", sub_admin_id: "", name: "Client A4", email: "a4@mfxoptions.com", password: "password123", basePnl: 80 },
+      { id: "cli_05", owner_id: "own_mfx", manager_id: "mgr_a", sub_admin_id: "", name: "Client A5", email: "a5@mfxoptions.com", password: "password123", basePnl: 120 },
+      { id: "cli_06", owner_id: "own_metro", manager_id: "mgr_b", sub_admin_id: "sub_02", name: "Client B1", email: "b1@metroptions.com", password: "password123", basePnl: 200 },
+      { id: "cli_07", owner_id: "own_metro", manager_id: "mgr_b", sub_admin_id: "", name: "Client B2", email: "b2@metroptions.com", password: "password123", basePnl: -40 },
+      { id: "cli_08", owner_id: "own_metro", manager_id: "mgr_b", sub_admin_id: "", name: "Client B3", email: "b3@metroptions.com", password: "password123", basePnl: 75 },
+      { id: "cli_09", owner_id: "own_metro", manager_id: "mgr_b", sub_admin_id: "", name: "Client B4", email: "b4@metroptions.com", password: "password123", basePnl: 30 },
+      { id: "cli_10", owner_id: "own_metro", manager_id: "mgr_b", sub_admin_id: "", name: "Client B5", email: "b5@metroptions.com", password: "password123", basePnl: -15 },
+      { id: "cli_11", owner_id: "own_fxiq", manager_id: "mgr_c", sub_admin_id: "sub_03", name: "Client C1", email: "c1@fxiqmatterx.com", password: "password123", basePnl: 150 }
     ];
 
     function readJson(key, fallback) {
@@ -4641,7 +4685,7 @@ function ttRenderPositions() {
       try {
         localStorage.setItem(key, JSON.stringify(value));
       } catch (_err) {
-        // Ignore storage quota or private mode errors
+        // Ignore storage errors
       }
     }
 
@@ -4651,19 +4695,7 @@ function ttRenderPositions() {
     const demoClients = readJson(STORAGE_KEYS.clients, defaultClients);
     const perClientRules = readJson(STORAGE_KEYS.rules, {});
     const unlockedManagers = readJson(STORAGE_KEYS.unlockedManagers, {});
-    const loggedInClients = {};
-    const loggedInSubAdmins = {};
     let activeSession = readJson(STORAGE_KEYS.session, null);
-
-    function persistAllState() {
-      writeJson(STORAGE_KEYS.owners, demoOwners);
-      writeJson(STORAGE_KEYS.managers, demoManagers);
-      writeJson(STORAGE_KEYS.subAdmins, demoSubAdmins);
-      writeJson(STORAGE_KEYS.clients, demoClients);
-      writeJson(STORAGE_KEYS.rules, perClientRules);
-      writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
-      writeJson(STORAGE_KEYS.session, activeSession);
-    }
 
     function getClientRule(clientId) {
       if (!perClientRules[clientId]) {
@@ -4696,88 +4728,115 @@ function ttRenderPositions() {
       return Number(((client.basePnl + r.bias * 25) * r.multiplier + r.offset).toFixed(2));
     }
 
+    function getScopedManagers() {
+      const list = Object.values(demoManagers);
+      if (!activeSession || activeSession.role === "super_master") return list;
+      if (activeSession.role === "broker_owner") {
+        return list.filter((m) => m.owner_id === activeSession.account.id);
+      }
+      if (activeSession.role === "admin_manager") {
+        return list.filter((m) => m.id === activeSession.account.id);
+      }
+      return [];
+    }
+
+    function getScopedSubAdmins() {
+      if (!activeSession || activeSession.role === "super_master") return demoSubAdmins;
+      if (activeSession.role === "broker_owner") {
+        return demoSubAdmins.filter((s) => s.owner_id === activeSession.account.id);
+      }
+      if (activeSession.role === "admin_manager") {
+        return demoSubAdmins.filter((s) => s.manager_id === activeSession.account.id);
+      }
+      if (activeSession.role === "sub_admin") {
+        return demoSubAdmins.filter((s) => s.id === activeSession.account.id);
+      }
+      return [];
+    }
+
+    function getScopedClients() {
+      if (!activeSession || activeSession.role === "super_master") return demoClients;
+      if (activeSession.role === "broker_owner") {
+        return demoClients.filter((c) => c.owner_id === activeSession.account.id);
+      }
+      if (activeSession.role === "admin_manager") {
+        return demoClients.filter((c) => c.manager_id === activeSession.account.id);
+      }
+      if (activeSession.role === "sub_admin") {
+        const sub = activeSession.account;
+        return demoClients.filter((c) =>
+          (sub.client_id && c.id === sub.client_id) || c.sub_admin_id === sub.id
+        );
+      }
+      if (activeSession.role === "client") {
+        return demoClients.filter((c) => c.id === activeSession.account.id);
+      }
+      return [];
+    }
+
     function applyRoleVisibility() {
       const allCards = Array.from(document.querySelectorAll(".card"));
+      const superMasterCard = byId("superMasterOnboardingCard");
       const unifiedCard = byId("unifiedLoginCard");
+      const signupCard = byId("mfxSelfSignupCard");
       const mgrLookupInput = byId("lookupManagerInput");
       const mgrCard = mgrLookupInput ? mgrLookupInput.closest(".card") : null;
       const subSelect = byId("subPortalSelect");
       const subCard = subSelect ? subSelect.closest(".card") : null;
       const cliSelect = byId("cliPortalSelect");
       const cliCard = cliSelect ? cliSelect.closest(".card") : null;
+      const ownerMgrBody = byId("ownerManagersBody");
+      const ownerMgrRegCard = ownerMgrBody ? ownerMgrBody.closest(".card") : null;
 
-      if (!activeSession || activeSession.role === "broker_owner") {
+      if (!activeSession) {
+        allCards.forEach((card) => {
+          card.style.display = card === unifiedCard || card === signupCard ? "" : "none";
+        });
+        return;
+      }
+
+      if (activeSession.role === "super_master") {
         allCards.forEach((card) => {
           card.style.display = "";
         });
         return;
       }
 
+      if (activeSession.role === "broker_owner") {
+        allCards.forEach((card) => {
+          const allowed =
+            card === unifiedCard ||
+            card === ownerMgrRegCard ||
+            card === mgrCard ||
+            card === subCard ||
+            card === cliCard;
+          card.style.display = allowed ? "" : "none";
+        });
+        return;
+      }
+
       if (activeSession.role === "admin_manager") {
         allCards.forEach((card) => {
-          card.style.display = card === unifiedCard || card === mgrCard ? "" : "none";
+          card.style.display = card === unifiedCard || card === mgrCard || card === subCard ? "" : "none";
         });
-      } else if (activeSession.role === "sub_admin") {
+        return;
+      }
+
+      if (activeSession.role === "sub_admin") {
         allCards.forEach((card) => {
-          card.style.display = card === unifiedCard || card === subCard ? "" : "none";
+          card.style.display = card === unifiedCard || card === cliCard ? "" : "none";
         });
-      } else if (activeSession.role === "client") {
+        return;
+      }
+
+      if (activeSession.role === "client") {
         allCards.forEach((card) => {
           card.style.display = card === unifiedCard || card === cliCard ? "" : "none";
         });
       }
-    }
 
-    function restoreSessionUI() {
-      if (!activeSession || !activeSession.role) return;
-
-      if (activeSession.role === "broker_owner") {
-        const ownerAcct = activeSession.account || {};
-        if (byId("unifiedLoginStatus")) {
-          byId("unifiedLoginStatus").textContent =
-            "Restored Broker Owner session: " + (ownerAcct.name || "Broker Owner") +
-            (ownerAcct.email ? " (" + ownerAcct.email + ")" : "");
-        }
-      } else if (activeSession.role === "admin_manager" && activeSession.account) {
-        const mgrId = activeSession.account.id;
-        unlockedManagers[mgrId] = true;
-        if (byId("lookupManagerInput")) byId("lookupManagerInput").value = mgrId;
-        if (byId("unifiedLoginStatus")) {
-          byId("unifiedLoginStatus").textContent =
-            "Restored session for Admin Manager: " + activeSession.account.name + " (" + mgrId + ")";
-        }
-      } else if (activeSession.role === "sub_admin" && activeSession.account) {
-        const sub = demoSubAdmins.find((s) => s.id === activeSession.account.id) || activeSession.account;
-        loggedInSubAdmins[sub.id] = true;
-        if (byId("subPortalSelect")) byId("subPortalSelect").value = sub.id;
-        if (byId("subLoginEmail")) byId("subLoginEmail").value = sub.email || "";
-        const scopedClients = sub.client_id
-          ? demoClients.filter((c) => c.id === sub.client_id)
-          : demoClients.filter((c) => c.manager_id === sub.manager_id);
-        if (byId("subPortalStatus")) {
-          byId("subPortalStatus").textContent =
-            "Logged in as " + sub.name + " (" + sub.id + ") | Manager: " + sub.manager_id +
-            " | Accessible Clients: " + scopedClients.length;
-        }
-        if (byId("unifiedLoginStatus")) {
-          byId("unifiedLoginStatus").textContent =
-            "Restored session for Sub Admin: " + sub.name + " (" + sub.id + ")";
-        }
-      } else if (activeSession.role === "client" && activeSession.account) {
-        const client = demoClients.find((c) => c.id === activeSession.account.id) || activeSession.account;
-        loggedInClients[client.id] = true;
-        if (byId("cliPortalSelect")) byId("cliPortalSelect").value = client.id;
-        if (byId("cliLoginEmail")) byId("cliLoginEmail").value = client.email || "";
-        if (byId("cliPortalStatus")) {
-          byId("cliPortalStatus").textContent =
-            "Logged in as " + client.name + " (" + client.id + ") | Manager: " + client.manager_id +
-            " | Base P&L: $" + Number(client.basePnl).toFixed(2) +
-            " | Adjusted P&L: $" + getAdjustedPnl(client).toFixed(2);
-        }
-        if (byId("unifiedLoginStatus")) {
-          byId("unifiedLoginStatus").textContent =
-            "Restored session for Client: " + client.name + " (" + client.id + ")";
-        }
+      if (superMasterCard && activeSession.role !== "super_master") {
+        superMasterCard.style.display = "none";
       }
     }
 
@@ -4788,6 +4847,24 @@ function ttRenderPositions() {
         return { ok: false, message: "Enter both email and password or PIN." };
       }
 
+      if (
+        email === SUPER_MASTER.email.toLowerCase() &&
+        (secret === SUPER_MASTER.password || secret === SUPER_MASTER.pin)
+      ) {
+        activeSession = {
+          role: "super_master",
+          account: { id: SUPER_MASTER.id, name: SUPER_MASTER.name, email: SUPER_MASTER.email }
+        };
+        writeJson(STORAGE_KEYS.session, activeSession);
+        renderAllScopedViews();
+        applyRoleVisibility();
+        return {
+          ok: true,
+          role: "super_master",
+          message: "Signed in as Super Master (can onboard independent Broker Owners & custom domains)."
+        };
+      }
+
       const owner = Object.values(demoOwners).find(
         (o) =>
           (o.email || "").toLowerCase() === email &&
@@ -4796,15 +4873,16 @@ function ttRenderPositions() {
       if (owner) {
         activeSession = {
           role: "broker_owner",
-          account: { id: owner.id, name: owner.name, email: owner.email }
+          account: { id: owner.id, name: owner.name, brand: owner.brand, domain: owner.domain, email: owner.email }
         };
         writeJson(STORAGE_KEYS.session, activeSession);
+        if (byId("newMgrOwnerIdInput")) byId("newMgrOwnerIdInput").value = owner.id;
+        renderAllScopedViews();
         applyRoleVisibility();
         return {
           ok: true,
           role: "broker_owner",
-          account: owner,
-          message: "Signed in as Broker Owner: " + owner.name + " (" + owner.email + ")"
+          message: "Signed in as Broker Owner: " + owner.brand + " (" + owner.domain + ") — scoped to your own branch only."
         };
       }
 
@@ -4816,18 +4894,18 @@ function ttRenderPositions() {
       if (mgr) {
         unlockedManagers[mgr.id] = true;
         writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
-        activeSession = { role: "admin_manager", account: { id: mgr.id, name: mgr.name, email: mgr.email } };
+        activeSession = {
+          role: "admin_manager",
+          account: { id: mgr.id, owner_id: mgr.owner_id, name: mgr.name, email: mgr.email }
+        };
         writeJson(STORAGE_KEYS.session, activeSession);
-        if (byId("lookupManagerInput")) {
-          byId("lookupManagerInput").value = mgr.id;
-        }
-        refreshManagerClients();
+        if (byId("lookupManagerInput")) byId("lookupManagerInput").value = mgr.id;
+        renderAllScopedViews();
         applyRoleVisibility();
         return {
           ok: true,
           role: "admin_manager",
-          account: mgr,
-          message: "Signed in as Admin Manager: " + mgr.name + " (" + mgr.id + ")"
+          message: "Signed in as Admin Manager: " + mgr.name + " (" + mgr.id + ") — isolated to your own staff & clients."
         };
       }
 
@@ -4837,29 +4915,17 @@ function ttRenderPositions() {
           (secret === s.password || (s.pin && secret === s.pin))
       );
       if (sub) {
-        loggedInSubAdmins[sub.id] = true;
-        activeSession = { role: "sub_admin", account: { id: sub.id, name: sub.name, email: sub.email } };
+        activeSession = {
+          role: "sub_admin",
+          account: { id: sub.id, owner_id: sub.owner_id, manager_id: sub.manager_id, client_id: sub.client_id, name: sub.name, email: sub.email }
+        };
         writeJson(STORAGE_KEYS.session, activeSession);
-        if (byId("subPortalSelect")) {
-          byId("subPortalSelect").value = sub.id;
-        }
-        if (byId("subLoginEmail")) {
-          byId("subLoginEmail").value = sub.email;
-        }
-        const scopedClients = sub.client_id
-          ? demoClients.filter((c) => c.id === sub.client_id)
-          : demoClients.filter((c) => c.manager_id === sub.manager_id);
-        if (byId("subPortalStatus")) {
-          byId("subPortalStatus").textContent =
-            "Logged in as " + sub.name + " (" + sub.id + ") | Manager: " + sub.manager_id +
-            " | Accessible Clients: " + scopedClients.length;
-        }
+        renderAllScopedViews();
         applyRoleVisibility();
         return {
           ok: true,
           role: "sub_admin",
-          account: sub,
-          message: "Signed in as Sub Admin: " + sub.name + " (" + sub.id + ")"
+          message: "Signed in as Sub Admin: " + sub.name + " (" + sub.id + ") — scoped only to your assigned client(s)."
         };
       }
 
@@ -4867,27 +4933,17 @@ function ttRenderPositions() {
         (c) => (c.email || "").toLowerCase() === email && secret === c.password
       );
       if (client) {
-        loggedInClients[client.id] = true;
-        activeSession = { role: "client", account: { id: client.id, name: client.name, email: client.email } };
+        activeSession = {
+          role: "client",
+          account: { id: client.id, owner_id: client.owner_id, manager_id: client.manager_id, name: client.name, email: client.email }
+        };
         writeJson(STORAGE_KEYS.session, activeSession);
-        if (byId("cliPortalSelect")) {
-          byId("cliPortalSelect").value = client.id;
-        }
-        if (byId("cliLoginEmail")) {
-          byId("cliLoginEmail").value = client.email;
-        }
-        if (byId("cliPortalStatus")) {
-          byId("cliPortalStatus").textContent =
-            "Logged in as " + client.name + " (" + client.id + ") | Manager: " + client.manager_id +
-            " | Base P&L: $" + Number(client.basePnl).toFixed(2) +
-            " | Adjusted P&L: $" + getAdjustedPnl(client).toFixed(2);
-        }
+        renderAllScopedViews();
         applyRoleVisibility();
         return {
           ok: true,
           role: "client",
-          account: client,
-          message: "Signed in as Client: " + client.name + " (" + client.id + ")"
+          message: "Signed in as Client: " + client.name + " (" + client.id + ") under Manager " + client.manager_id + "."
         };
       }
 
@@ -4897,6 +4953,7 @@ function ttRenderPositions() {
     function clearSavedSession() {
       activeSession = null;
       writeJson(STORAGE_KEYS.session, null);
+      renderAllScopedViews();
       applyRoleVisibility();
     }
 
@@ -4905,36 +4962,44 @@ function ttRenderPositions() {
       if (!body) return;
       const list = Object.values(demoOwners);
       body.innerHTML = list.length
-        ? list.map((o) => (
-            "<tr>" +
-              "<td>" + o.id + "</td>" +
-              "<td>" + o.name + "</td>" +
-              "<td>" + (o.email || "-") + "</td>" +
-              "<td>PIN: " + (o.pin || "-") + "</td>" +
-            "</tr>"
-          )).join("")
-        : '<tr><td colspan="4">No Broker Owners registered yet.</td></tr>';
+        ? list.map((o) => {
+            const mgrCount = Object.values(demoManagers).filter((m) => m.owner_id === o.id).length;
+            const cliCount = demoClients.filter((c) => c.owner_id === o.id).length;
+            return (
+              "<tr>" +
+                "<td>" + o.id + "</td>" +
+                "<td>" + (o.brand || o.name) + "</td>" +
+                "<td>" + (o.domain || "-") + "</td>" +
+                "<td>" + (o.email || "-") + "</td>" +
+                "<td>Mgrs: " + mgrCount + " | Clients: " + cliCount + "</td>" +
+              "</tr>"
+            );
+          }).join("")
+        : '<tr><td colspan="5">No Broker Owners onboarded yet.</td></tr>';
     }
 
-    function registerBrokerOwner() {
+    function onboardBrokerOwner() {
       const customId = (byId("newOwnerIdInput").value || "").trim();
-      const name = (byId("newOwnerNameInput").value || "").trim();
+      const brand = (byId("newOwnerBrandInput").value || "").trim();
+      const domain = (byId("newOwnerDomainInput").value || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
       const email = (byId("newOwnerEmailInput").value || "").trim().toLowerCase();
       const password = byId("newOwnerPasswordInput").value || "";
       const pin = (byId("newOwnerPinInput").value || "").trim();
 
-      if (!name || !email || !email.includes("@") || password.length < 6) {
+      if (!brand || !domain || !email || !email.includes("@") || password.length < 6) {
         byId("ownerAccountStatus").textContent =
-          "Enter Owner Name, a valid Owner Domain Email (e.g. owner@your-domain.com), and Password (min 6 chars).";
+          "Super Master: enter Brand Name, Custom Domain, Owner Email, and Password (min 6 chars).";
         return;
       }
 
-      const ownerId = customId || ("own_" + Math.random().toString(36).slice(2, 6));
+      const ownerId = customId || ("own_" + brand.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 6) + "_" + Math.random().toString(36).slice(2, 4));
       const assignedPin = pin || String(Math.floor(1000 + Math.random() * 9000));
 
       demoOwners[ownerId] = {
         id: ownerId,
-        name: name,
+        brand: brand,
+        domain: domain,
+        name: brand + " Owner",
         email: email,
         password: password,
         pin: assignedPin
@@ -4942,60 +5007,65 @@ function ttRenderPositions() {
       writeJson(STORAGE_KEYS.owners, demoOwners);
 
       byId("newOwnerIdInput").value = "";
-      byId("newOwnerNameInput").value = "";
+      byId("newOwnerBrandInput").value = "";
+      byId("newOwnerDomainInput").value = "";
       byId("newOwnerEmailInput").value = "";
       byId("newOwnerPasswordInput").value = "";
       byId("newOwnerPinInput").value = "";
 
       byId("ownerAccountStatus").textContent =
-        "Registered Broker Owner " + name + " (" + ownerId + ") | Login Email: " + email + " | PIN: " + assignedPin;
-      if (byId("unifiedEmailInput")) byId("unifiedEmailInput").value = email;
+        "Onboarded Broker Owner: " + brand + " (" + domain + ") | Owner ID: " + ownerId + " | Login: " + email + " | PIN: " + assignedPin;
 
       renderOwnerAccountsTable();
     }
 
-    function mountBrokerOwnerCard() {
+    function mountSuperMasterCard() {
       const anchor = byId("mfxSelfSignupCard") || (byId("ownerManagersBody") ? byId("ownerManagersBody").closest(".card") : null);
       const container = anchor ? anchor.parentNode : document.body;
-      if (!container || byId("brokerOwnerDomainCard")) return;
+      if (!container || byId("superMasterOnboardingCard")) return;
 
       const card = document.createElement("div");
       card.className = "card";
-      card.id = "brokerOwnerDomainCard";
+      card.id = "superMasterOnboardingCard";
       card.innerHTML =
-        '<h3>Broker Owner Domain Accounts (Owner Login)</h3>' +
-        '<div id="ownerAccountStatus" class="summary" style="margin-bottom:12px;">Every Broker Owner can have their own owner domain login email (e.g. owner@mfxoptions.com) and password or PIN.</div>' +
+        '<h3>Super Master — Broker Owner & Custom Domain Onboarding</h3>' +
+        '<div id="ownerAccountStatus" class="summary" style="margin-bottom:12px;">Super Master onboards independent Broker Owners (e.g. mFX Options, Metroptions, FXiq Matterx) with their own separate custom domains and isolated branches.</div>' +
         '<div class="grid">' +
           '<div>' +
             '<label for="newOwnerIdInput">Owner ID (optional)</label>' +
-            '<input id="newOwnerIdInput" type="text" placeholder="e.g. own_02 (auto if blank)" />' +
+            '<input id="newOwnerIdInput" type="text" placeholder="e.g. own_apex (auto if blank)" />' +
           '</div>' +
           '<div>' +
-            '<label for="newOwnerNameInput">Broker Owner Name</label>' +
-            '<input id="newOwnerNameInput" type="text" placeholder="e.g. Partner Broker Owner" />' +
+            '<label for="newOwnerBrandInput">Broker Brand Name</label>' +
+            '<input id="newOwnerBrandInput" type="text" placeholder="e.g. Apex Options" />' +
           '</div>' +
           '<div>' +
-            '<label for="newOwnerEmailInput">Owner Domain Login Email</label>' +
-            '<input id="newOwnerEmailInput" type="email" placeholder="owner@yourdomain.com" />' +
+            '<label for="newOwnerDomainInput">Custom Broker Domain</label>' +
+            '<input id="newOwnerDomainInput" type="text" placeholder="e.g. apexoptions.com" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="newOwnerEmailInput">Broker Owner Login Email</label>' +
+            '<input id="newOwnerEmailInput" type="email" placeholder="owner@apexoptions.com" />' +
           '</div>' +
           '<div>' +
             '<label for="newOwnerPasswordInput">Owner Password (min 6 chars)</label>' +
             '<input id="newOwnerPasswordInput" type="password" placeholder="••••••" />' +
           '</div>' +
           '<div>' +
-            '<label for="newOwnerPinInput">Owner Access PIN (optional, 4–6 digits)</label>' +
-            '<input id="newOwnerPinInput" type="text" maxlength="6" placeholder="e.g. 9003 (auto if blank)" />' +
+            '<label for="newOwnerPinInput">Owner PIN (optional, 4–6 digits)</label>' +
+            '<input id="newOwnerPinInput" type="text" maxlength="6" placeholder="e.g. 9010 (auto if blank)" />' +
           '</div>' +
         '</div>' +
-        '<button id="createOwnerAccountBtn" class="primary" type="button" style="margin-top:10px;">Register Broker Owner Login</button>' +
+        '<button id="createOwnerAccountBtn" class="primary" type="button" style="margin-top:10px;">Onboard Broker Owner</button>' +
         '<div class="table-wrap" style="margin-top:14px;">' +
           '<table>' +
             '<thead>' +
               '<tr>' +
                 '<th>Owner ID</th>' +
-                '<th>Name</th>' +
-                '<th>Owner Domain Email</th>' +
-                '<th>PIN</th>' +
+                '<th>Brand</th>' +
+                '<th>Custom Domain</th>' +
+                '<th>Owner Email</th>' +
+                '<th>Branch Counts</th>' +
               '</tr>' +
             '</thead>' +
             '<tbody id="ownerAccountsBody"></tbody>' +
@@ -5008,7 +5078,7 @@ function ttRenderPositions() {
         container.appendChild(card);
       }
 
-      byId("createOwnerAccountBtn").addEventListener("click", registerBrokerOwner);
+      byId("createOwnerAccountBtn").addEventListener("click", onboardBrokerOwner);
       renderOwnerAccountsTable();
     }
 
@@ -5018,41 +5088,43 @@ function ttRenderPositions() {
       return typedCode || "mgr_a";
     }
 
-    function formatManagerCodeLabel(mgrId) {
-      const mgr = demoManagers[mgrId];
-      if (mgr && mgr.name) {
-        return mgr.name + " (" + mgrId + ")";
-      }
-      return "Referral Code (" + mgrId + ")";
-    }
-
     function handleClientSelfSignup() {
       const name = (byId("selfCliNameInput").value || "").trim();
       const email = (byId("selfCliEmailInput").value || "").trim().toLowerCase();
       const password = byId("selfCliPasswordInput").value || "";
-      const assignedMgrId = resolveTypedReferralCode();
-      const mgrLabel = formatManagerCodeLabel(assignedMgrId);
+      const refMgrId = resolveTypedReferralCode();
+      const mgr = demoManagers[refMgrId];
 
       if (!name || !email || password.length < 6) {
         byId("selfSignupStatus").textContent =
-          "Welcome to mFX Options — please enter your Full Name, Referral Code/ID, Email, and a Password (at least 6 characters).";
+          "Welcome to mFX Options — enter your Full Name, Admin Manager Tag/Code ID (e.g. mgr_a), Email, and Password (min 6 chars).";
+        return;
+      }
+
+      if (!mgr) {
+        byId("selfSignupStatus").textContent =
+          "Invalid Admin Manager code '" + refMgrId + "'. Enter a valid Admin Manager code ID such as mgr_a, mgr_b, or mgr_c.";
         return;
       }
 
       const alreadyExists = demoClients.some((c) => (c.email || "").toLowerCase() === email);
       if (alreadyExists) {
         byId("selfSignupStatus").textContent =
-          "An account with " + email + " is already registered. Sign in above with your email and password.";
+          "Account with " + email + " already exists. Sign in above with your email and password.";
         if (byId("unifiedEmailInput")) byId("unifiedEmailInput").value = email;
-        if (byId("cliLoginEmail")) byId("cliLoginEmail").value = email;
         return;
       }
 
+      const ownerObj = demoOwners[mgr.owner_id];
+      const brandName = ownerObj ? ownerObj.brand : mgr.owner_id;
       const cliId = "cli_" + Math.random().toString(36).slice(2, 6);
+
       demoClients.push({
         id: cliId,
+        owner_id: mgr.owner_id,
+        manager_id: mgr.id,
+        sub_admin_id: "",
         name: name,
-        manager_id: assignedMgrId,
         email: email,
         password: password,
         basePnl: 100
@@ -5065,16 +5137,11 @@ function ttRenderPositions() {
       byId("selfCliPasswordInput").value = "";
 
       byId("selfSignupStatus").textContent =
-        "Welcome to mFX Options, " + name + "! Portal registered (" + cliId + ") under " + mgrLabel +
-        ". Sign in now with " + email + " and your password.";
-
-      renderOwnerManagers();
-      renderOwnerClients();
-      refreshManagerClients();
+        "Welcome to mFX Options! Registered " + name + " (" + cliId + ") under " + mgr.name +
+        " (" + mgr.id + ") | Brand: " + brandName + ". Sign in with " + email + " and your password.";
 
       if (byId("unifiedEmailInput")) byId("unifiedEmailInput").value = email;
-      if (byId("cliPortalSelect")) byId("cliPortalSelect").value = cliId;
-      if (byId("cliLoginEmail")) byId("cliLoginEmail").value = email;
+      renderAllScopedViews();
     }
 
     function mountSelfSignupCard() {
@@ -5086,16 +5153,16 @@ function ttRenderPositions() {
       card.className = "card";
       card.id = "mfxSelfSignupCard";
       card.innerHTML =
-        '<h3>Welcome to mFX Options — Client Self-Signup</h3>' +
-        '<div id="selfSignupStatus" class="summary" style="margin-bottom:12px;">Welcome to mFX Options! Enter your Admin Manager referral code/ID (such as mgr_a), email, and password to register your portal account.</div>' +
+        '<h3>Welcome to mFX Options — Client Self-Signup (By Admin Manager Tag / ID)</h3>' +
+        '<div id="selfSignupStatus" class="summary" style="margin-bottom:12px;">Welcome to mFX Options! Sign up using your Admin Manager referral tag / code ID (e.g. mgr_a), email, and password.</div>' +
         '<div class="grid">' +
           '<div>' +
             '<label for="selfCliNameInput">Full Name</label>' +
             '<input id="selfCliNameInput" type="text" placeholder="Your full name" />' +
           '</div>' +
           '<div>' +
-            '<label for="selfCliRefCodeInput">Admin Manager Referral Code / ID</label>' +
-            '<input id="selfCliRefCodeInput" type="text" value="mgr_a" placeholder="e.g. mgr_a or mgr_b" />' +
+            '<label for="selfCliRefCodeInput">Admin Manager Tag / Code ID</label>' +
+            '<input id="selfCliRefCodeInput" type="text" value="mgr_a" placeholder="e.g. mgr_a, mgr_b, mgr_c" />' +
           '</div>' +
           '<div>' +
             '<label for="selfCliEmailInput">Login Email Address</label>' +
@@ -5106,7 +5173,7 @@ function ttRenderPositions() {
             '<input id="selfCliPasswordInput" type="password" placeholder="••••••" />' +
           '</div>' +
         '</div>' +
-        '<button id="selfSignupBtn" class="primary" type="button" style="margin-top:10px;">Register Portal Account</button>';
+        '<button id="selfSignupBtn" class="primary" type="button" style="margin-top:10px;">Register Client Account</button>';
 
       if (anchor) {
         container.insertBefore(card, anchor);
@@ -5118,7 +5185,7 @@ function ttRenderPositions() {
     }
 
     function mountUnifiedLoginCard() {
-      const anchor = byId("brokerOwnerDomainCard") || byId("mfxSelfSignupCard") || (byId("ownerManagersBody") ? byId("ownerManagersBody").closest(".card") : null);
+      const anchor = byId("superMasterOnboardingCard") || byId("mfxSelfSignupCard") || (byId("ownerManagersBody") ? byId("ownerManagersBody").closest(".card") : null);
       const container = anchor ? anchor.parentNode : document.body;
       if (!container || byId("unifiedLoginCard")) return;
 
@@ -5126,8 +5193,8 @@ function ttRenderPositions() {
       card.className = "card";
       card.id = "unifiedLoginCard";
       card.innerHTML =
-        '<h3>Unified Portal Login (One URL for Broker Owner, Staff & Clients)</h3>' +
-        '<div id="unifiedLoginStatus" class="summary" style="margin-bottom:10px;">Sign in from this single URL with your owner domain email, staff email, or client email and password/PIN.</div>' +
+        '<h3>Unified Portal Login (Super Master, Broker Owners, Admin Managers, Sub Admins & Clients)</h3>' +
+        '<div id="unifiedLoginStatus" class="summary" style="margin-bottom:10px;">Sign in from this single URL with your email and password or PIN. Access is strictly isolated per brand, manager, sub admin, and client.</div>' +
         '<div class="grid">' +
           '<div>' +
             '<label for="unifiedEmailInput">Account Email</label>' +
@@ -5140,7 +5207,7 @@ function ttRenderPositions() {
         '</div>' +
         '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
           '<button id="unifiedSignInBtn" class="primary" type="button">Sign In</button>' +
-          '<button id="unifiedSignOutBtn" type="button">Show All / Sign Out</button>' +
+          '<button id="unifiedSignOutBtn" type="button">Sign Out</button>' +
           '<button id="resetDemoStorageBtn" type="button">Reset Saved Data</button>' +
         '</div>';
 
@@ -5160,7 +5227,7 @@ function ttRenderPositions() {
 
       byId("unifiedSignOutBtn").addEventListener("click", function () {
         clearSavedSession();
-        byId("unifiedLoginStatus").textContent = "Signed out. Showing full view.";
+        byId("unifiedLoginStatus").textContent = "Signed out. Enter credentials to access your scoped portal or register via Admin Manager tag.";
       });
 
       byId("resetDemoStorageBtn").addEventListener("click", function () {
@@ -5171,129 +5238,81 @@ function ttRenderPositions() {
       });
     }
 
-    function mountManagerLoginBox() {
-      const tbody = byId("filteredClientsBody");
-      const tableWrap = tbody && tbody.closest(".table-wrap");
-      if (!tableWrap || byId("mgrPortalLoginBox")) return;
-
-      const box = document.createElement("div");
-      box.id = "mgrPortalLoginBox";
-      box.style.marginTop = "12px";
-      box.style.padding = "12px";
-      box.style.border = "1px solid rgba(148,163,184,0.35)";
-      box.style.borderRadius = "8px";
-      box.innerHTML =
-        '<div style="font-weight:600;margin-bottom:8px;">Admin Manager Dashboard Login (Email + Password or PIN)</div>' +
-        '<div class="grid">' +
-          '<div>' +
-            '<label for="mgrLoginEmail">Manager Email</label>' +
-            '<input id="mgrLoginEmail" type="email" placeholder="mgra@metrooptions.com" />' +
-          '</div>' +
-          '<div>' +
-            '<label for="mgrLoginSecret">Password or Access PIN</label>' +
-            '<input id="mgrLoginSecret" type="password" placeholder="Enter password or 4-6 digit PIN" />' +
-          '</div>' +
-        '</div>' +
-        '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
-          '<button id="mgrUnlockBtn" class="primary" type="button">Unlock Manager Dashboard</button>' +
-          '<button id="mgrLockBtn" type="button">Lock</button>' +
-          '<span id="mgrLoginStatus" class="summary"></span>' +
-        '</div>';
-
-      tableWrap.parentNode.insertBefore(box, tableWrap);
-
-      byId("mgrUnlockBtn").addEventListener("click", function () {
-        const mgrId = (byId("lookupManagerInput").value || "").trim();
-        const email = (byId("mgrLoginEmail").value || "").trim();
-        const secret = byId("mgrLoginSecret").value || "";
-        const ok = verifyManagerAccess(mgrId, email, secret);
-
-        if (ok) {
-          byId("mgrLoginSecret").value = "";
-          byId("mgrLoginStatus").textContent = "Unlocked dashboard for " + mgrId + ".";
-        } else {
-          byId("mgrLoginStatus").textContent =
-            "Access denied. Check Manager ID, email + password, or PIN.";
-        }
-        refreshManagerClients();
-      });
-
-      byId("mgrLockBtn").addEventListener("click", function () {
-        const mgrId = (byId("lookupManagerInput").value || "").trim();
-        if (mgrId && unlockedManagers[mgrId]) {
-          delete unlockedManagers[mgrId];
-          writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
-        }
-        byId("mgrLoginStatus").textContent = mgrId ? "Locked dashboard for " + mgrId + "." : "Locked.";
-        refreshManagerClients();
-      });
-    }
-
     function renderOwnerManagers() {
-      const list = Object.values(demoManagers);
+      const list = getScopedManagers();
       const body = byId("ownerManagersBody");
       if (!body) return;
       body.innerHTML = list.length
         ? list.map((m) => {
+            const ownerObj = demoOwners[m.owner_id];
+            const brandLabel = ownerObj ? ownerObj.brand : (m.owner_id || "-");
             const count = demoClients.filter((c) => c.manager_id === m.id).length;
             return (
               "<tr>" +
                 "<td>" + m.id + "</td>" +
-                "<td>" + m.name + "</td>" +
+                "<td>" + m.name + " (" + brandLabel + ")</td>" +
                 "<td>" + (m.email || "-") + "</td>" +
                 "<td>PIN: " + (m.pin || "-") + "</td>" +
                 "<td>" + count + "</td>" +
               "</tr>"
             );
           }).join("")
-        : '<tr><td colspan="5">No Admin Managers registered yet.</td></tr>';
+        : '<tr><td colspan="5">No Admin Managers in your branch.</td></tr>';
     }
 
     function renderOwnerSubAdmins() {
       const select = byId("subPortalSelect");
       const body = byId("ownerSubAdminsBody");
+      const scopedSubs = getScopedSubAdmins();
       if (!select || !body) return;
 
-      select.innerHTML = demoSubAdmins
-        .map((s) => '<option value="' + s.id + '">' + s.name + " (" + s.id + " | " + s.manager_id + ")</option>")
-        .join("");
+      select.innerHTML = scopedSubs.length
+        ? scopedSubs.map((s) => '<option value="' + s.id + '">' + s.name + " (" + s.id + " | " + s.manager_id + ")</option>").join("")
+        : '<option value="">No Sub Admins in scope</option>';
 
-      const selectedSub = demoSubAdmins.find((s) => s.id === select.value);
-      if (selectedSub && !byId("subLoginEmail").value) {
+      const selectedSub = scopedSubs.find((s) => s.id === select.value) || scopedSubs[0];
+      if (selectedSub && byId("subLoginEmail")) {
         byId("subLoginEmail").value = selectedSub.email || "";
       }
 
-      body.innerHTML = demoSubAdmins.length
-        ? demoSubAdmins.map((s) => (
+      body.innerHTML = scopedSubs.length
+        ? scopedSubs.map((s) => (
             "<tr>" +
               "<td>" + s.id + "</td>" +
               "<td>" + s.name + "</td>" +
               "<td>" + (s.manager_id || "-") + "</td>" +
-              "<td>" + (s.client_id || "All under manager") + "</td>" +
+              "<td>" + (s.client_id || "Assigned only") + "</td>" +
               "<td>" + (s.email || "-") + "</td>" +
               "<td>" + (s.pin || "-") + "</td>" +
             "</tr>"
           )).join("")
-        : '<tr><td colspan="6">No Sub Admins registered yet.</td></tr>';
+        : '<tr><td colspan="6">No Sub Admins in your scope.</td></tr>';
     }
 
     function renderOwnerClients() {
       const select = byId("cliPortalSelect");
       const body = byId("ownerClientsBody");
+      const scopedClients = getScopedClients();
       if (!select || !body) return;
 
-      select.innerHTML = demoClients
-        .map((c) => '<option value="' + c.id + '">' + c.name + " (" + c.id + " | " + c.manager_id + ")</option>")
-        .join("");
+      select.innerHTML = scopedClients.length
+        ? scopedClients.map((c) => '<option value="' + c.id + '">' + c.name + " (" + c.id + " | " + c.manager_id + ")</option>").join("")
+        : '<option value="">No Clients in scope</option>';
 
-      const selectedCliId = select.value;
-      const selectedCli = demoClients.find((c) => c.id === selectedCliId);
-      if (selectedCli && !byId("cliLoginEmail").value) {
+      const selectedCli = scopedClients.find((c) => c.id === select.value) || scopedClients[0];
+      if (selectedCli && byId("cliLoginEmail")) {
         byId("cliLoginEmail").value = selectedCli.email || "";
       }
 
-      body.innerHTML = demoClients.length
-        ? demoClients.map((c) => (
+      if (selectedCli && byId("cliPortalStatus") && activeSession && activeSession.role === "client") {
+        byId("cliPortalStatus").textContent =
+          "Client Portal: " + selectedCli.name + " (" + selectedCli.id + ") | Manager: " + selectedCli.manager_id +
+          " | Base P&L: $" + Number(selectedCli.basePnl || 0).toFixed(2) +
+          " | Adjusted P&L: $" + getAdjustedPnl(selectedCli).toFixed(2);
+      }
+
+      body.innerHTML = scopedClients.length
+        ? scopedClients.map((c) => (
             "<tr>" +
               "<td>" + c.id + "</td>" +
               "<td>" + c.name + "</td>" +
@@ -5303,27 +5322,37 @@ function ttRenderPositions() {
               "<td>" + getAdjustedPnl(c).toFixed(2) + "</td>" +
             "</tr>"
           )).join("")
-        : '<tr><td colspan="6">No clients registered yet.</td></tr>';
+        : '<tr><td colspan="6">No Clients in your scope.</td></tr>';
     }
 
     function registerOwnerManager() {
       const customId = (byId("newMgrIdInput").value || "").trim();
       const name = (byId("newMgrNameInput").value || "").trim();
-      const email = (byId("newMgrEmailInput").value || "").trim();
+      const email = (byId("newMgrEmailInput").value || "").trim().toLowerCase();
       const password = byId("newMgrPasswordInput").value || "";
       const pinInput = byId("newMgrPinInput");
       const pin = pinInput ? (pinInput.value || "").trim() : "";
 
-      if (!name || !email || password.length < 6) {
-        byId("ownerMgrStatus").textContent = "Enter Name, Email, and a Password (min 6 chars).";
+      let ownerId = activeSession && activeSession.role === "broker_owner"
+        ? activeSession.account.id
+        : ((byId("newMgrOwnerIdInput") && byId("newMgrOwnerIdInput").value.trim()) || "own_mfx");
+
+      if (!demoOwners[ownerId]) {
+        byId("ownerMgrStatus").textContent = "Invalid Broker Owner ID '" + ownerId + "'.";
         return;
       }
 
-      const mgrId = customId || ("mgr_" + Math.random().toString(36).slice(2, 7));
+      if (!name || !email || password.length < 6) {
+        byId("ownerMgrStatus").textContent = "Enter Name, Email, and Password (min 6 chars).";
+        return;
+      }
+
+      const mgrId = customId || ("mgr_" + Math.random().toString(36).slice(2, 6));
       const assignedPin = pin || String(Math.floor(1000 + Math.random() * 9000));
 
       demoManagers[mgrId] = {
         id: mgrId,
+        owner_id: ownerId,
         name: name,
         email: email,
         password: password,
@@ -5340,29 +5369,29 @@ function ttRenderPositions() {
       if (pinInput) pinInput.value = "";
 
       byId("ownerMgrStatus").textContent =
-        "Registered " + name + " (" + mgrId + ") | Email: " + email + " | PIN: " + assignedPin;
-      byId("lookupManagerInput").value = mgrId;
-      if (byId("newCliMgrIdInput") && !byId("newCliMgrIdInput").value) {
-        byId("newCliMgrIdInput").value = mgrId;
-      }
-      if (byId("newSubMgrIdInput") && !byId("newSubMgrIdInput").value) {
-        byId("newSubMgrIdInput").value = mgrId;
-      }
-      if (byId("mgrLoginEmail")) byId("mgrLoginEmail").value = email;
+        "Registered " + name + " (" + mgrId + ") under " + demoOwners[ownerId].brand + " | Email: " + email + " | PIN: " + assignedPin;
 
-      renderOwnerManagers();
-      refreshManagerClients();
+      renderAllScopedViews();
     }
 
     function registerOwnerSubAdmin() {
       const customId = (byId("newSubIdInput").value || "").trim();
-      const mgrId = (byId("newSubMgrIdInput").value || byId("lookupManagerInput").value || "mgr_a").trim();
+      const mgrId = (byId("newSubMgrIdInput").value || byId("lookupManagerInput").value || "").trim();
       const clientId = (byId("newSubClientIdInput").value || "").trim();
       const name = (byId("newSubNameInput").value || "").trim();
-      const email = (byId("newSubEmailInput").value || "").trim();
+      const email = (byId("newSubEmailInput").value || "").trim().toLowerCase();
       const password = byId("newSubPasswordInput").value || "";
       const pin = (byId("newSubPinInput").value || "").trim();
 
+      const mgr = demoManagers[mgrId];
+      if (!mgr) {
+        byId("ownerSubAdminStatus").textContent = "Enter a valid Admin Manager ID under your brand.";
+        return;
+      }
+      if (activeSession && activeSession.role === "broker_owner" && mgr.owner_id !== activeSession.account.id) {
+        byId("ownerSubAdminStatus").textContent = "Access denied: Admin Manager belongs to another Broker Owner.";
+        return;
+      }
       if (!name || !email || password.length < 6) {
         byId("ownerSubAdminStatus").textContent = "Enter Sub Admin Name, Email, and Password (min 6 chars).";
         return;
@@ -5373,13 +5402,20 @@ function ttRenderPositions() {
 
       demoSubAdmins.push({
         id: subId,
-        name: name,
-        manager_id: mgrId,
+        owner_id: mgr.owner_id,
+        manager_id: mgr.id,
         client_id: clientId,
+        name: name,
         email: email,
         password: password,
         pin: assignedPin
       });
+
+      if (clientId) {
+        const targetCli = demoClients.find((c) => c.id === clientId && c.manager_id === mgr.id);
+        if (targetCli) targetCli.sub_admin_id = subId;
+        writeJson(STORAGE_KEYS.clients, demoClients);
+      }
       writeJson(STORAGE_KEYS.subAdmins, demoSubAdmins);
 
       byId("newSubIdInput").value = "";
@@ -5390,21 +5426,28 @@ function ttRenderPositions() {
       byId("newSubPinInput").value = "";
 
       byId("ownerSubAdminStatus").textContent =
-        "Registered " + name + " (" + subId + ") under " + mgrId + " | Email: " + email + " | PIN: " + assignedPin;
+        "Registered " + name + " (" + subId + ") under " + mgr.id + " | Assigned Client: " + (clientId || "None yet");
 
-      renderOwnerSubAdmins();
-      byId("subPortalSelect").value = subId;
-      byId("subLoginEmail").value = email;
+      renderAllScopedViews();
     }
 
     function registerOwnerClient() {
       const customId = (byId("newCliIdInput").value || "").trim();
-      const mgrId = (byId("newCliMgrIdInput").value || byId("lookupManagerInput").value || "mgr_a").trim();
+      const mgrId = (byId("newCliMgrIdInput").value || byId("lookupManagerInput").value || "").trim();
       const name = (byId("newCliNameInput").value || "").trim();
-      const email = (byId("newCliEmailInput").value || "").trim();
+      const email = (byId("newCliEmailInput").value || "").trim().toLowerCase();
       const password = byId("newCliPasswordInput").value || "";
       const basePnl = Number(byId("newCliBasePnlInput").value || 0);
 
+      const mgr = demoManagers[mgrId];
+      if (!mgr) {
+        byId("ownerClientStatus").textContent = "Enter a valid Admin Manager ID (e.g. mgr_a, mgr_b, mgr_c).";
+        return;
+      }
+      if (activeSession && activeSession.role === "broker_owner" && mgr.owner_id !== activeSession.account.id) {
+        byId("ownerClientStatus").textContent = "Access denied: Admin Manager belongs to another Broker Owner.";
+        return;
+      }
       if (!name || !email || password.length < 6) {
         byId("ownerClientStatus").textContent = "Enter Client Name, Login Email, and Password (min 6 chars).";
         return;
@@ -5413,8 +5456,10 @@ function ttRenderPositions() {
       const cliId = customId || ("cli_" + Math.random().toString(36).slice(2, 6));
       demoClients.push({
         id: cliId,
+        owner_id: mgr.owner_id,
+        manager_id: mgr.id,
+        sub_admin_id: "",
         name: name,
-        manager_id: mgrId,
         email: email,
         password: password,
         basePnl: isNaN(basePnl) ? 0 : basePnl
@@ -5428,70 +5473,55 @@ function ttRenderPositions() {
       byId("newCliPasswordInput").value = "";
 
       byId("ownerClientStatus").textContent =
-        "Registered " + name + " (" + cliId + ") under " + mgrId + " | Email: " + email;
+        "Registered " + name + " (" + cliId + ") under " + mgr.id + " | Email: " + email;
 
-      renderOwnerManagers();
-      renderOwnerClients();
-      byId("cliPortalSelect").value = cliId;
-      byId("cliLoginEmail").value = email;
-      refreshManagerClients();
-    }
-
-    function verifyManagerAccess(mgrId, emailOrPin, secretInput) {
-      const mgr = demoManagers[mgrId];
-      if (!mgr) return false;
-      if (unlockedManagers[mgrId]) return true;
-
-      const typedSecret = (secretInput || "").trim();
-      const typedLogin = (emailOrPin || "").trim().toLowerCase();
-
-      const pinMatches = typedSecret && mgr.pin && typedSecret === mgr.pin;
-      const emailPassMatches =
-        typedLogin === (mgr.email || "").toLowerCase() &&
-        typedSecret &&
-        typedSecret === mgr.password;
-
-      if (pinMatches || emailPassMatches) {
-        unlockedManagers[mgrId] = true;
-        writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
-        return true;
-      }
-      return false;
+      renderAllScopedViews();
     }
 
     function refreshManagerClients() {
-      const mgrId = (byId("lookupManagerInput").value || "").trim();
-      const mgr = demoManagers[mgrId];
-      const clients = mgrId ? demoClients.filter((c) => c.manager_id === mgrId) : [];
+      const lookupInput = byId("lookupManagerInput");
+      if (!lookupInput) return;
 
-      if (mgr && byId("mgrLoginEmail") && !byId("mgrLoginEmail").value) {
-        byId("mgrLoginEmail").value = mgr.email || "";
+      if (activeSession && activeSession.role === "admin_manager") {
+        lookupInput.value = activeSession.account.id;
+        lookupInput.readOnly = true;
+      } else {
+        lookupInput.readOnly = false;
       }
+
+      const mgrId = (lookupInput.value || "").trim();
+      const mgr = demoManagers[mgrId];
+
+      if (
+        mgr &&
+        activeSession &&
+        activeSession.role === "broker_owner" &&
+        mgr.owner_id !== activeSession.account.id
+      ) {
+        byId("managerLookupInfo").textContent =
+          "Access denied: " + mgrId + " belongs to another Broker Owner branch.";
+        byId("targetClientSelect").innerHTML = '<option value="">Not in your Broker Owner branch</option>';
+        byId("filteredClientsBody").innerHTML = '<tr><td colspan="5">Access restricted to your own branch Admin Managers.</td></tr>';
+        return;
+      }
+
+      const clients = mgrId ? demoClients.filter((c) => c.manager_id === mgrId) : [];
 
       if (!mgrId) {
         byId("managerLookupInfo").textContent =
-          "Enter an Admin Manager ID (such as mgr_a or mgr_b) to view that manager and their clients.";
+          "Enter an Admin Manager ID (e.g. mgr_a, mgr_b, mgr_c) to view that manager's clients.";
         byId("targetClientSelect").innerHTML = '<option value="">Select a manager first</option>';
         byId("filteredClientsBody").innerHTML = '<tr><td colspan="5">Enter an Admin Manager ID to view clients.</td></tr>';
         return;
       }
 
-      const isLocked = mgr && !unlockedManagers[mgrId];
-
       byId("managerLookupInfo").textContent =
         (mgr ? mgr.name + " (" + mgr.id + ")" : "Manager ID: " + mgrId) +
-        " | Clients: " + clients.length +
-        (isLocked ? " | Locked: enter email/password or PIN to unlock" : "");
+        " | Clients under this manager: " + clients.length;
 
       byId("targetClientSelect").innerHTML = clients.length
         ? clients.map((c) => '<option value="' + c.id + '">' + c.name + " (" + c.id + ")</option>").join("")
         : '<option value="">No clients under this manager</option>';
-
-      if (isLocked) {
-        byId("filteredClientsBody").innerHTML =
-          '<tr><td colspan="5">Manager portal is locked. Enter email + password or PIN to view clients.</td></tr>';
-        return;
-      }
 
       byId("filteredClientsBody").innerHTML = clients.length
         ? clients.map((c) => (
@@ -5506,79 +5536,12 @@ function ttRenderPositions() {
         : '<tr><td colspan="5">No clients match this Admin Manager ID.</td></tr>';
     }
 
-    function handleSubAdminLogin() {
-      const subId = byId("subPortalSelect").value;
-      const email = (byId("subLoginEmail").value || "").trim().toLowerCase();
-      const secret = (byId("subLoginSecret").value || "").trim();
-      const sub = demoSubAdmins.find((item) => item.id === subId);
-
-      if (!sub) {
-        byId("subPortalStatus").textContent = "Sub Admin not found.";
-        return;
-      }
-
-      const pinOk = secret && sub.pin && secret === sub.pin;
-      const emailPassOk = email === (sub.email || "").toLowerCase() && secret && secret === sub.password;
-
-      if (pinOk || emailPassOk) {
-        loggedInSubAdmins[subId] = true;
-        activeSession = { role: "sub_admin", account: { id: sub.id, name: sub.name, email: sub.email } };
-        writeJson(STORAGE_KEYS.session, activeSession);
-        byId("subLoginSecret").value = "";
-        const scopedClients = sub.client_id
-          ? demoClients.filter((c) => c.id === sub.client_id)
-          : demoClients.filter((c) => c.manager_id === sub.manager_id);
-        byId("subPortalStatus").textContent =
-          "Logged in as " + sub.name + " (" + sub.id + ") | Manager: " + sub.manager_id +
-          " | Accessible Clients: " + scopedClients.length;
-        applyRoleVisibility();
-      } else {
-        byId("subPortalStatus").textContent = "Invalid Sub Admin email, password, or PIN.";
-      }
-    }
-
-    function handleSubAdminLogout() {
-      const subId = byId("subPortalSelect").value;
-      if (subId && loggedInSubAdmins[subId]) {
-        delete loggedInSubAdmins[subId];
-      }
-      clearSavedSession();
-      byId("subPortalStatus").textContent = "Logged out.";
-    }
-
-    function handleClientLogin() {
-      const cliId = byId("cliPortalSelect").value;
-      const email = (byId("cliLoginEmail").value || "").trim().toLowerCase();
-      const password = byId("cliLoginPassword").value || "";
-      const client = demoClients.find((c) => c.id === cliId);
-
-      if (!client) {
-        byId("cliPortalStatus").textContent = "Client not found.";
-        return;
-      }
-
-      if (email === (client.email || "").toLowerCase() && password === client.password) {
-        loggedInClients[cliId] = true;
-        activeSession = { role: "client", account: { id: client.id, name: client.name, email: client.email } };
-        writeJson(STORAGE_KEYS.session, activeSession);
-        byId("cliLoginPassword").value = "";
-        byId("cliPortalStatus").textContent =
-          "Logged in as " + client.name + " (" + client.id + ") | Manager: " + client.manager_id +
-          " | Base P&L: $" + Number(client.basePnl).toFixed(2) +
-          " | Adjusted P&L: $" + getAdjustedPnl(client).toFixed(2);
-        applyRoleVisibility();
-      } else {
-        byId("cliPortalStatus").textContent = "Invalid client email or password.";
-      }
-    }
-
-    function handleClientLogout() {
-      const cliId = byId("cliPortalSelect").value;
-      if (cliId && loggedInClients[cliId]) {
-        delete loggedInClients[cliId];
-      }
-      clearSavedSession();
-      byId("cliPortalStatus").textContent = "Logged out.";
+    function renderAllScopedViews() {
+      renderOwnerAccountsTable();
+      renderOwnerManagers();
+      renderOwnerSubAdmins();
+      renderOwnerClients();
+      refreshManagerClients();
     }
 
     const pwdInput = byId("newMgrPasswordInput");
@@ -5591,39 +5554,48 @@ function ttRenderPositions() {
     }
 
     mountSelfSignupCard();
-    mountBrokerOwnerCard();
+    mountSuperMasterCard();
     mountUnifiedLoginCard();
-    mountManagerLoginBox();
 
     byId("createOwnerMgrBtn").addEventListener("click", registerOwnerManager);
     byId("createOwnerSubBtn").addEventListener("click", registerOwnerSubAdmin);
     byId("createOwnerClientBtn").addEventListener("click", registerOwnerClient);
     byId("lookupManagerInput").addEventListener("input", refreshManagerClients);
 
-    byId("subPortalSelect").addEventListener("change", function () {
-      const s = demoSubAdmins.find((item) => item.id === byId("subPortalSelect").value);
-      byId("subLoginEmail").value = s ? (s.email || "") : "";
-      byId("subPortalStatus").textContent = s ? "Ready to log in as " + s.name + "." : "Not logged in.";
-    });
-    byId("subUnlockBtn").addEventListener("click", handleSubAdminLogin);
-    byId("subLockBtn").addEventListener("click", handleSubAdminLogout);
+    if (byId("subUnlockBtn")) {
+      byId("subUnlockBtn").addEventListener("click", function () {
+        const email = (byId("subLoginEmail").value || "").trim();
+        const secret = (byId("subLoginSecret").value || "").trim();
+        const res = unifiedLogin(email, secret);
+        byId("subPortalStatus").textContent = res.message;
+        if (res.ok) byId("subLoginSecret").value = "";
+      });
+    }
+    if (byId("subLockBtn")) {
+      byId("subLockBtn").addEventListener("click", function () {
+        clearSavedSession();
+        byId("subPortalStatus").textContent = "Logged out.";
+      });
+    }
 
-    byId("cliPortalSelect").addEventListener("change", function () {
-      const c = demoClients.find((item) => item.id === byId("cliPortalSelect").value);
-      byId("cliLoginEmail").value = c ? (c.email || "") : "";
-      byId("cliPortalStatus").textContent = c ? "Ready to log in as " + c.name + "." : "Not logged in.";
-    });
-    byId("cliUnlockBtn").addEventListener("click", handleClientLogin);
-    byId("cliLockBtn").addEventListener("click", handleClientLogout);
+    if (byId("cliUnlockBtn")) {
+      byId("cliUnlockBtn").addEventListener("click", function () {
+        const email = (byId("cliLoginEmail").value || "").trim();
+        const pwd = (byId("cliLoginPassword").value || "").trim();
+        const res = unifiedLogin(email, pwd);
+        byId("cliPortalStatus").textContent = res.message;
+        if (res.ok) byId("cliLoginPassword").value = "";
+      });
+    }
+    if (byId("cliLockBtn")) {
+      byId("cliLockBtn").addEventListener("click", function () {
+        clearSavedSession();
+        byId("cliPortalStatus").textContent = "Logged out.";
+      });
+    }
 
-    renderOwnerAccountsTable();
-    renderOwnerManagers();
-    renderOwnerSubAdmins();
-    renderOwnerClients();
-    refreshManagerClients();
-    restoreSessionUI();
+    renderAllScopedViews();
     applyRoleVisibility();
-    persistAllState();
   })();
 </script>
 </body>
