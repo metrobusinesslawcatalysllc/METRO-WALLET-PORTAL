@@ -159,86 +159,120 @@ function escapeHtml(str) {
     .replace(/\x22/g, q)
     .replace(/\x27/g, a);
 }
-    async function syncBrokerData() {
-      const brokerId = $("brokerIdInput").value.trim();
-      if (!brokerId) return showBanner("err", "Please enter a Broker ID.");
+async function syncBrokerData() {
+  const brokerId = ($("brokerIdInput") && $("brokerIdInput").value.trim()) || state.brokerId || "brk_metro_01";
+  state.brokerId = brokerId;
 
-      try {
-        const res = await fetch(`${API_BASE}/api/sync?broker_id=${encodeURIComponent(brokerId)}`);
-        const data = await res.json();
-        if (!res.ok || data.ok === false) {
-          throw new Error(data.error || "Sync failed");
-        }
+  try {
+    const res = await fetch(`/api/state?broker_id=${encodeURIComponent(brokerId)}`, { cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
 
-        const broker = Array.isArray(data.brokers) ? data.brokers[0] : data.broker;
-        if (!broker) {
-          showBanner("err", `Broker '${brokerId}' not found.`);
-          return;
-        }
-
-        state.broker = broker;
-        state.users = Array.isArray(data.users) ? data.users : [];
-        state.registrationEnabled = Number(broker.registration_enabled) === 1;
-        state.maxManagers = Number(broker.max_admin_managers || 50);
-        state.maxSubadminsPerManager = Number(broker.max_subadmins_per_manager || 15);
-$("mgrSubmitBtn").disabled = !state.registrationEnabled;
-        $("subSubmitBtn").disabled = !state.registrationEnabled;
-
-        $("brokerSummary").textContent =
-          `Broker: ${escapeHtml(broker.broker_name || broker.name || broker.broker_id || broker.id || brokerId)} | Registration: ${state.registrationEnabled ? "UNLOCKED" : "LOCKED"} | Caps: ${state.maxManagers} Managers / ${state.maxSubadminsPerManager} Sub-Admins per Manager`;
-
-        if (!state.registrationEnabled) {
-          showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
-        }
-
-        renderTables();
-      } catch (err) {
-        showBanner("err", "Sync error: " + err.message);
-      }
+    if (!res.ok || data.ok === false) {
+      throw new Error(data.error || `Failed to load broker data (${res.status})`);
     }
 
- function renderTables() {
-  const managers = state.users.filter((u) => u.role === "admin_manager");
-  const subadmins = state.users.filter((u) => u.role === "sub_admin");
+    const broker = data.broker || data.tenant || data || {};
+    const users = Array.isArray(data.users)
+      ? data.users
+      : [
+          ...(Array.isArray(data.managers) ? data.managers.map((u) => ({ ...u, role: u.role || "admin_manager" })) : []),
+          ...(Array.isArray(data.subadmins) ? data.subadmins.map((u) => ({ ...u, role: u.role || "sub_admin" })) : [])
+        ];
 
-  $("mgrTableBody").innerHTML = managers.length
-    ? managers.map((m) => {
-        const mid = m.user_id || m.id || "";
-        const mName = m.name || m.full_name || m.manager_name || m.display_name || m.username || (m.email ? m.email.split("@")[0] : "") || "-";
-        const mTenant = m.tenant_id || m.tenant || m.broker_id || "-";
-        return `
-          <tr>
-            <td>${escapeHtml(mName)}</td>
-            <td>${escapeHtml(m.email || "")}</td>
-            <td><span class="badge">${escapeHtml(mid)}</span></td>
-            <td>${escapeHtml(mTenant)}</td>
-          </tr>`;
-      }).join("")
-    : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
+    state.users = users;
+    state.registrationEnabled =
+      broker.registration_enabled === undefined
+        ? true
+        : Boolean(Number(broker.registration_enabled));
+    state.maxManagers = broker.max_managers ?? broker.maxManagers ?? "∞";
+    state.maxSubadminsPerManager =
+      broker.max_subadmins_per_manager ?? broker.maxSubadminsPerManager ?? "∞";
 
-  $("subManagerSelect").innerHTML = managers.length
-    ? managers.map((m) => {
-        const mid = m.user_id || m.id || "";
-        const label = m.name || m.full_name || m.manager_name || m.email || mid;
-        return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || m.tenant || m.broker_id || "")}">${escapeHtml(label)}</option>`;
-      }).join("")
-    : `<option value="">Create an Admin Manager first</option>`;
+    if ($("mgrSubmitBtn")) $("mgrSubmitBtn").disabled = !state.registrationEnabled;
+    if ($("subSubmitBtn")) $("subSubmitBtn").disabled = !state.registrationEnabled;
 
-  $("subTableBody").innerHTML = subadmins.length
-    ? subadmins.map((s) => {
-        const subName = s.name || s.full_name || s.display_name || s.username || (s.email ? s.email.split("@")[0] : "") || "-";
-        const subTenant = s.tenant_id || s.tenant || s.broker_id || "-";
-        return `
-          <tr>
-            <td>${escapeHtml(subName)}</td>
-            <td>${escapeHtml(s.email || "")}</td>
-            <td>${escapeHtml(s.manager_id || "-")}</td>
-            <td>${escapeHtml(subTenant)}</td>
-          </tr>`;
-      }).join("")
-    : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
+    if ($("brokerSummary")) {
+      const bName = broker.broker_name || broker.name || broker.broker_id || broker.id || brokerId;
+      $("brokerSummary").textContent =
+        `Broker: ${bName} | Registration: ${state.registrationEnabled ? "UNLOCKED" : "LOCKED"} | Caps: ${state.maxManagers} Managers / ${state.maxSubadminsPerManager} Sub-Admins per Manager`;
+    }
+
+    if (!state.registrationEnabled && typeof showBanner === "function") {
+      showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
+    }
+  } catch (err) {
+    if (typeof showBanner === "function") {
+      showBanner("err", "Sync error: " + err.message);
+    }
+  } finally {
+    renderTables();
+  }
 }
 
+function renderTables() {
+  const allUsers = Array.isArray(state.users) ? state.users : [];
+  const managers = allUsers.filter((u) => u && (u.role === "admin_manager" || u.role === "manager"));
+  const subadmins = allUsers.filter((u) => u && (u.role === "sub_admin" || u.role === "subadmin"));
+
+  const mgrBody = $("mgrTableBody");
+  if (mgrBody) {
+    mgrBody.innerHTML = managers.length
+      ? managers.map((m) => {
+          const mid = m.user_id || m.id || "";
+          const mName =
+            m.name ||
+            m.full_name ||
+            m.manager_name ||
+            m.display_name ||
+            m.username ||
+            (m.email ? m.email.split("@")[0] : "") ||
+            "-";
+          const mTenant = m.tenant_id || m.tenant || m.broker_id || "-";
+          return `
+            <tr>
+              <td>${escapeHtml(mName)}</td>
+              <td>${escapeHtml(m.email || "")}</td>
+              <td><span class="badge">${escapeHtml(mid)}</span></td>
+              <td>${escapeHtml(mTenant)}</td>
+            </tr>`;
+        }).join("")
+      : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
+  }
+
+  const mgrSelect = $("subManagerSelect");
+  if (mgrSelect) {
+    mgrSelect.innerHTML = managers.length
+      ? managers.map((m) => {
+          const mid = m.user_id || m.id || "";
+          const label = m.name || m.full_name || m.manager_name || m.email || mid;
+          return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || m.tenant || m.broker_id || "")}">${escapeHtml(label)}</option>`;
+        }).join("")
+      : `<option value="">Create an Admin Manager first</option>`;
+  }
+
+  const subBody = $("subTableBody");
+  if (subBody) {
+    subBody.innerHTML = subadmins.length
+      ? subadmins.map((s) => {
+          const subName =
+            s.name ||
+            s.full_name ||
+            s.display_name ||
+            s.username ||
+            (s.email ? s.email.split("@")[0] : "") ||
+            "-";
+          const subTenant = s.tenant_id || s.tenant || s.broker_id || "-";
+          return `
+            <tr>
+              <td>${escapeHtml(subName)}</td>
+              <td>${escapeHtml(s.email || "")}</td>
+              <td>${escapeHtml(s.manager_id || "-")}</td>
+              <td>${escapeHtml(subTenant)}</td>
+            </tr>`;
+        }).join("")
+      : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
+  }
+}
   $("subManagerSelect").innerHTML = managers.length
     ? managers.map((m) => {
         const mid = m.user_id || m.id || "";
