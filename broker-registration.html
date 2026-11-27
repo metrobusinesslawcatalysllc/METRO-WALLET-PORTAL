@@ -3,175 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Broker Owner Registration Portal — Metro Options</title>
+  <title>Broker Owner Registration Portal</title>
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    body { margin: 0; padding: 24px; background: #0b1020; color: #e8eefc; }
-    .wrap { max-width: 1120px; margin: 0 auto; }
-    .top-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
-    h1 { margin: 0; font-size: 1.45rem; }
-    .sub { color: #9fb0d4; font-size: 0.9rem; margin-top: 4px; }
-    .badge { padding: 6px 12px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; }
-    .badge-open { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid #10b981; }
-    .badge-locked { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid #ef4444; }
-    .banner { padding: 14px 16px; border-radius: 10px; margin-bottom: 18px; display: none; font-size: 0.92rem; }
-    .banner-warn { display: block; background: rgba(245, 158, 11, 0.14); border: 1px solid #f59e0b; color: #fde68a; }
-    .banner-ok { display: block; background: rgba(16, 185, 129, 0.14); border: 1px solid #10b981; color: #a7f3d0; }
-    .banner-err { display: block; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fecaca; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid #1e2942; padding-bottom: 10px; }
-    .tab-btn { background: #131c33; color: #b8c7e8; border: 1px solid #243356; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-    .tab-btn.active { background: #2563eb; color: #fff; border-color: #3b82f6; }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
-    .card { background: #121a2f; border: 1px solid #223052; border-radius: 12px; padding: 18px; }
-    .card h2 { margin: 0 0 6px; font-size: 1.1rem; }
-    .meta { color: #9fb0d4; font-size: 0.85rem; margin-bottom: 14px; }
-    label { display: block; font-size: 0.82rem; color: #c7d4f0; margin-bottom: 5px; margin-top: 10px; }
-    input, select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #2c3e68; background: #0b1120; color: #fff; font-size: 0.92rem; }
-    button.primary { margin-top: 14px; width: 100%; padding: 11px 14px; border-radius: 8px; border: none; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; font-size: 0.94rem; }
-    button.primary:disabled { opacity: 0.45; cursor: not-allowed; }
-    button.secondary { padding: 8px 12px; border-radius: 8px; border: 1px solid #2c3e68; background: #16223d; color: #dbe7ff; cursor: pointer; font-size: 0.85rem; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #1e2a47; }
-    th { color: #9fb0d4; font-weight: 600; }
-    .controls-row { display: flex; gap: 8px; align-items: center; }
-    .controls-row input { max-width: 180px; margin: 0; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #0f172a; color: #f8fafc; padding: 24px; }
+    .container { max-width: 960px; margin: 0 auto; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    h1, h2, h3 { margin-top: 0; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+    .field { flex: 1; min-width: 200px; margin-bottom: 12px; }
+    label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-size: 14px; }
+    button { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 14px; }
+    .primary { background: #2563eb; color: #fff; }
+    .primary:disabled { background: #475569; cursor: not-allowed; }
+    .secondary { background: #334155; color: #f8fafc; }
+    .banner { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; display: none; }
+    .banner-ok { display: block; background: #064e3b; border: 1px solid #10b981; color: #a7f3d0; }
+    .banner-err { display: block; background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; }
+    .banner-warn { display: block; background: #78350f; border: 1px solid #f59e0b; color: #fde68a; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+    .tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #334155; }
+    th { color: #94a3b8; font-weight: 600; }
+    .badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #334155; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top-bar">
-      <div>
-        <h1>Broker Owner Registration Portal</h1>
-        <div class="sub">Super Master Owner Access Gate • Admin Managers & Sub-Admin Tenant Provisioning</div>
-      </div>
-      <div class="controls-row">
-        <input id="brokerIdInput" type="text" value="brk_metro_01" placeholder="Broker ID" />
-        <button class="secondary" id="refreshBtn" type="button">Sync Now</button>
-        <span id="statusBadge" class="badge badge-locked">Checking...</span>
-      </div>
-    </div>
-
+  <div class="container">
+    <h1>Broker Owner Registration Portal</h1>
     <div id="statusBanner" class="banner"></div>
 
-    <div class="tabs" role="tablist">
-      <button class="tab-btn active" data-tab="managersTab" type="button">
-        Admin Managers (<span id="mgrCountLabel">0 / 50</span>)
-      </button>
-      <button class="tab-btn" data-tab="subadminsTab" type="button">
-        Sub-Admins (Max <span id="subCapLabel">15</span> / Manager)
-      </button>
-      <button class="tab-btn" data-tab="directoryTab" type="button">
-        All Broker Users (<span id="allUsersCount">0</span>)
-      </button>
+    <div class="card">
+      <div class="row">
+        <div class="field" style="margin-bottom:0">
+          <label>Broker ID</label>
+          <input id="brokerIdInput" value="brk_metro_01" />
+        </div>
+        <button type="button" class="secondary" onclick="syncBrokerData()">Sync Broker</button>
+      </div>
+      <p id="brokerSummary" style="color:#94a3b8; font-size:13px; margin:12px 0 0;">Loading broker status...</p>
     </div>
 
-    <!-- TAB 1: ADMIN MANAGERS -->
-    <div id="managersTab" class="panel active">
-      <div class="grid">
-        <div class="card">
-          <h2>Register Admin Manager</h2>
-          <div class="meta">Cap: <strong id="mgrCapText">50</strong> Admin Managers per broker</div>
-          <form id="mgrForm">
-            <label for="mgrName">Full Name</label>
-            <input id="mgrName" type="text" required placeholder="Jane Doe" />
-
-            <label for="mgrEmail">Email Address</label>
-            <input id="mgrEmail" type="email" required placeholder="manager1@metrooptions.com" />
-
-            <label for="mgrPassword">Password</label>
-            <input id="mgrPassword" type="password" required minlength="6" placeholder="Set password" />
-
-            <button class="primary reg-submit" type="submit">Create Admin Manager</button>
-          </form>
-        </div>
-
-        <div class="card">
-          <h2>Active Admin Managers</h2>
-          <div class="meta">Select a manager in the Sub-Admins tab to assign Sub-Admins under them</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>ID</th>
-                <th>Sub-Admins</th>
-              </tr>
-            </thead>
-            <tbody id="mgrTableBody"></tbody>
-          </table>
-        </div>
-      </div>
+    <div class="tabs">
+      <button type="button" id="tabMgrBtn" class="tab active" onclick="switchTab('mgr')">Admin Managers</button>
+      <button type="button" id="tabSubBtn" class="tab" onclick="switchTab('sub')">Sub-Admins</button>
     </div>
 
-    <!-- TAB 2: SUB-ADMINS -->
-    <div id="subadminsTab" class="panel">
-      <div class="grid">
-        <div class="card">
-          <h2>Register Sub-Admin</h2>
-          <div class="meta">Each Sub-Admin gets a separate isolated <code>tenant_id</code> and login credentials</div>
-          <form id="subForm">
-            <label for="subManagerSelect">Parent Admin Manager</label>
-            <select id="subManagerSelect" required></select>
-            <div class="meta" id="subManagerQuotaText" style="margin-top:6px;">Select an Admin Manager to view quota</div>
-
-            <label for="subName">Full Name</label>
-            <input id="subName" type="text" required placeholder="John Smith" />
-
-            <label for="subEmail">Email Address</label>
-            <input id="subEmail" type="email" required placeholder="subadmin1@metrooptions.com" />
-
-            <label for="subPassword">Password</label>
-            <input id="subPassword" type="password" required minlength="6" placeholder="Set password" />
-
-            <label for="subTenantId">Isolated Tenant ID</label>
-            <div class="controls-row">
-              <input id="subTenantId" type="text" required style="max-width:none;" placeholder="tnt_..." />
-              <button class="secondary" id="genTenantBtn" type="button">Generate</button>
-            </div>
-
-            <button class="primary reg-submit" type="submit">Create Sub-Admin</button>
-          </form>
+    <!-- ADMIN MANAGERS PANEL -->
+    <div id="mgrPanel" class="card">
+      <h2>Register Admin Manager</h2>
+      <div class="row">
+        <div class="field">
+          <label>Full Name</label>
+          <input id="mgrName" placeholder="e.g. John Doe" />
         </div>
-
-        <div class="card">
-          <h2>Sub-Admins Under Selected Manager</h2>
-          <div class="meta">Filtered by selected <code>manager_id</code></div>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Tenant ID</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="subTableBody"></tbody>
-          </table>
+        <div class="field">
+          <label>Email Address</label>
+          <input id="mgrEmail" type="email" placeholder="manager@metrooptions.com" />
+        </div>
+        <div class="field">
+          <label>Password (min 6 chars)</label>
+          <input id="mgrPassword" type="password" placeholder="••••••" />
         </div>
       </div>
+      <button type="button" id="mgrSubmitBtn" class="primary" onclick="registerAdminManager()">Create Admin Manager</button>
+
+      <h3 style="margin-top:24px;">Active Admin Managers</h3>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>ID</th><th>Tenant ID</th></tr>
+        </thead>
+        <tbody id="mgrTableBody">
+          <tr><td colspan="4">Loading...</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- TAB 3: DIRECTORY -->
-    <div id="directoryTab" class="panel">
-      <div class="card">
-        <h2>Broker Users Directory</h2>
-        <div class="meta">Live records returned from <code>/api/sync</code></div>
-        <table>
-          <thead>
-            <tr>
-              <th>Role</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Manager ID</th>
-              <th>Tenant ID</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="allUsersBody"></tbody>
-        </table>
+    <!-- SUB-ADMINS PANEL -->
+    <div id="subPanel" class="card" style="display:none;">
+      <h2>Register Sub-Admin</h2>
+      <div class="row">
+        <div class="field">
+          <label>Assign Under Admin Manager</label>
+          <select id="subManagerSelect"></select>
+        </div>
+        <div class="field">
+          <label>Full Name</label>
+          <input id="subName" placeholder="e.g. Jane Smith" />
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input id="subEmail" type="email" placeholder="subadmin@metrooptions.com" />
+        </div>
+        <div class="field">
+          <label>Password (min 6 chars)</label>
+          <input id="subPassword" type="password" placeholder="••••••" />
+        </div>
       </div>
+      <button type="button" id="subSubmitBtn" class="primary" onclick="registerSubAdmin()">Create Sub-Admin</button>
+
+      <h3 style="margin-top:24px;">Active Sub-Admins</h3>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Manager ID</th><th>Tenant ID</th></tr>
+        </thead>
+        <tbody id="subTableBody">
+          <tr><td colspan="4">Loading...</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -193,118 +135,21 @@
       el.textContent = msg;
     }
 
-    function generateTenantId(managerId = "mgr") {
-      const suffix = Math.random().toString(36).slice(2, 8);
-      const cleanMgr = String(managerId || "mgr").replace(/[^a-zA-Z0-9_-]/g, "").slice(-10);
-      return `tnt_${cleanMgr}_${suffix}`;
+    function switchTab(tab) {
+      $("mgrPanel").style.display = tab === "mgr" ? "block" : "none";
+      $("subPanel").style.display = tab === "sub" ? "block" : "none";
+      $("tabMgrBtn").classList.toggle("active", tab === "mgr");
+      $("tabSubBtn").classList.toggle("active", tab === "sub");
     }
 
-    // Horizontal tab switching
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-        document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
-        btn.classList.add("active");
-        $(btn.dataset.tab).classList.add("active");
-      });
-    });
-
-    function setRegistrationLock(enabled, brokerName = "") {
-      state.registrationEnabled = Boolean(enabled);
-      const badge = $("statusBadge");
-      document.querySelectorAll(".reg-submit").forEach((b) => {
-        b.disabled = !state.registrationEnabled;
-      });
-
-      if (state.registrationEnabled) {
-        badge.className = "badge badge-open";
-        badge.textContent = "Registration Unlocked";
-        showBanner("ok", `Registration is enabled for ${brokerName || state.broker?.broker_id || "this broker"}. You can register Admin Managers and Sub-Admins.`);
-      } else {
-        badge.className = "badge badge-locked";
-        badge.textContent = "Registration Locked";
-        showBanner("warn", "Registration is currently locked pending Super Master Owner payment/access approval (registration_enabled = 0).");
-      }
-    }
-
-    function renderUI() {
-      const managers = state.users.filter((u) => u.role === "admin_manager");
-      const allSubadmins = state.users.filter((u) => u.role === "sub_admin");
-
-      $("mgrCountLabel").textContent = `${managers.length} / ${state.maxManagers}`;
-      $("mgrCapText").textContent = state.maxManagers;
-      $("subCapLabel").textContent = state.maxSubadminsPerManager;
-      $("allUsersCount").textContent = state.users.length;
-
-      // Managers table
-      const mgrBody = $("mgrTableBody");
-      mgrBody.innerHTML = managers.length
-        ? managers.map((m) => {
-            const subCount = allSubadmins.filter((s) => s.manager_id === m.user_id).length;
-            return `<tr>
-              <td>${escapeHtml(m.full_name || "")}</td>
-              <td>${escapeHtml(m.email || "")}</td>
-              <td><code>${escapeHtml(m.user_id)}</code></td>
-              <td>${subCount} / ${state.maxSubadminsPerManager}</td>
-            </tr>`;
-          }).join("")
-        : `<tr><td colspan="4">No Admin Managers registered yet.</td></tr>`;
-
-      // Manager select dropdown for Sub-Admins
-      const select = $("subManagerSelect");
-      const prevSelected = select.value;
-      select.innerHTML = managers.length
-        ? managers.map((m) => `<option value="${escapeAttr(m.user_id)}">${escapeHtml(m.full_name || m.email)} (${escapeHtml(m.user_id)})</option>`).join("")
-        : `<option value="">No Admin Managers available</option>`;
-
-      if (prevSelected && managers.some((m) => m.user_id === prevSelected)) {
-        select.value = prevSelected;
-      }
-
-      if (!$("subTenantId").value) {
-        $("subTenantId").value = generateTenantId(select.value);
-      }
-
-      renderSubadminsForSelectedManager();
-
-      // All users table
-      $("allUsersBody").innerHTML = state.users.length
-        ? state.users.map((u) => `<tr>
-            <td>${escapeHtml(u.role || "")}</td>
-            <td>${escapeHtml(u.full_name || "")}</td>
-            <td>${escapeHtml(u.email || "")}</td>
-            <td>${u.manager_id ? `<code>${escapeHtml(u.manager_id)}</code>` : "—"}</td>
-            <td>${u.tenant_id ? `<code>${escapeHtml(u.tenant_id)}</code>` : "—"}</td>
-            <td>${escapeHtml(u.status || "active")}</td>
-          </tr>`).join("")
-        : `<tr><td colspan="6">No users found for this broker.</td></tr>`;
-    }
-
-    function renderSubadminsForSelectedManager() {
-      const mgrId = $("subManagerSelect").value;
-      const subs = state.users.filter((u) => u.role === "sub_admin" && u.manager_id === mgrId);
-      $("subManagerQuotaText").textContent = mgrId
-        ? `Quota for ${mgrId}: ${subs.length} / ${state.maxSubadminsPerManager} Sub-Admins used`
-        : "Register an Admin Manager first before adding Sub-Admins.";
-
-      $("subTableBody").innerHTML = subs.length
-        ? subs.map((s) => `<tr>
-            <td>${escapeHtml(s.full_name || "")}</td>
-            <td>${escapeHtml(s.email || "")}</td>
-            <td><code>${escapeHtml(s.tenant_id || "")}</code></td>
-            <td>${escapeHtml(s.status || "active")}</td>
-          </tr>`).join("")
-        : `<tr><td colspan="4">No Sub-Admins under this Admin Manager yet.</td></tr>`;
+    function generateId(prefix) {
+      return prefix + "_" + Math.random().toString(36).slice(2, 10);
     }
 
     function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, (c) => ({
+      return String(str || "").replace(/[&<>"']/g, (c) => ({
         "&": "&", "<": "<", ">": ">", '"': """, "'": "'"
       }[c]));
-    }
-
-    function escapeAttr(str) {
-      return escapeHtml(str);
     }
 
     async function syncBrokerData() {
@@ -319,118 +164,171 @@
         }
 
         const broker = Array.isArray(data.brokers) ? data.brokers[0] : data.broker;
-        state.broker = broker || { broker_id: brokerId };
+        if (!broker) {
+          showBanner("err", `Broker '${brokerId}' not found.`);
+          return;
+        }
+
+        state.broker = broker;
         state.users = Array.isArray(data.users) ? data.users : [];
-        state.maxManagers = Number(state.broker?.max_admin_managers ?? 50);
-        state.maxSubadminsPerManager = Number(state.broker?.max_subadmins_per_manager ?? 15);
+        state.registrationEnabled = Number(broker.registration_enabled) === 1;
+        state.maxManagers = Number(broker.max_admin_managers || 50);
+        state.maxSubadminsPerManager = Number(broker.max_subadmins_per_manager || 15);
 
-        const enabled = Number(state.broker?.registration_enabled ?? 0) === 1;
-        setRegistrationLock(enabled, state.broker?.broker_name);
-        renderUI();
+        $("mgrSubmitBtn").disabled = !state.registrationEnabled;
+        $("subSubmitBtn").disabled = !state.registrationEnabled;
+
+        $("brokerSummary").textContent =
+          `Broker: ${broker.name || broker.id} | Registration: ${state.registrationEnabled ? "UNLOCKED" : "LOCKED"} | Caps: ${state.maxManagers} Managers / ${state.maxSubadminsPerManager} Sub-Admins per Manager`;
+
+        if (!state.registrationEnabled) {
+          showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
+        }
+
+        renderTables();
       } catch (err) {
-        setRegistrationLock(false);
-        showBanner("err", `Sync error: ${err.message}`);
+        showBanner("err", "Sync error: " + err.message);
       }
     }
 
-    async function upsertUser(payload) {
-      const res = await fetch(`${API_BASE}/api/upsert`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetType: "user", ...payload })
-      });
-      const data = await res.json();
-      if (!res.ok || data.ok === false) {
-        throw new Error(data.error || "Registration failed");
-      }
-      return data;
-    }
-
-    $("mgrForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!state.registrationEnabled) {
-        return showBanner("err", "Registration is locked by Super Master Owner.");
-      }
-
-      const brokerId = $("brokerIdInput").value.trim();
+    function renderTables() {
       const managers = state.users.filter((u) => u.role === "admin_manager");
-      if (managers.length >= state.maxManagers) {
-        return showBanner("err", `Admin Manager limit reached (${state.maxManagers}).`);
+      const subadmins = state.users.filter((u) => u.role === "sub_admin");
+
+      $("mgrTableBody").innerHTML = managers.length
+        ? managers.map((m) => `
+            <tr>
+              <td>${escapeHtml(m.name)}</td>
+              <td>${escapeHtml(m.email)}</td>
+              <td><span class="badge">${escapeHtml(m.id)}</span></td>
+              <td>${escapeHtml(m.tenant_id || "-")}</td>
+            </tr>`).join("")
+        : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
+
+      $("subManagerSelect").innerHTML = managers.length
+        ? managers.map((m) => `<option value="${escapeHtml(m.id)}" data-tenant="${escapeHtml(m.tenant_id || "")}">${escapeHtml(m.name)} (${escapeHtml(m.id)})</option>`).join("")
+        : `<option value="">Create an Admin Manager first</option>`;
+
+      $("subTableBody").innerHTML = subadmins.length
+        ? subadmins.map((s) => `
+            <tr>
+              <td>${escapeHtml(s.name)}</td>
+              <td>${escapeHtml(s.email)}</td>
+              <td>${escapeHtml(s.manager_id || "-")}</td>
+              <td>${escapeHtml(s.tenant_id || "-")}</td>
+            </tr>`).join("")
+        : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
+    }
+
+    async function registerAdminManager() {
+      const brokerId = $("brokerIdInput").value.trim();
+      const name = $("mgrName").value.trim();
+      const email = $("mgrEmail").value.trim();
+      const password = $("mgrPassword").value;
+
+      if (!name || !email || password.length < 6) {
+        return showBanner("err", "Enter Full Name, Email, and a Password (at least 6 characters).");
       }
 
-      const userId = `usr_mgr_${Date.now().toString(36)}`;
+      const btn = $("mgrSubmitBtn");
+      btn.disabled = true;
+      btn.textContent = "Creating...";
+
       try {
-        await upsertUser({
-          user_id: userId,
+        const managerId = generateId("mgr");
+        const tenantId = generateId("ten");
+        const payload = {
+          targetType: "user",
+          id: managerId,
           broker_id: brokerId,
-          manager_id: null,
-          tenant_id: null,
           role: "admin_manager",
-          full_name: $("mgrName").value.trim(),
-          email: $("mgrEmail").value.trim(),
-          password: $("mgrPassword").value,
+          name,
+          email,
+          password,
+          tenant_id: tenantId,
           status: "active"
+        };
+
+        const res = await fetch(`${API_BASE}/api/upsert`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
         });
-        $("mgrForm").reset();
-        showBanner("ok", `Admin Manager created (${userId}).`);
+        const data = await res.json();
+
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.error || `Server returned ${res.status}`);
+        }
+
+        $("mgrName").value = "";
+        $("mgrEmail").value = "";
+        $("mgrPassword").value = "";
+        showBanner("ok", `Admin Manager '${name}' created! ID: ${managerId}`);
         await syncBrokerData();
       } catch (err) {
-        showBanner("err", err.message);
+        showBanner("err", "Failed to create Admin Manager: " + err.message);
+      } finally {
+        btn.disabled = !state.registrationEnabled;
+        btn.textContent = "Create Admin Manager";
       }
-    });
+    }
 
-    $("subForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!state.registrationEnabled) {
-        return showBanner("err", "Registration is locked by Super Master Owner.");
-      }
-
+    async function registerSubAdmin() {
       const brokerId = $("brokerIdInput").value.trim();
-      const managerId = $("subManagerSelect").value;
-      if (!managerId) {
-        return showBanner("err", "Select a parent Admin Manager first.");
+      const sel = $("subManagerSelect");
+      const managerId = sel.value;
+      const tenantId = sel.options[sel.selectedIndex]?.dataset?.tenant || generateId("ten");
+      const name = $("subName").value.trim();
+      const email = $("subEmail").value.trim();
+      const password = $("subPassword").value;
+
+      if (!managerId) return showBanner("err", "Select an Admin Manager first.");
+      if (!name || !email || password.length < 6) {
+        return showBanner("err", "Enter Full Name, Email, and a Password (at least 6 characters).");
       }
 
-      const currentSubs = state.users.filter((u) => u.role === "sub_admin" && u.manager_id === managerId);
-      if (currentSubs.length >= state.maxSubadminsPerManager) {
-        return showBanner("err", `Sub-Admin limit reached for ${managerId} (${state.maxSubadminsPerManager}).`);
-      }
-
-      const tenantId = $("subTenantId").value.trim() || generateTenantId(managerId);
-      const userId = `usr_sub_${Date.now().toString(36)}`;
+      const btn = $("subSubmitBtn");
+      btn.disabled = true;
+      btn.textContent = "Creating...";
 
       try {
-        await upsertUser({
-          user_id: userId,
+        const subId = generateId("sub");
+        const payload = {
+          targetType: "user",
+          id: subId,
           broker_id: brokerId,
+          role: "sub_admin",
           manager_id: managerId,
           tenant_id: tenantId,
-          role: "sub_admin",
-          full_name: $("subName").value.trim(),
-          email: $("subEmail").value.trim(),
-          password: $("subPassword").value,
+          name,
+          email,
+          password,
           status: "active"
+        };
+
+        const res = await fetch(`${API_BASE}/api/upsert`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
         });
-        $("subForm").reset();
-        $("subManagerSelect").value = managerId;
-        $("subTenantId").value = generateTenantId(managerId);
-        showBanner("ok", `Sub-Admin created under ${managerId} with tenant_id ${tenantId}.`);
+        const data = await res.json();
+
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.error || `Server returned ${res.status}`);
+        }
+
+        $("subName").value = "";
+        $("subEmail").value = "";
+        $("subPassword").value = "";
+        showBanner("ok", `Sub-Admin '${name}' created under ${managerId}!`);
         await syncBrokerData();
       } catch (err) {
-        showBanner("err", err.message);
+        showBanner("err", "Failed to create Sub-Admin: " + err.message);
+      } finally {
+        btn.disabled = !state.registrationEnabled;
+        btn.textContent = "Create Sub-Admin";
       }
-    });
-
-    $("subManagerSelect").addEventListener("change", () => {
-      renderSubadminsForSelectedManager();
-      $("subTenantId").value = generateTenantId($("subManagerSelect").value);
-    });
-
-    $("genTenantBtn").addEventListener("click", () => {
-      $("subTenantId").value = generateTenantId($("subManagerSelect").value);
-    });
-
-    $("refreshBtn").addEventListener("click", syncBrokerData);
+    }
 
     syncBrokerData();
   </script>
