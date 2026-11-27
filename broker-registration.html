@@ -221,17 +221,19 @@ $("mgrSubmitBtn").disabled = !state.registrationEnabled;
           }).join("")
         : `<option value="">Create an Admin Manager first</option>`;
 
-      $("subTableBody").innerHTML = subadmins.length
-        ? subadmins.map((s) => `
-          <tr>
-            <td>${escapeHtml(s.name || "")}</td>
-            <td>${escapeHtml(s.email || "")}</td>
-            <td>${escapeHtml(s.manager_id || "-")}</td>
-            <td>${escapeHtml(s.tenant_id || "-")}</td>
-          </tr>`).join("")
+    $("subTableBody").innerHTML = subadmins.length
+        ? subadmins.map((s) => {
+            const subName = s.name || s.full_name || s.display_name || s.username || (s.email ? s.email.split("@")[0] : "") || "-";
+            const subTenant = s.tenant_id || s.tenant || s.broker_id || "-";
+            return `
+              <tr>
+                <td>${escapeHtml(subName)}</td>
+                <td>${escapeHtml(s.email || "")}</td>
+                <td>${escapeHtml(s.manager_id || "-")}</td>
+                <td>${escapeHtml(subTenant)}</td>
+              </tr>`;
+          }).join("")
         : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
-    }
-
     async function registerAdminManager() {
       const btn = $("mgrSubmitBtn");
       btn.disabled = true;
