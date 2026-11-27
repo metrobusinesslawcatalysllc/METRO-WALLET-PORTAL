@@ -197,21 +197,47 @@ $("mgrSubmitBtn").disabled = !state.registrationEnabled;
       }
     }
 
-    function renderTables() {
-      const managers = state.users.filter((u) => u.role === "admin_manager");
-      const subadmins = state.users.filter((u) => u.role === "sub_admin");
+   function renderTables() {
+  const managers = state.users.filter((u) => u.role === "admin_manager");
+  const subadmins = state.users.filter((u) => u.role === "sub_admin");
 
-      $("mgrTableBody").innerHTML = managers.length
-        ? managers.map((m) => {
-            const mid = m.user_id || m.id || "";
-            return `<tr>
-             <td>${escapeHtml(m.name || m.full_name || m.manager_name || m.display_name || m.username || (m.email ? m.email.split("@")[0] : "") || "-")}</td>
-              <td>${escapeHtml(m.email || "")}</td>
-              <td><span class="badge">${escapeHtml(mid)}</span></td>
-             <td>${escapeHtml(m.tenant_id || m.tenant || m.broker_id || "-")}</td>
-            </tr>`;
-          }).join("")
-        : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
+  $("mgrTableBody").innerHTML = managers.length
+    ? managers.map((m) => {
+        const mid = m.user_id || m.id || "";
+        const mName = m.name || m.full_name || m.manager_name || m.display_name || m.username || (m.email ? m.email.split("@")[0] : "") || "-";
+        const mTenant = m.tenant_id || m.tenant || m.broker_id || "-";
+        return `
+          <tr>
+            <td>${escapeHtml(mName)}</td>
+            <td>${escapeHtml(m.email || "")}</td>
+            <td><span class="badge">${escapeHtml(mid)}</span></td>
+            <td>${escapeHtml(mTenant)}</td>
+          </tr>`;
+      }).join("")
+    : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
+
+  $("subManagerSelect").innerHTML = managers.length
+    ? managers.map((m) => {
+        const mid = m.user_id || m.id || "";
+        const label = m.name || m.full_name || m.manager_name || m.email || mid;
+        return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || m.tenant || m.broker_id || "")}">${escapeHtml(label)}</option>`;
+      }).join("")
+    : `<option value="">Create an Admin Manager first</option>`;
+
+  $("subTableBody").innerHTML = subadmins.length
+    ? subadmins.map((s) => {
+        const subName = s.name || s.full_name || s.display_name || s.username || (s.email ? s.email.split("@")[0] : "") || "-";
+        const subTenant = s.tenant_id || s.tenant || s.broker_id || "-";
+        return `
+          <tr>
+            <td>${escapeHtml(subName)}</td>
+            <td>${escapeHtml(s.email || "")}</td>
+            <td>${escapeHtml(s.manager_id || "-")}</td>
+            <td>${escapeHtml(subTenant)}</td>
+          </tr>`;
+      }).join("")
+    : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
+}
 
       $("subManagerSelect").innerHTML = managers.length
         ? managers.map((m) => {
