@@ -277,15 +277,18 @@
       maxSubadminsPerManager: "∞"
     };
 
-   function escapeHtml(val) {
+  function escapeHtml(val) {
+  const amp = String.fromCharCode(38);
+  const lt = String.fromCharCode(60);
+  const gt = String.fromCharCode(62);
   const dq = String.fromCharCode(34);
   const sq = String.fromCharCode(39);
   return String(val ?? "")
-    .split("&").join("&")
-    .split("<").join("<")
-    .split(">").join(">")
-    .split(dq).join(""")
-    .split(sq).join("'");
+    .split(amp).join(amp + "amp;")
+    .split(lt).join(amp + "lt;")
+    .split(gt).join(amp + "gt;")
+    .split(dq).join(amp + "quot;")
+    .split(sq).join(amp + "#39;");
 }
     function showBanner(kind, message) {
       const el = $("statusBanner");
