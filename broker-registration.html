@@ -205,7 +205,7 @@ $("mgrSubmitBtn").disabled = !state.registrationEnabled;
         ? managers.map((m) => {
             const mid = m.user_id || m.id || "";
             return `<tr>
-              <td>${escapeHtml(m.name || "")}</td>
+             <td>${escapeHtml(m.name || m.full_name || m.manager_name || m.display_name || m.username || (m.email ? m.email.split("@")[0] : "") || "-")}</td>
               <td>${escapeHtml(m.email || "")}</td>
               <td><span class="badge">${escapeHtml(mid)}</span></td>
              <td>${escapeHtml(m.tenant_id || m.tenant || m.broker_id || "-")}</td>
