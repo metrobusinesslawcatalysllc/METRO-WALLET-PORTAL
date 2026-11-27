@@ -2788,5 +2788,99 @@ function ttRenderPositions() {
     }
   })();
 </script>
+  <div class="card">
+  <h3>Admin Manager &amp; Client Selector</h3>
+  <div class="grid">
+    <div>
+      <label for="lookupManagerInput">Admin Manager ID (e.g. mgr_a or mgr_b)</label>
+      <input id="lookupManagerInput" type="text" placeholder="Type Admin Manager ID" />
+    </div>
+    <div>
+      <label for="targetClientSelect">Select Client Under This Manager</label>
+      <select id="targetClientSelect"></select>
+    </div>
+  </div>
+  <div id="managerLookupInfo" class="summary">No Admin Manager selected yet.</div>
+  <div class="table-wrap" style="margin-top:12px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Client ID</th>
+          <th>Client Name</th>
+          <th>Manager ID</th>
+          <th>Base P&amp;L ($)</th>
+          <th>Adjusted P&amp;L ($)</th>
+        </tr>
+      </thead>
+      <tbody id="filteredClientsBody">
+        <tr><td colspan="5">Enter an Admin Manager ID to view clients.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Sample test data: Admin Managers A & B with up to 10 clients
+  const demoManagers = {
+    mgr_a: { id: "mgr_a", name: "Admin Manager A" },
+    mgr_b: { id: "mgr_b", name: "Admin Manager B" }
+  };
+
+  const demoClients = [
+    { id: "cli_01", name: "Client A1", manager_id: "mgr_a", basePnl: 100 },
+    { id: "cli_02", name: "Client A2", manager_id: "mgr_a", basePnl: 50 },
+    { id: "cli_03", name: "Client A3", manager_id: "mgr_a", basePnl: -20 },
+    { id: "cli_04", name: "Client A4", manager_id: "mgr_a", basePnl: 80 },
+    { id: "cli_05", name: "Client A5", manager_id: "mgr_a", basePnl: 120 },
+    { id: "cli_06", name: "Client B1", manager_id: "mgr_b", basePnl: 200 },
+    { id: "cli_07", name: "Client B2", manager_id: "mgr_b", basePnl: -40 },
+    { id: "cli_08", name: "Client B3", manager_id: "mgr_b", basePnl: 75 },
+    { id: "cli_09", name: "Client B4", manager_id: "mgr_b", basePnl: 30 },
+    { id: "cli_10", name: "Client B5", manager_id: "mgr_b", basePnl: -15 }
+  ];
+
+  const perClientRules = {};
+
+  function getClientRule(clientId) {
+    if (!perClientRules[clientId]) {
+      perClientRules[clientId] = { bias: 0, multiplier: 1, offset: 0 };
+    }
+    return perClientRules[clientId];
+  }
+
+  function getAdjustedPnl(client) {
+    const r = getClientRule(client.id);
+    return Number(((client.basePnl + r.bias * 25) * r.multiplier + r.offset).toFixed(2));
+  }
+
+  function refreshManagerClients() {
+    const mgrId = ($("lookupManagerInput").value || "").trim();
+    const mgr = demoManagers[mgrId];
+    const clients = mgrId ? demoClients.filter((c) => c.manager_id === mgrId) : [];
+
+    $("managerLookupInfo").textContent = mgrId
+      ? (mgr ? mgr.name + " (" + mgr.id + ")" : "Manager ID: " + mgrId) + " | Clients found: " + clients.length
+      : "Enter an Admin Manager ID (such as mgr_a or mgr_b) to view that manager and their clients.";
+
+    $("targetClientSelect").innerHTML = clients.length
+      ? clients.map((c) => '<option value="' + c.id + '">' + c.name + " (" + c.id + ")</option>").join("")
+      : '<option value="">No clients under this manager</option>';
+
+    $("filteredClientsBody").innerHTML = clients.length
+      ? clients.map((c) => (
+          "<tr>" +
+            "<td>" + c.id + "</td>" +
+            "<td>" + c.name + "</td>" +
+            "<td>" + c.manager_id + "</td>" +
+            "<td>" + c.basePnl.toFixed(2) + "</td>" +
+            "<td>" + getAdjustedPnl(c).toFixed(2) + "</td>" +
+          "</tr>"
+        )).join("")
+      : '<tr><td colspan="5">No clients match this Admin Manager ID.</td></tr>';
+  }
+
+  $("lookupManagerInput").addEventListener("input", refreshManagerClients);
+  refreshManagerClients();
+</script>
 </body>
 </html>
