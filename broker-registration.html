@@ -146,8 +146,7 @@
       return prefix + "_" + Math.random().toString(36).slice(2, 10);
     }
 
-    function escapeHtml(str) {
-    function escapeHtml(str) {
+ function escapeHtml(str) {
   return String(str || "").replace(/[&<>"']/g, function (c) {
     return {
       "&": "&",
