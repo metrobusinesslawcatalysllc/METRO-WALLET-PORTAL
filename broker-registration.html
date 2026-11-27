@@ -147,10 +147,17 @@
     }
 
     function escapeHtml(str) {
-      return String(str || "").replace(/[&<>"']/g, (c) => ({
-        "&": "&", "<": "<", ">": ">", '"': """, "'": "'"
-      }[c]));
-    }
+    function escapeHtml(str) {
+  return String(str || "").replace(/[&<>"']/g, function (c) {
+    return {
+      "&": "&",
+      "<": "<",
+      ">": ">",
+      '"': """,
+      "'": "'"
+    }[c] || c;
+  });
+}
 
     async function syncBrokerData() {
       const brokerId = $("brokerIdInput").value.trim();
