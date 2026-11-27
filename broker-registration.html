@@ -3,311 +3,360 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Broker Owner Registration Portal</title>
+  <title>Broker Owner Registration</title>
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { margin: 0; background: #0f172a; color: #f8fafc; padding: 24px; }
-    .container { max-width: 960px; margin: 0 auto; }
-    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-    h1, h2, h3 { margin-top: 0; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
-    .field { flex: 1; min-width: 200px; margin-bottom: 12px; }
-    label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; }
-    input, select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; font-size: 14px; }
-    button { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; font-size: 14px; }
-    .primary { background: #2563eb; color: #fff; }
-    .primary:disabled { background: #475569; cursor: not-allowed; }
-    .secondary { background: #334155; color: #f8fafc; }
-    .banner { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; display: none; }
-    .banner-ok { display: block; background: #064e3b; border: 1px solid #10b981; color: #a7f3d0; }
-    .banner-err { display: block; background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; }
-    .banner-warn { display: block; background: #78350f; border: 1px solid #f59e0b; color: #fde68a; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-    .tab { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
-    .tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
-    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #334155; }
-    th { color: #94a3b8; font-weight: 600; }
-    .badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #334155; }
+    :root {
+      --bg: #0b1020;
+      --card: #121a2f;
+      --card-2: #18223d;
+      --text: #eef3ff;
+      --muted: #9fb0d3;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --border: #263459;
+      --ok-bg: rgba(16, 185, 129, 0.16);
+      --ok-bd: rgba(16, 185, 129, 0.45);
+      --warn-bg: rgba(245, 158, 11, 0.16);
+      --warn-bd: rgba(245, 158, 11, 0.45);
+      --err-bg: rgba(239, 68, 68, 0.16);
+      --err-bd: rgba(239, 68, 68, 0.45);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px 16px 60px;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .broker-ctl {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .summary {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      width: 100%;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      background: var(--card);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    h2, h3 { margin: 0 0 14px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 14px;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+    button.secondary {
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 9px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .banner {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      border: 1px solid transparent;
+      font-size: 14px;
+    }
+    .banner.show { display: block; }
+    .banner.ok { background: var(--ok-bg); border-color: var(--ok-bd); }
+    .banner.warn { background: var(--warn-bg); border-color: var(--warn-bd); }
+    .banner.err { background: var(--err-bg); border-color: var(--err-bd); }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--muted); font-weight: 600; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      font-family: monospace;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Broker Owner Registration Portal</h1>
+  <div class="wrap">
     <div id="statusBanner" class="banner"></div>
 
-    <div class="card">
-      <div class="row">
-        <div class="field" style="margin-bottom:0">
-          <label>Broker ID</label>
-          <input id="brokerIdInput" value="brk_metro_01" />
-        </div>
-        <button type="button" class="secondary" onclick="syncBrokerData()">Sync Broker</button>
+    <div class="top-bar">
+      <div class="broker-ctl">
+        <label for="brokerIdInput" style="margin:0;">Broker ID:</label>
+        <input id="brokerIdInput" type="text" value="brk_metro_01" style="width:180px;" />
+        <button id="syncBtn" class="secondary" type="button">Sync Broker</button>
       </div>
-      <p id="brokerSummary" style="color:#94a3b8; font-size:13px; margin:12px 0 0;">Loading broker status...</p>
+      <div id="brokerSummary" class="summary">Broker: brk_metro_01 | Syncing...</div>
     </div>
 
     <div class="tabs">
-      <button type="button" id="tabMgrBtn" class="tab active" onclick="switchTab('mgr')">Admin Managers</button>
-      <button type="button" id="tabSubBtn" class="tab" onclick="switchTab('sub')">Sub-Admins</button>
+      <button id="tabMgrBtn" class="tab-btn active" type="button">Admin Managers</button>
+      <button id="tabSubBtn" class="tab-btn" type="button">Sub-Admins</button>
     </div>
 
-    <!-- ADMIN MANAGERS PANEL -->
-    <div id="mgrPanel" class="card">
-      <h2>Register Admin Manager</h2>
-      <div class="row">
-        <div class="field">
-          <label>Full Name</label>
-          <input id="mgrName" placeholder="e.g. John Doe" />
+    <div id="panelMgr" class="panel active">
+      <div class="card">
+        <h2>Register Admin Manager</h2>
+        <div class="grid">
+          <div>
+            <label for="mgrName">Full Name</label>
+            <input id="mgrName" type="text" placeholder="e.g. John Doe" />
+          </div>
+          <div>
+            <label for="mgrEmail">Email Address</label>
+            <input id="mgrEmail" type="email" placeholder="manager@metrooptions.com" />
+          </div>
+          <div>
+            <label for="mgrPassword">Password (min 6 chars)</label>
+            <input id="mgrPassword" type="password" placeholder="••••••" />
+          </div>
         </div>
-        <div class="field">
-          <label>Email Address</label>
-          <input id="mgrEmail" type="email" placeholder="manager@metrooptions.com" />
-        </div>
-        <div class="field">
-          <label>Password (min 6 chars)</label>
-          <input id="mgrPassword" type="password" placeholder="••••••" />
+        <button id="mgrSubmitBtn" class="primary" type="button">Create Admin Manager</button>
+      </div>
+
+      <div class="card">
+        <h3>Active Admin Managers</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>ID</th>
+                <th>Tenant ID</th>
+              </tr>
+            </thead>
+            <tbody id="mgrTableBody">
+              <tr><td colspan="4">Loading...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <button type="button" id="mgrSubmitBtn" class="primary" onclick="registerAdminManager()">Create Admin Manager</button>
-
-      <h3 style="margin-top:24px;">Active Admin Managers</h3>
-      <table>
-        <thead>
-          <tr><th>Name</th><th>Email</th><th>ID</th><th>Tenant ID</th></tr>
-        </thead>
-        <tbody id="mgrTableBody">
-          <tr><td colspan="4">Loading...</td></tr>
-        </tbody>
-      </table>
     </div>
 
-    <!-- SUB-ADMINS PANEL -->
-    <div id="subPanel" class="card" style="display:none;">
-      <h2>Register Sub-Admin</h2>
-      <div class="row">
-        <div class="field">
-          <label>Assign Under Admin Manager</label>
-          <select id="subManagerSelect"></select>
+    <div id="panelSub" class="panel">
+      <div class="card">
+        <h2>Register Sub-Admin</h2>
+        <div class="grid">
+          <div>
+            <label for="subManagerSelect">Assign Under Admin Manager</label>
+            <select id="subManagerSelect">
+              <option value="">Create an Admin Manager first</option>
+            </select>
+          </div>
+          <div>
+            <label for="subName">Full Name</label>
+            <input id="subName" type="text" placeholder="e.g. Jane Smith" />
+          </div>
+          <div>
+            <label for="subEmail">Email Address</label>
+            <input id="subEmail" type="email" placeholder="subadmin@metrooptions.com" />
+          </div>
+          <div>
+            <label for="subPassword">Password (min 6 chars)</label>
+            <input id="subPassword" type="password" placeholder="••••••" />
+          </div>
         </div>
-        <div class="field">
-          <label>Full Name</label>
-          <input id="subName" placeholder="e.g. Jane Smith" />
-        </div>
-        <div class="field">
-          <label>Email Address</label>
-          <input id="subEmail" type="email" placeholder="subadmin@metrooptions.com" />
-        </div>
-        <div class="field">
-          <label>Password (min 6 chars)</label>
-          <input id="subPassword" type="password" placeholder="••••••" />
+        <button id="subSubmitBtn" class="primary" type="button">Create Sub-Admin</button>
+      </div>
+
+      <div class="card">
+        <h3>Active Sub-Admins</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Manager ID</th>
+                <th>Tenant ID</th>
+              </tr>
+            </thead>
+            <tbody id="subTableBody">
+              <tr><td colspan="4">Loading...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <button type="button" id="subSubmitBtn" class="primary" onclick="registerSubAdmin()">Create Sub-Admin</button>
-
-      <h3 style="margin-top:24px;">Active Sub-Admins</h3>
-      <table>
-        <thead>
-          <tr><th>Name</th><th>Email</th><th>Manager ID</th><th>Tenant ID</th></tr>
-        </thead>
-        <tbody id="subTableBody">
-          <tr><td colspan="4">Loading...</td></tr>
-        </tbody>
-      </table>
     </div>
   </div>
 
   <script>
-    const API_BASE = "https://metro-wallet-api.metrobusinesscatalystllc.workers.dev";
-    let state = {
-      broker: null,
-      users: [],
-      registrationEnabled: false,
-      maxManagers: 50,
-      maxSubadminsPerManager: 15
-    };
-
     const $ = (id) => document.getElementById(id);
 
-    function showBanner(type, msg) {
+    const state = {
+      brokerId: "brk_metro_01",
+      users: [],
+      registrationEnabled: true,
+      maxManagers: "∞",
+      maxSubadminsPerManager: "∞"
+    };
+
+    function escapeHtml(val) {
+      return String(val ?? "")
+        .replace(/&/g, "&")
+        .replace(/</g, "<")
+        .replace(/>/g, ">")
+        .replace(/"/g, """)
+        .replace(/'/g, "'");
+    }
+
+    function showBanner(kind, message) {
       const el = $("statusBanner");
-      el.className = "banner " + (type === "ok" ? "banner-ok" : type === "err" ? "banner-err" : "banner-warn");
-      el.textContent = msg;
+      if (!el) return;
+      el.className = `banner show ${kind}`;
+      el.textContent = message;
     }
 
     function switchTab(tab) {
-      $("mgrPanel").style.display = tab === "mgr" ? "block" : "none";
-      $("subPanel").style.display = tab === "sub" ? "block" : "none";
-      $("tabMgrBtn").classList.toggle("active", tab === "mgr");
-      $("tabSubBtn").classList.toggle("active", tab === "sub");
+      const isMgr = tab === "mgr";
+      $("tabMgrBtn").classList.toggle("active", isMgr);
+      $("tabSubBtn").classList.toggle("active", !isMgr);
+      $("panelMgr").classList.toggle("active", isMgr);
+      $("panelSub").classList.toggle("active", !isMgr);
     }
 
-    function generateId(prefix) {
-      return prefix + "_" + Math.random().toString(36).slice(2, 10);
+    function resolveName(u) {
+      if (!u) return "-";
+      return (
+        u.name ||
+        u.full_name ||
+        u.manager_name ||
+        u.display_name ||
+        u.username ||
+        (u.email ? u.email.split("@")[0] : "") ||
+        "-"
+      );
     }
 
-function escapeHtml(str) {
-  const q = "&" + "quot;";
-  const a = "&" + "#39;";
-  const amp = "&" + "amp;";
-  const lt = "&" + "lt;";
-  const gt = "&" + "gt;";
-  return String(str || "")
-    .replace(/&/g, amp)
-    .replace(/</g, lt)
-    .replace(/>/g, gt)
-    .replace(/\x22/g, q)
-    .replace(/\x27/g, a);
-}
-async function syncBrokerData() {
-  const brokerId = ($("brokerIdInput") && $("brokerIdInput").value.trim()) || state.brokerId || "brk_metro_01";
-  state.brokerId = brokerId;
-
-  try {
-    const res = await fetch(`/api/state?broker_id=${encodeURIComponent(brokerId)}`, { cache: "no-store" });
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok || data.ok === false) {
-      throw new Error(data.error || `Failed to load broker data (${res.status})`);
+    function resolveTenant(u, fallbackBrokerId) {
+      if (!u) return fallbackBrokerId || "-";
+      return u.tenant_id || u.tenant || u.broker_id || fallbackBrokerId || "-";
     }
 
-    const broker = data.broker || data.tenant || data || {};
-    const users = Array.isArray(data.users)
-      ? data.users
-      : [
-          ...(Array.isArray(data.managers) ? data.managers.map((u) => ({ ...u, role: u.role || "admin_manager" })) : []),
-          ...(Array.isArray(data.subadmins) ? data.subadmins.map((u) => ({ ...u, role: u.role || "sub_admin" })) : [])
-        ];
-
-    state.users = users;
-    state.registrationEnabled =
-      broker.registration_enabled === undefined
-        ? true
-        : Boolean(Number(broker.registration_enabled));
-    state.maxManagers = broker.max_managers ?? broker.maxManagers ?? "∞";
-    state.maxSubadminsPerManager =
-      broker.max_subadmins_per_manager ?? broker.maxSubadminsPerManager ?? "∞";
-
-    if ($("mgrSubmitBtn")) $("mgrSubmitBtn").disabled = !state.registrationEnabled;
-    if ($("subSubmitBtn")) $("subSubmitBtn").disabled = !state.registrationEnabled;
-
-    if ($("brokerSummary")) {
-      const bName = broker.broker_name || broker.name || broker.broker_id || broker.id || brokerId;
-      $("brokerSummary").textContent =
-        `Broker: ${bName} | Registration: ${state.registrationEnabled ? "UNLOCKED" : "LOCKED"} | Caps: ${state.maxManagers} Managers / ${state.maxSubadminsPerManager} Sub-Admins per Manager`;
+    function resolveUserId(u) {
+      if (!u) return "";
+      return u.user_id || u.id || "";
     }
 
-    if (!state.registrationEnabled && typeof showBanner === "function") {
-      showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
-    }
-  } catch (err) {
-    if (typeof showBanner === "function") {
-      showBanner("err", "Sync error: " + err.message);
-    }
-  } finally {
-    renderTables();
-  }
-}
+    function renderTables() {
+      const allUsers = Array.isArray(state.users) ? state.users : [];
+      const managers = allUsers.filter((u) => u && (u.role === "admin_manager" || u.role === "manager"));
+      const subadmins = allUsers.filter((u) => u && (u.role === "sub_admin" || u.role === "subadmin"));
 
-function renderTables() {
-  const allUsers = Array.isArray(state.users) ? state.users : [];
-  const managers = allUsers.filter((u) => u && (u.role === "admin_manager" || u.role === "manager"));
-  const subadmins = allUsers.filter((u) => u && (u.role === "sub_admin" || u.role === "subadmin"));
-
-  const mgrBody = $("mgrTableBody");
-  if (mgrBody) {
-    mgrBody.innerHTML = managers.length
-      ? managers.map((m) => {
-          const mid = m.user_id || m.id || "";
-          const mName =
-            m.name ||
-            m.full_name ||
-            m.manager_name ||
-            m.display_name ||
-            m.username ||
-            (m.email ? m.email.split("@")[0] : "") ||
-            "-";
-          const mTenant = m.tenant_id || m.tenant || m.broker_id || "-";
-          return `
-            <tr>
-              <td>${escapeHtml(mName)}</td>
-              <td>${escapeHtml(m.email || "")}</td>
-              <td><span class="badge">${escapeHtml(mid)}</span></td>
-              <td>${escapeHtml(mTenant)}</td>
-            </tr>`;
-        }).join("")
-      : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
-  }
-
-  const mgrSelect = $("subManagerSelect");
-  if (mgrSelect) {
-    mgrSelect.innerHTML = managers.length
-      ? managers.map((m) => {
-          const mid = m.user_id || m.id || "";
-          const label = m.name || m.full_name || m.manager_name || m.email || mid;
-          return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || m.tenant || m.broker_id || "")}">${escapeHtml(label)}</option>`;
-        }).join("")
-      : `<option value="">Create an Admin Manager first</option>`;
-  }
-
-  const subBody = $("subTableBody");
-  if (subBody) {
-    subBody.innerHTML = subadmins.length
-      ? subadmins.map((s) => {
-          const subName =
-            s.name ||
-            s.full_name ||
-            s.display_name ||
-            s.username ||
-            (s.email ? s.email.split("@")[0] : "") ||
-            "-";
-          const subTenant = s.tenant_id || s.tenant || s.broker_id || "-";
-          return `
-            <tr>
-              <td>${escapeHtml(subName)}</td>
-              <td>${escapeHtml(s.email || "")}</td>
-              <td>${escapeHtml(s.manager_id || "-")}</td>
-              <td>${escapeHtml(subTenant)}</td>
-            </tr>`;
-        }).join("")
-      : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
-  }
-}
-  $("subManagerSelect").innerHTML = managers.length
-    ? managers.map((m) => {
-        const mid = m.user_id || m.id || "";
-        const label = m.name || m.full_name || m.manager_name || m.email || mid;
-        return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || m.tenant || m.broker_id || "")}">${escapeHtml(label)}</option>`;
-      }).join("")
-    : `<option value="">Create an Admin Manager first</option>`;
-
-  $("subTableBody").innerHTML = subadmins.length
-    ? subadmins.map((s) => {
-        const subName = s.name || s.full_name || s.display_name || s.username || (s.email ? s.email.split("@")[0] : "") || "-";
-        const subTenant = s.tenant_id || s.tenant || s.broker_id || "-";
-        return `
-          <tr>
-            <td>${escapeHtml(subName)}</td>
-            <td>${escapeHtml(s.email || "")}</td>
-            <td>${escapeHtml(s.manager_id || "-")}</td>
-            <td>${escapeHtml(subTenant)}</td>
-          </tr>`;
-      }).join("")
-    : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
-}
+      $("mgrTableBody").innerHTML = managers.length
+        ? managers.map((m) => {
+            const mid = resolveUserId(m);
+            const mName = resolveName(m);
+            const mTenant = resolveTenant(m, state.brokerId);
+            return `
+              <tr>
+                <td>${escapeHtml(mName)}</td>
+                <td>${escapeHtml(m.email || "")}</td>
+                <td><span class="badge">${escapeHtml(mid)}</span></td>
+                <td>${escapeHtml(mTenant)}</td>
+              </tr>`;
+          }).join("")
+        : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
 
       $("subManagerSelect").innerHTML = managers.length
         ? managers.map((m) => {
-            const mid = m.user_id || m.id || "";
-            const label = m.name || m.email || mid;
-            return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(m.tenant_id || "")}">${escapeHtml(label)}</option>`;
+            const mid = resolveUserId(m);
+            const label = m.name || m.full_name || m.manager_name || m.email || mid;
+            const tenant = resolveTenant(m, state.brokerId);
+            return `<option value="${escapeHtml(mid)}" data-tenant="${escapeHtml(tenant)}">${escapeHtml(label)}</option>`;
           }).join("")
         : `<option value="">Create an Admin Manager first</option>`;
 
-    $("subTableBody").innerHTML = subadmins.length
+      $("subTableBody").innerHTML = subadmins.length
         ? subadmins.map((s) => {
-            const subName = s.name || s.full_name || s.display_name || s.username || (s.email ? s.email.split("@")[0] : "") || "-";
-            const subTenant = s.tenant_id || s.tenant || s.broker_id || "-";
+            const subName = resolveName(s);
+            const subTenant = resolveTenant(s, state.brokerId);
             return `
               <tr>
                 <td>${escapeHtml(subName)}</td>
@@ -317,41 +366,92 @@ function renderTables() {
               </tr>`;
           }).join("")
         : `<tr><td colspan="4">No Sub-Admins created yet.</td></tr>`;
+    }
+
+    async function syncBrokerData() {
+      const brokerId = ($("brokerIdInput").value || "").trim() || state.brokerId || "brk_metro_01";
+      state.brokerId = brokerId;
+
+      try {
+        const res = await fetch(`/api/state?broker_id=${encodeURIComponent(brokerId)}`, { cache: "no-store" });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.error || `Failed to load broker data (${res.status})`);
+        }
+
+        const broker = data.broker || data.tenant || data || {};
+        state.users = Array.isArray(data.users)
+          ? data.users
+          : [
+              ...(Array.isArray(data.managers) ? data.managers.map((u) => ({ ...u, role: u.role || "admin_manager" })) : []),
+              ...(Array.isArray(data.subadmins) ? data.subadmins.map((u) => ({ ...u, role: u.role || "sub_admin" })) : [])
+            ];
+
+        state.registrationEnabled =
+          broker.registration_enabled === undefined
+            ? true
+            : Boolean(Number(broker.registration_enabled));
+        state.maxManagers = broker.max_managers ?? broker.maxManagers ?? "∞";
+        state.maxSubadminsPerManager =
+          broker.max_subadmins_per_manager ?? broker.maxSubadminsPerManager ?? "∞";
+
+        $("mgrSubmitBtn").disabled = !state.registrationEnabled;
+        $("subSubmitBtn").disabled = !state.registrationEnabled;
+
+        const bName = broker.broker_name || broker.name || broker.broker_id || broker.id || brokerId;
+        $("brokerSummary").textContent =
+          `Broker: ${bName} | Registration: ${state.registrationEnabled ? "UNLOCKED" : "LOCKED"} | Caps: ${state.maxManagers} Managers / ${state.maxSubadminsPerManager} Sub-Admins per Manager`;
+
+        if (!state.registrationEnabled) {
+          showBanner("warn", "Registration is locked for this broker (registration_enabled = 0).");
+        }
+      } catch (err) {
+        showBanner("err", "Sync error: " + err.message);
+      } finally {
+        renderTables();
+      }
+    }
+
     async function registerAdminManager() {
+      const brokerId = ($("brokerIdInput").value || "").trim() || state.brokerId;
+      const name = ($("mgrName").value || "").trim();
+      const email = ($("mgrEmail").value || "").trim();
+      const password = $("mgrPassword").value;
+
+      if (!name || !email || password.length < 6) {
+        return showBanner("err", "Enter Full Name, Email, and a Password (at least 6 characters).");
+      }
+
       const btn = $("mgrSubmitBtn");
       btn.disabled = true;
       btn.textContent = "Creating...";
 
       try {
-        const managerId = generateId("mgr");
-        const tenantId = generateId("ten");
-        const payload = {
-          targetType: "user",
-          id: managerId,
-          broker_id: brokerId,
-          role: "admin_manager",
-          name,
-          email,
-          password,
-          tenant_id: tenantId,
-          status: "active"
-        };
-
-        const res = await fetch(`${API_BASE}/api/upsert`, {
+        const userId = "mgr_" + Math.random().toString(36).slice(2, 10);
+        const res = await fetch("/api/upsert", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            type: "user",
+            user_id: userId,
+            broker_id: brokerId,
+            tenant_id: brokerId,
+            role: "admin_manager",
+            name,
+            email,
+            password
+          })
         });
-        const data = await res.json();
-
+        const data = await res.json().catch(() => ({}));
         if (!res.ok || data.ok === false) {
-          throw new Error(data.error || `Server returned ${res.status}`);
+          throw new Error(data.error || `Server error (${res.status})`);
         }
 
         $("mgrName").value = "";
         $("mgrEmail").value = "";
         $("mgrPassword").value = "";
-        showBanner("ok", `Admin Manager '${name}' created! ID: ${managerId}`);
+        showBanner("ok", `Admin Manager '${name}' created.`);
         await syncBrokerData();
       } catch (err) {
         showBanner("err", "Failed to create Admin Manager: " + err.message);
@@ -362,15 +462,18 @@ function renderTables() {
     }
 
     async function registerSubAdmin() {
-      const brokerId = $("brokerIdInput").value.trim();
-      const sel = $("subManagerSelect");
-      const managerId = sel.value;
-      const tenantId = sel.options[sel.selectedIndex]?.dataset?.tenant || generateId("ten");
-      const name = $("subName").value.trim();
-      const email = $("subEmail").value.trim();
+      const brokerId = ($("brokerIdInput").value || "").trim() || state.brokerId;
+      const selectEl = $("subManagerSelect");
+      const managerId = selectEl.value;
+      const selectedOption = selectEl.options[selectEl.selectedIndex];
+      const tenantId = (selectedOption && selectedOption.dataset.tenant) || brokerId;
+      const name = ($("subName").value || "").trim();
+      const email = ($("subEmail").value || "").trim();
       const password = $("subPassword").value;
 
-      if (!managerId) return showBanner("err", "Select an Admin Manager first.");
+      if (!managerId) {
+        return showBanner("err", "Select or create an Admin Manager first.");
+      }
       if (!name || !email || password.length < 6) {
         return showBanner("err", "Enter Full Name, Email, and a Password (at least 6 characters).");
       }
@@ -380,35 +483,31 @@ function renderTables() {
       btn.textContent = "Creating...";
 
       try {
-        const subId = generateId("sub");
-        const payload = {
-          targetType: "user",
-          id: subId,
-          broker_id: brokerId,
-          role: "sub_admin",
-          manager_id: managerId,
-          tenant_id: tenantId,
-          name,
-          email,
-          password,
-          status: "active"
-        };
-
-        const res = await fetch(`${API_BASE}/api/upsert`, {
+        const userId = "sub_" + Math.random().toString(36).slice(2, 10);
+        const res = await fetch("/api/upsert", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            type: "user",
+            user_id: userId,
+            broker_id: brokerId,
+            tenant_id: tenantId,
+            manager_id: managerId,
+            role: "sub_admin",
+            name,
+            email,
+            password
+          })
         });
-        const data = await res.json();
-
+        const data = await res.json().catch(() => ({}));
         if (!res.ok || data.ok === false) {
-          throw new Error(data.error || `Server returned ${res.status}`);
+          throw new Error(data.error || `Server error (${res.status})`);
         }
 
         $("subName").value = "";
         $("subEmail").value = "";
         $("subPassword").value = "";
-        showBanner("ok", `Sub-Admin '${name}' created under ${managerId}!`);
+        showBanner("ok", `Sub-Admin '${name}' created.`);
         await syncBrokerData();
       } catch (err) {
         showBanner("err", "Failed to create Sub-Admin: " + err.message);
@@ -417,6 +516,12 @@ function renderTables() {
         btn.textContent = "Create Sub-Admin";
       }
     }
+
+    $("syncBtn").addEventListener("click", syncBrokerData);
+    $("tabMgrBtn").addEventListener("click", () => switchTab("mgr"));
+    $("tabSubBtn").addEventListener("click", () => switchTab("sub"));
+    $("mgrSubmitBtn").addEventListener("click", registerAdminManager);
+    $("subSubmitBtn").addEventListener("click", registerSubAdmin);
 
     syncBrokerData();
   </script>
