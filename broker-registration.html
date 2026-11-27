@@ -208,7 +208,7 @@ $("mgrSubmitBtn").disabled = !state.registrationEnabled;
               <td>${escapeHtml(m.name || "")}</td>
               <td>${escapeHtml(m.email || "")}</td>
               <td><span class="badge">${escapeHtml(mid)}</span></td>
-              <td>${escapeHtml(m.tenant_id || "-")}</td>
+             <td>${escapeHtml(m.tenant_id || m.tenant || m.broker_id || "-")}</td>
             </tr>`;
           }).join("")
         : `<tr><td colspan="4">No Admin Managers created yet.</td></tr>`;
