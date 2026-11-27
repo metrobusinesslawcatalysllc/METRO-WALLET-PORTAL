@@ -4544,5 +4544,1087 @@ function ttRenderPositions() {
     refreshManagerClients();
   })();
 </script>
+  <script>
+  (function () {
+    const byId = (id) => document.getElementById(id);
+
+    const STORAGE_KEYS = {
+      owners: "mfx_demoOwners_v1",
+      managers: "mfx_demoManagers_v1",
+      subAdmins: "mfx_demoSubAdmins_v1",
+      clients: "mfx_demoClients_v1",
+      rules: "mfx_perClientRules_v1",
+      session: "mfx_activeSession_v1",
+      unlockedManagers: "mfx_unlockedManagers_v1"
+    };
+
+    const defaultOwners = {
+      own_main: {
+        id: "own_main",
+        name: "Primary Broker Owner",
+        email: "owner@mfxoptions.com",
+        password: "password123",
+        pin: "9001"
+      },
+      own_metro: {
+        id: "own_metro",
+        name: "Metro Broker Owner",
+        email: "owner@metrooptions.com",
+        password: "password123",
+        pin: "9002"
+      }
+    };
+
+    const defaultManagers = {
+      mgr_a: {
+        id: "mgr_a",
+        name: "Admin Manager A",
+        email: "mgra@metrooptions.com",
+        password: "password123",
+        pin: "1111"
+      },
+      mgr_b: {
+        id: "mgr_b",
+        name: "Admin Manager B",
+        email: "mgrb@metrooptions.com",
+        password: "password123",
+        pin: "2222"
+      }
+    };
+
+    const defaultSubAdmins = [
+      {
+        id: "sub_01",
+        name: "Sub Admin A1",
+        manager_id: "mgr_a",
+        client_id: "cli_01",
+        email: "sub1@metrooptions.com",
+        password: "password123",
+        pin: "3331"
+      },
+      {
+        id: "sub_02",
+        name: "Sub Admin B1",
+        manager_id: "mgr_b",
+        client_id: "cli_06",
+        email: "sub2@metrooptions.com",
+        password: "password123",
+        pin: "3332"
+      }
+    ];
+
+    const defaultClients = [
+      { id: "cli_01", name: "Client A1", manager_id: "mgr_a", email: "a1@metrooptions.com", password: "password123", basePnl: 100 },
+      { id: "cli_02", name: "Client A2", manager_id: "mgr_a", email: "a2@metrooptions.com", password: "password123", basePnl: 50 },
+      { id: "cli_03", name: "Client A3", manager_id: "mgr_a", email: "a3@metrooptions.com", password: "password123", basePnl: -20 },
+      { id: "cli_04", name: "Client A4", manager_id: "mgr_a", email: "a4@metrooptions.com", password: "password123", basePnl: 80 },
+      { id: "cli_05", name: "Client A5", manager_id: "mgr_a", email: "a5@metrooptions.com", password: "password123", basePnl: 120 },
+      { id: "cli_06", name: "Client B1", manager_id: "mgr_b", email: "b1@metrooptions.com", password: "password123", basePnl: 200 },
+      { id: "cli_07", name: "Client B2", manager_id: "mgr_b", email: "b2@metrooptions.com", password: "password123", basePnl: -40 },
+      { id: "cli_08", name: "Client B3", manager_id: "mgr_b", email: "b3@metrooptions.com", password: "password123", basePnl: 75 },
+      { id: "cli_09", name: "Client B4", manager_id: "mgr_b", email: "b4@metrooptions.com", password: "password123", basePnl: 30 },
+      { id: "cli_10", name: "Client B5", manager_id: "mgr_b", email: "b5@metrooptions.com", password: "password123", basePnl: -15 }
+    ];
+
+    function readJson(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return structuredClone(fallback);
+        const parsed = JSON.parse(raw);
+        return parsed !== null && typeof parsed === "object" ? parsed : structuredClone(fallback);
+      } catch (_err) {
+        return structuredClone(fallback);
+      }
+    }
+
+    function writeJson(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (_err) {
+        // Ignore storage quota or private mode errors
+      }
+    }
+
+    const demoOwners = readJson(STORAGE_KEYS.owners, defaultOwners);
+    const demoManagers = readJson(STORAGE_KEYS.managers, defaultManagers);
+    const demoSubAdmins = readJson(STORAGE_KEYS.subAdmins, defaultSubAdmins);
+    const demoClients = readJson(STORAGE_KEYS.clients, defaultClients);
+    const perClientRules = readJson(STORAGE_KEYS.rules, {});
+    const unlockedManagers = readJson(STORAGE_KEYS.unlockedManagers, {});
+    const loggedInClients = {};
+    const loggedInSubAdmins = {};
+    let activeSession = readJson(STORAGE_KEYS.session, null);
+
+    function persistAllState() {
+      writeJson(STORAGE_KEYS.owners, demoOwners);
+      writeJson(STORAGE_KEYS.managers, demoManagers);
+      writeJson(STORAGE_KEYS.subAdmins, demoSubAdmins);
+      writeJson(STORAGE_KEYS.clients, demoClients);
+      writeJson(STORAGE_KEYS.rules, perClientRules);
+      writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
+      writeJson(STORAGE_KEYS.session, activeSession);
+    }
+
+    function getClientRule(clientId) {
+      if (!perClientRules[clientId]) {
+        perClientRules[clientId] = { bias: 0, multiplier: 1, offset: 0 };
+        writeJson(STORAGE_KEYS.rules, perClientRules);
+      }
+      return perClientRules[clientId];
+    }
+
+    function setClientRule(clientId, rulePatch) {
+      const current = getClientRule(clientId);
+      perClientRules[clientId] = {
+        bias: rulePatch.bias !== undefined ? Number(rulePatch.bias) || 0 : current.bias,
+        multiplier: rulePatch.multiplier !== undefined ? (Number(rulePatch.multiplier) || 1) : current.multiplier,
+        offset: rulePatch.offset !== undefined ? Number(rulePatch.offset) || 0 : current.offset
+      };
+      writeJson(STORAGE_KEYS.rules, perClientRules);
+      return perClientRules[clientId];
+    }
+
+    window.mfxUpdateClientProfitRule = function (clientId, rulePatch) {
+      if (!clientId) return;
+      setClientRule(clientId, rulePatch || {});
+      renderOwnerClients();
+      refreshManagerClients();
+    };
+
+    function getAdjustedPnl(client) {
+      const r = getClientRule(client.id);
+      return Number(((client.basePnl + r.bias * 25) * r.multiplier + r.offset).toFixed(2));
+    }
+
+    function applyRoleVisibility() {
+      const allCards = Array.from(document.querySelectorAll(".card"));
+      const unifiedCard = byId("unifiedLoginCard");
+      const mgrLookupInput = byId("lookupManagerInput");
+      const mgrCard = mgrLookupInput ? mgrLookupInput.closest(".card") : null;
+      const subSelect = byId("subPortalSelect");
+      const subCard = subSelect ? subSelect.closest(".card") : null;
+      const cliSelect = byId("cliPortalSelect");
+      const cliCard = cliSelect ? cliSelect.closest(".card") : null;
+
+      if (!activeSession || activeSession.role === "broker_owner") {
+        allCards.forEach((card) => {
+          card.style.display = "";
+        });
+        return;
+      }
+
+      if (activeSession.role === "admin_manager") {
+        allCards.forEach((card) => {
+          card.style.display = card === unifiedCard || card === mgrCard ? "" : "none";
+        });
+      } else if (activeSession.role === "sub_admin") {
+        allCards.forEach((card) => {
+          card.style.display = card === unifiedCard || card === subCard ? "" : "none";
+        });
+      } else if (activeSession.role === "client") {
+        allCards.forEach((card) => {
+          card.style.display = card === unifiedCard || card === cliCard ? "" : "none";
+        });
+      }
+    }
+
+    function restoreSessionUI() {
+      if (!activeSession || !activeSession.role) return;
+
+      if (activeSession.role === "broker_owner") {
+        const ownerAcct = activeSession.account || {};
+        if (byId("unifiedLoginStatus")) {
+          byId("unifiedLoginStatus").textContent =
+            "Restored Broker Owner session: " + (ownerAcct.name || "Broker Owner") +
+            (ownerAcct.email ? " (" + ownerAcct.email + ")" : "");
+        }
+      } else if (activeSession.role === "admin_manager" && activeSession.account) {
+        const mgrId = activeSession.account.id;
+        unlockedManagers[mgrId] = true;
+        if (byId("lookupManagerInput")) byId("lookupManagerInput").value = mgrId;
+        if (byId("unifiedLoginStatus")) {
+          byId("unifiedLoginStatus").textContent =
+            "Restored session for Admin Manager: " + activeSession.account.name + " (" + mgrId + ")";
+        }
+      } else if (activeSession.role === "sub_admin" && activeSession.account) {
+        const sub = demoSubAdmins.find((s) => s.id === activeSession.account.id) || activeSession.account;
+        loggedInSubAdmins[sub.id] = true;
+        if (byId("subPortalSelect")) byId("subPortalSelect").value = sub.id;
+        if (byId("subLoginEmail")) byId("subLoginEmail").value = sub.email || "";
+        const scopedClients = sub.client_id
+          ? demoClients.filter((c) => c.id === sub.client_id)
+          : demoClients.filter((c) => c.manager_id === sub.manager_id);
+        if (byId("subPortalStatus")) {
+          byId("subPortalStatus").textContent =
+            "Logged in as " + sub.name + " (" + sub.id + ") | Manager: " + sub.manager_id +
+            " | Accessible Clients: " + scopedClients.length;
+        }
+        if (byId("unifiedLoginStatus")) {
+          byId("unifiedLoginStatus").textContent =
+            "Restored session for Sub Admin: " + sub.name + " (" + sub.id + ")";
+        }
+      } else if (activeSession.role === "client" && activeSession.account) {
+        const client = demoClients.find((c) => c.id === activeSession.account.id) || activeSession.account;
+        loggedInClients[client.id] = true;
+        if (byId("cliPortalSelect")) byId("cliPortalSelect").value = client.id;
+        if (byId("cliLoginEmail")) byId("cliLoginEmail").value = client.email || "";
+        if (byId("cliPortalStatus")) {
+          byId("cliPortalStatus").textContent =
+            "Logged in as " + client.name + " (" + client.id + ") | Manager: " + client.manager_id +
+            " | Base P&L: $" + Number(client.basePnl).toFixed(2) +
+            " | Adjusted P&L: $" + getAdjustedPnl(client).toFixed(2);
+        }
+        if (byId("unifiedLoginStatus")) {
+          byId("unifiedLoginStatus").textContent =
+            "Restored session for Client: " + client.name + " (" + client.id + ")";
+        }
+      }
+    }
+
+    function unifiedLogin(emailInput, secretInput) {
+      const email = (emailInput || "").trim().toLowerCase();
+      const secret = (secretInput || "").trim();
+      if (!email || !secret) {
+        return { ok: false, message: "Enter both email and password or PIN." };
+      }
+
+      const owner = Object.values(demoOwners).find(
+        (o) =>
+          (o.email || "").toLowerCase() === email &&
+          (secret === o.password || (o.pin && secret === o.pin))
+      );
+      if (owner) {
+        activeSession = {
+          role: "broker_owner",
+          account: { id: owner.id, name: owner.name, email: owner.email }
+        };
+        writeJson(STORAGE_KEYS.session, activeSession);
+        applyRoleVisibility();
+        return {
+          ok: true,
+          role: "broker_owner",
+          account: owner,
+          message: "Signed in as Broker Owner: " + owner.name + " (" + owner.email + ")"
+        };
+      }
+
+      const mgr = Object.values(demoManagers).find(
+        (m) =>
+          (m.email || "").toLowerCase() === email &&
+          (secret === m.password || (m.pin && secret === m.pin))
+      );
+      if (mgr) {
+        unlockedManagers[mgr.id] = true;
+        writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
+        activeSession = { role: "admin_manager", account: { id: mgr.id, name: mgr.name, email: mgr.email } };
+        writeJson(STORAGE_KEYS.session, activeSession);
+        if (byId("lookupManagerInput")) {
+          byId("lookupManagerInput").value = mgr.id;
+        }
+        refreshManagerClients();
+        applyRoleVisibility();
+        return {
+          ok: true,
+          role: "admin_manager",
+          account: mgr,
+          message: "Signed in as Admin Manager: " + mgr.name + " (" + mgr.id + ")"
+        };
+      }
+
+      const sub = demoSubAdmins.find(
+        (s) =>
+          (s.email || "").toLowerCase() === email &&
+          (secret === s.password || (s.pin && secret === s.pin))
+      );
+      if (sub) {
+        loggedInSubAdmins[sub.id] = true;
+        activeSession = { role: "sub_admin", account: { id: sub.id, name: sub.name, email: sub.email } };
+        writeJson(STORAGE_KEYS.session, activeSession);
+        if (byId("subPortalSelect")) {
+          byId("subPortalSelect").value = sub.id;
+        }
+        if (byId("subLoginEmail")) {
+          byId("subLoginEmail").value = sub.email;
+        }
+        const scopedClients = sub.client_id
+          ? demoClients.filter((c) => c.id === sub.client_id)
+          : demoClients.filter((c) => c.manager_id === sub.manager_id);
+        if (byId("subPortalStatus")) {
+          byId("subPortalStatus").textContent =
+            "Logged in as " + sub.name + " (" + sub.id + ") | Manager: " + sub.manager_id +
+            " | Accessible Clients: " + scopedClients.length;
+        }
+        applyRoleVisibility();
+        return {
+          ok: true,
+          role: "sub_admin",
+          account: sub,
+          message: "Signed in as Sub Admin: " + sub.name + " (" + sub.id + ")"
+        };
+      }
+
+      const client = demoClients.find(
+        (c) => (c.email || "").toLowerCase() === email && secret === c.password
+      );
+      if (client) {
+        loggedInClients[client.id] = true;
+        activeSession = { role: "client", account: { id: client.id, name: client.name, email: client.email } };
+        writeJson(STORAGE_KEYS.session, activeSession);
+        if (byId("cliPortalSelect")) {
+          byId("cliPortalSelect").value = client.id;
+        }
+        if (byId("cliLoginEmail")) {
+          byId("cliLoginEmail").value = client.email;
+        }
+        if (byId("cliPortalStatus")) {
+          byId("cliPortalStatus").textContent =
+            "Logged in as " + client.name + " (" + client.id + ") | Manager: " + client.manager_id +
+            " | Base P&L: $" + Number(client.basePnl).toFixed(2) +
+            " | Adjusted P&L: $" + getAdjustedPnl(client).toFixed(2);
+        }
+        applyRoleVisibility();
+        return {
+          ok: true,
+          role: "client",
+          account: client,
+          message: "Signed in as Client: " + client.name + " (" + client.id + ")"
+        };
+      }
+
+      return { ok: false, message: "No matching account or incorrect password/PIN." };
+    }
+
+    function clearSavedSession() {
+      activeSession = null;
+      writeJson(STORAGE_KEYS.session, null);
+      applyRoleVisibility();
+    }
+
+    function renderOwnerAccountsTable() {
+      const body = byId("ownerAccountsBody");
+      if (!body) return;
+      const list = Object.values(demoOwners);
+      body.innerHTML = list.length
+        ? list.map((o) => (
+            "<tr>" +
+              "<td>" + o.id + "</td>" +
+              "<td>" + o.name + "</td>" +
+              "<td>" + (o.email || "-") + "</td>" +
+              "<td>PIN: " + (o.pin || "-") + "</td>" +
+            "</tr>"
+          )).join("")
+        : '<tr><td colspan="4">No Broker Owners registered yet.</td></tr>';
+    }
+
+    function registerBrokerOwner() {
+      const customId = (byId("newOwnerIdInput").value || "").trim();
+      const name = (byId("newOwnerNameInput").value || "").trim();
+      const email = (byId("newOwnerEmailInput").value || "").trim().toLowerCase();
+      const password = byId("newOwnerPasswordInput").value || "";
+      const pin = (byId("newOwnerPinInput").value || "").trim();
+
+      if (!name || !email || !email.includes("@") || password.length < 6) {
+        byId("ownerAccountStatus").textContent =
+          "Enter Owner Name, a valid Owner Domain Email (e.g. owner@your-domain.com), and Password (min 6 chars).";
+        return;
+      }
+
+      const ownerId = customId || ("own_" + Math.random().toString(36).slice(2, 6));
+      const assignedPin = pin || String(Math.floor(1000 + Math.random() * 9000));
+
+      demoOwners[ownerId] = {
+        id: ownerId,
+        name: name,
+        email: email,
+        password: password,
+        pin: assignedPin
+      };
+      writeJson(STORAGE_KEYS.owners, demoOwners);
+
+      byId("newOwnerIdInput").value = "";
+      byId("newOwnerNameInput").value = "";
+      byId("newOwnerEmailInput").value = "";
+      byId("newOwnerPasswordInput").value = "";
+      byId("newOwnerPinInput").value = "";
+
+      byId("ownerAccountStatus").textContent =
+        "Registered Broker Owner " + name + " (" + ownerId + ") | Login Email: " + email + " | PIN: " + assignedPin;
+      if (byId("unifiedEmailInput")) byId("unifiedEmailInput").value = email;
+
+      renderOwnerAccountsTable();
+    }
+
+    function mountBrokerOwnerCard() {
+      const anchor = byId("mfxSelfSignupCard") || (byId("ownerManagersBody") ? byId("ownerManagersBody").closest(".card") : null);
+      const container = anchor ? anchor.parentNode : document.body;
+      if (!container || byId("brokerOwnerDomainCard")) return;
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.id = "brokerOwnerDomainCard";
+      card.innerHTML =
+        '<h3>Broker Owner Domain Accounts (Owner Login)</h3>' +
+        '<div id="ownerAccountStatus" class="summary" style="margin-bottom:12px;">Every Broker Owner can have their own owner domain login email (e.g. owner@mfxoptions.com) and password or PIN.</div>' +
+        '<div class="grid">' +
+          '<div>' +
+            '<label for="newOwnerIdInput">Owner ID (optional)</label>' +
+            '<input id="newOwnerIdInput" type="text" placeholder="e.g. own_02 (auto if blank)" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="newOwnerNameInput">Broker Owner Name</label>' +
+            '<input id="newOwnerNameInput" type="text" placeholder="e.g. Partner Broker Owner" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="newOwnerEmailInput">Owner Domain Login Email</label>' +
+            '<input id="newOwnerEmailInput" type="email" placeholder="owner@yourdomain.com" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="newOwnerPasswordInput">Owner Password (min 6 chars)</label>' +
+            '<input id="newOwnerPasswordInput" type="password" placeholder="••••••" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="newOwnerPinInput">Owner Access PIN (optional, 4–6 digits)</label>' +
+            '<input id="newOwnerPinInput" type="text" maxlength="6" placeholder="e.g. 9003 (auto if blank)" />' +
+          '</div>' +
+        '</div>' +
+        '<button id="createOwnerAccountBtn" class="primary" type="button" style="margin-top:10px;">Register Broker Owner Login</button>' +
+        '<div class="table-wrap" style="margin-top:14px;">' +
+          '<table>' +
+            '<thead>' +
+              '<tr>' +
+                '<th>Owner ID</th>' +
+                '<th>Name</th>' +
+                '<th>Owner Domain Email</th>' +
+                '<th>PIN</th>' +
+              '</tr>' +
+            '</thead>' +
+            '<tbody id="ownerAccountsBody"></tbody>' +
+          '</table>' +
+        '</div>';
+
+      if (anchor) {
+        container.insertBefore(card, anchor);
+      } else {
+        container.appendChild(card);
+      }
+
+      byId("createOwnerAccountBtn").addEventListener("click", registerBrokerOwner);
+      renderOwnerAccountsTable();
+    }
+
+    function resolveTypedReferralCode() {
+      const inputEl = byId("selfCliRefCodeInput");
+      const typedCode = inputEl ? (inputEl.value || "").trim() : "";
+      return typedCode || "mgr_a";
+    }
+
+    function formatManagerCodeLabel(mgrId) {
+      const mgr = demoManagers[mgrId];
+      if (mgr && mgr.name) {
+        return mgr.name + " (" + mgrId + ")";
+      }
+      return "Referral Code (" + mgrId + ")";
+    }
+
+    function handleClientSelfSignup() {
+      const name = (byId("selfCliNameInput").value || "").trim();
+      const email = (byId("selfCliEmailInput").value || "").trim().toLowerCase();
+      const password = byId("selfCliPasswordInput").value || "";
+      const assignedMgrId = resolveTypedReferralCode();
+      const mgrLabel = formatManagerCodeLabel(assignedMgrId);
+
+      if (!name || !email || password.length < 6) {
+        byId("selfSignupStatus").textContent =
+          "Welcome to mFX Options — please enter your Full Name, Referral Code/ID, Email, and a Password (at least 6 characters).";
+        return;
+      }
+
+      const alreadyExists = demoClients.some((c) => (c.email || "").toLowerCase() === email);
+      if (alreadyExists) {
+        byId("selfSignupStatus").textContent =
+          "An account with " + email + " is already registered. Sign in above with your email and password.";
+        if (byId("unifiedEmailInput")) byId("unifiedEmailInput").value = email;
+        if (byId("cliLoginEmail")) byId("cliLoginEmail").value = email;
+        return;
+      }
+
+      const cliId = "cli_" + Math.random().toString(36).slice(2, 6);
+      demoClients.push({
+        id: cliId,
+        name: name,
+        manager_id: assignedMgrId,
+        email: email,
+        password: password,
+        basePnl: 100
+      });
+      getClientRule(cliId);
+      writeJson(STORAGE_KEYS.clients, demoClients);
+
+      byId("selfCliNameInput").value = "";
+      byId("selfCliEmailInput").value = "";
+      byId("selfCliPasswordInput").value = "";
+
+      byId("selfSignupStatus").textContent =
+        "Welcome to mFX Options, " + name + "! Portal registered (" + cliId + ") under " + mgrLabel +
+        ". Sign in now with " + email + " and your password.";
+
+      renderOwnerManagers();
+      renderOwnerClients();
+      refreshManagerClients();
+
+      if (byId("unifiedEmailInput")) byId("unifiedEmailInput").value = email;
+      if (byId("cliPortalSelect")) byId("cliPortalSelect").value = cliId;
+      if (byId("cliLoginEmail")) byId("cliLoginEmail").value = email;
+    }
+
+    function mountSelfSignupCard() {
+      const anchor = byId("ownerManagersBody") ? byId("ownerManagersBody").closest(".card") : null;
+      const container = anchor ? anchor.parentNode : document.body;
+      if (!container || byId("mfxSelfSignupCard")) return;
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.id = "mfxSelfSignupCard";
+      card.innerHTML =
+        '<h3>Welcome to mFX Options — Client Self-Signup</h3>' +
+        '<div id="selfSignupStatus" class="summary" style="margin-bottom:12px;">Welcome to mFX Options! Enter your Admin Manager referral code/ID (such as mgr_a), email, and password to register your portal account.</div>' +
+        '<div class="grid">' +
+          '<div>' +
+            '<label for="selfCliNameInput">Full Name</label>' +
+            '<input id="selfCliNameInput" type="text" placeholder="Your full name" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="selfCliRefCodeInput">Admin Manager Referral Code / ID</label>' +
+            '<input id="selfCliRefCodeInput" type="text" value="mgr_a" placeholder="e.g. mgr_a or mgr_b" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="selfCliEmailInput">Login Email Address</label>' +
+            '<input id="selfCliEmailInput" type="email" placeholder="you@example.com" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="selfCliPasswordInput">Create Password (min 6 chars)</label>' +
+            '<input id="selfCliPasswordInput" type="password" placeholder="••••••" />' +
+          '</div>' +
+        '</div>' +
+        '<button id="selfSignupBtn" class="primary" type="button" style="margin-top:10px;">Register Portal Account</button>';
+
+      if (anchor) {
+        container.insertBefore(card, anchor);
+      } else {
+        container.appendChild(card);
+      }
+
+      byId("selfSignupBtn").addEventListener("click", handleClientSelfSignup);
+    }
+
+    function mountUnifiedLoginCard() {
+      const anchor = byId("brokerOwnerDomainCard") || byId("mfxSelfSignupCard") || (byId("ownerManagersBody") ? byId("ownerManagersBody").closest(".card") : null);
+      const container = anchor ? anchor.parentNode : document.body;
+      if (!container || byId("unifiedLoginCard")) return;
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.id = "unifiedLoginCard";
+      card.innerHTML =
+        '<h3>Unified Portal Login (One URL for Broker Owner, Staff & Clients)</h3>' +
+        '<div id="unifiedLoginStatus" class="summary" style="margin-bottom:10px;">Sign in from this single URL with your owner domain email, staff email, or client email and password/PIN.</div>' +
+        '<div class="grid">' +
+          '<div>' +
+            '<label for="unifiedEmailInput">Account Email</label>' +
+            '<input id="unifiedEmailInput" type="email" placeholder="owner@mfxoptions.com" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="unifiedSecretInput">Password or PIN</label>' +
+            '<input id="unifiedSecretInput" type="password" placeholder="Enter password or PIN" />' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+          '<button id="unifiedSignInBtn" class="primary" type="button">Sign In</button>' +
+          '<button id="unifiedSignOutBtn" type="button">Show All / Sign Out</button>' +
+          '<button id="resetDemoStorageBtn" type="button">Reset Saved Data</button>' +
+        '</div>';
+
+      if (anchor) {
+        container.insertBefore(card, anchor);
+      } else {
+        container.appendChild(card);
+      }
+
+      byId("unifiedSignInBtn").addEventListener("click", function () {
+        const res = unifiedLogin(byId("unifiedEmailInput").value, byId("unifiedSecretInput").value);
+        byId("unifiedLoginStatus").textContent = res.message;
+        if (res.ok) {
+          byId("unifiedSecretInput").value = "";
+        }
+      });
+
+      byId("unifiedSignOutBtn").addEventListener("click", function () {
+        clearSavedSession();
+        byId("unifiedLoginStatus").textContent = "Signed out. Showing full view.";
+      });
+
+      byId("resetDemoStorageBtn").addEventListener("click", function () {
+        Object.values(STORAGE_KEYS).forEach((k) => {
+          try { localStorage.removeItem(k); } catch (_e) {}
+        });
+        window.location.reload();
+      });
+    }
+
+    function mountManagerLoginBox() {
+      const tbody = byId("filteredClientsBody");
+      const tableWrap = tbody && tbody.closest(".table-wrap");
+      if (!tableWrap || byId("mgrPortalLoginBox")) return;
+
+      const box = document.createElement("div");
+      box.id = "mgrPortalLoginBox";
+      box.style.marginTop = "12px";
+      box.style.padding = "12px";
+      box.style.border = "1px solid rgba(148,163,184,0.35)";
+      box.style.borderRadius = "8px";
+      box.innerHTML =
+        '<div style="font-weight:600;margin-bottom:8px;">Admin Manager Dashboard Login (Email + Password or PIN)</div>' +
+        '<div class="grid">' +
+          '<div>' +
+            '<label for="mgrLoginEmail">Manager Email</label>' +
+            '<input id="mgrLoginEmail" type="email" placeholder="mgra@metrooptions.com" />' +
+          '</div>' +
+          '<div>' +
+            '<label for="mgrLoginSecret">Password or Access PIN</label>' +
+            '<input id="mgrLoginSecret" type="password" placeholder="Enter password or 4-6 digit PIN" />' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+          '<button id="mgrUnlockBtn" class="primary" type="button">Unlock Manager Dashboard</button>' +
+          '<button id="mgrLockBtn" type="button">Lock</button>' +
+          '<span id="mgrLoginStatus" class="summary"></span>' +
+        '</div>';
+
+      tableWrap.parentNode.insertBefore(box, tableWrap);
+
+      byId("mgrUnlockBtn").addEventListener("click", function () {
+        const mgrId = (byId("lookupManagerInput").value || "").trim();
+        const email = (byId("mgrLoginEmail").value || "").trim();
+        const secret = byId("mgrLoginSecret").value || "";
+        const ok = verifyManagerAccess(mgrId, email, secret);
+
+        if (ok) {
+          byId("mgrLoginSecret").value = "";
+          byId("mgrLoginStatus").textContent = "Unlocked dashboard for " + mgrId + ".";
+        } else {
+          byId("mgrLoginStatus").textContent =
+            "Access denied. Check Manager ID, email + password, or PIN.";
+        }
+        refreshManagerClients();
+      });
+
+      byId("mgrLockBtn").addEventListener("click", function () {
+        const mgrId = (byId("lookupManagerInput").value || "").trim();
+        if (mgrId && unlockedManagers[mgrId]) {
+          delete unlockedManagers[mgrId];
+          writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
+        }
+        byId("mgrLoginStatus").textContent = mgrId ? "Locked dashboard for " + mgrId + "." : "Locked.";
+        refreshManagerClients();
+      });
+    }
+
+    function renderOwnerManagers() {
+      const list = Object.values(demoManagers);
+      const body = byId("ownerManagersBody");
+      if (!body) return;
+      body.innerHTML = list.length
+        ? list.map((m) => {
+            const count = demoClients.filter((c) => c.manager_id === m.id).length;
+            return (
+              "<tr>" +
+                "<td>" + m.id + "</td>" +
+                "<td>" + m.name + "</td>" +
+                "<td>" + (m.email || "-") + "</td>" +
+                "<td>PIN: " + (m.pin || "-") + "</td>" +
+                "<td>" + count + "</td>" +
+              "</tr>"
+            );
+          }).join("")
+        : '<tr><td colspan="5">No Admin Managers registered yet.</td></tr>';
+    }
+
+    function renderOwnerSubAdmins() {
+      const select = byId("subPortalSelect");
+      const body = byId("ownerSubAdminsBody");
+      if (!select || !body) return;
+
+      select.innerHTML = demoSubAdmins
+        .map((s) => '<option value="' + s.id + '">' + s.name + " (" + s.id + " | " + s.manager_id + ")</option>")
+        .join("");
+
+      const selectedSub = demoSubAdmins.find((s) => s.id === select.value);
+      if (selectedSub && !byId("subLoginEmail").value) {
+        byId("subLoginEmail").value = selectedSub.email || "";
+      }
+
+      body.innerHTML = demoSubAdmins.length
+        ? demoSubAdmins.map((s) => (
+            "<tr>" +
+              "<td>" + s.id + "</td>" +
+              "<td>" + s.name + "</td>" +
+              "<td>" + (s.manager_id || "-") + "</td>" +
+              "<td>" + (s.client_id || "All under manager") + "</td>" +
+              "<td>" + (s.email || "-") + "</td>" +
+              "<td>" + (s.pin || "-") + "</td>" +
+            "</tr>"
+          )).join("")
+        : '<tr><td colspan="6">No Sub Admins registered yet.</td></tr>';
+    }
+
+    function renderOwnerClients() {
+      const select = byId("cliPortalSelect");
+      const body = byId("ownerClientsBody");
+      if (!select || !body) return;
+
+      select.innerHTML = demoClients
+        .map((c) => '<option value="' + c.id + '">' + c.name + " (" + c.id + " | " + c.manager_id + ")</option>")
+        .join("");
+
+      const selectedCliId = select.value;
+      const selectedCli = demoClients.find((c) => c.id === selectedCliId);
+      if (selectedCli && !byId("cliLoginEmail").value) {
+        byId("cliLoginEmail").value = selectedCli.email || "";
+      }
+
+      body.innerHTML = demoClients.length
+        ? demoClients.map((c) => (
+            "<tr>" +
+              "<td>" + c.id + "</td>" +
+              "<td>" + c.name + "</td>" +
+              "<td>" + (c.manager_id || "-") + "</td>" +
+              "<td>" + (c.email || "-") + "</td>" +
+              "<td>" + Number(c.basePnl || 0).toFixed(2) + "</td>" +
+              "<td>" + getAdjustedPnl(c).toFixed(2) + "</td>" +
+            "</tr>"
+          )).join("")
+        : '<tr><td colspan="6">No clients registered yet.</td></tr>';
+    }
+
+    function registerOwnerManager() {
+      const customId = (byId("newMgrIdInput").value || "").trim();
+      const name = (byId("newMgrNameInput").value || "").trim();
+      const email = (byId("newMgrEmailInput").value || "").trim();
+      const password = byId("newMgrPasswordInput").value || "";
+      const pinInput = byId("newMgrPinInput");
+      const pin = pinInput ? (pinInput.value || "").trim() : "";
+
+      if (!name || !email || password.length < 6) {
+        byId("ownerMgrStatus").textContent = "Enter Name, Email, and a Password (min 6 chars).";
+        return;
+      }
+
+      const mgrId = customId || ("mgr_" + Math.random().toString(36).slice(2, 7));
+      const assignedPin = pin || String(Math.floor(1000 + Math.random() * 9000));
+
+      demoManagers[mgrId] = {
+        id: mgrId,
+        name: name,
+        email: email,
+        password: password,
+        pin: assignedPin
+      };
+      unlockedManagers[mgrId] = true;
+      writeJson(STORAGE_KEYS.managers, demoManagers);
+      writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
+
+      byId("newMgrIdInput").value = "";
+      byId("newMgrNameInput").value = "";
+      byId("newMgrEmailInput").value = "";
+      byId("newMgrPasswordInput").value = "";
+      if (pinInput) pinInput.value = "";
+
+      byId("ownerMgrStatus").textContent =
+        "Registered " + name + " (" + mgrId + ") | Email: " + email + " | PIN: " + assignedPin;
+      byId("lookupManagerInput").value = mgrId;
+      if (byId("newCliMgrIdInput") && !byId("newCliMgrIdInput").value) {
+        byId("newCliMgrIdInput").value = mgrId;
+      }
+      if (byId("newSubMgrIdInput") && !byId("newSubMgrIdInput").value) {
+        byId("newSubMgrIdInput").value = mgrId;
+      }
+      if (byId("mgrLoginEmail")) byId("mgrLoginEmail").value = email;
+
+      renderOwnerManagers();
+      refreshManagerClients();
+    }
+
+    function registerOwnerSubAdmin() {
+      const customId = (byId("newSubIdInput").value || "").trim();
+      const mgrId = (byId("newSubMgrIdInput").value || byId("lookupManagerInput").value || "mgr_a").trim();
+      const clientId = (byId("newSubClientIdInput").value || "").trim();
+      const name = (byId("newSubNameInput").value || "").trim();
+      const email = (byId("newSubEmailInput").value || "").trim();
+      const password = byId("newSubPasswordInput").value || "";
+      const pin = (byId("newSubPinInput").value || "").trim();
+
+      if (!name || !email || password.length < 6) {
+        byId("ownerSubAdminStatus").textContent = "Enter Sub Admin Name, Email, and Password (min 6 chars).";
+        return;
+      }
+
+      const subId = customId || ("sub_" + Math.random().toString(36).slice(2, 6));
+      const assignedPin = pin || String(Math.floor(1000 + Math.random() * 9000));
+
+      demoSubAdmins.push({
+        id: subId,
+        name: name,
+        manager_id: mgrId,
+        client_id: clientId,
+        email: email,
+        password: password,
+        pin: assignedPin
+      });
+      writeJson(STORAGE_KEYS.subAdmins, demoSubAdmins);
+
+      byId("newSubIdInput").value = "";
+      byId("newSubClientIdInput").value = "";
+      byId("newSubNameInput").value = "";
+      byId("newSubEmailInput").value = "";
+      byId("newSubPasswordInput").value = "";
+      byId("newSubPinInput").value = "";
+
+      byId("ownerSubAdminStatus").textContent =
+        "Registered " + name + " (" + subId + ") under " + mgrId + " | Email: " + email + " | PIN: " + assignedPin;
+
+      renderOwnerSubAdmins();
+      byId("subPortalSelect").value = subId;
+      byId("subLoginEmail").value = email;
+    }
+
+    function registerOwnerClient() {
+      const customId = (byId("newCliIdInput").value || "").trim();
+      const mgrId = (byId("newCliMgrIdInput").value || byId("lookupManagerInput").value || "mgr_a").trim();
+      const name = (byId("newCliNameInput").value || "").trim();
+      const email = (byId("newCliEmailInput").value || "").trim();
+      const password = byId("newCliPasswordInput").value || "";
+      const basePnl = Number(byId("newCliBasePnlInput").value || 0);
+
+      if (!name || !email || password.length < 6) {
+        byId("ownerClientStatus").textContent = "Enter Client Name, Login Email, and Password (min 6 chars).";
+        return;
+      }
+
+      const cliId = customId || ("cli_" + Math.random().toString(36).slice(2, 6));
+      demoClients.push({
+        id: cliId,
+        name: name,
+        manager_id: mgrId,
+        email: email,
+        password: password,
+        basePnl: isNaN(basePnl) ? 0 : basePnl
+      });
+      getClientRule(cliId);
+      writeJson(STORAGE_KEYS.clients, demoClients);
+
+      byId("newCliIdInput").value = "";
+      byId("newCliNameInput").value = "";
+      byId("newCliEmailInput").value = "";
+      byId("newCliPasswordInput").value = "";
+
+      byId("ownerClientStatus").textContent =
+        "Registered " + name + " (" + cliId + ") under " + mgrId + " | Email: " + email;
+
+      renderOwnerManagers();
+      renderOwnerClients();
+      byId("cliPortalSelect").value = cliId;
+      byId("cliLoginEmail").value = email;
+      refreshManagerClients();
+    }
+
+    function verifyManagerAccess(mgrId, emailOrPin, secretInput) {
+      const mgr = demoManagers[mgrId];
+      if (!mgr) return false;
+      if (unlockedManagers[mgrId]) return true;
+
+      const typedSecret = (secretInput || "").trim();
+      const typedLogin = (emailOrPin || "").trim().toLowerCase();
+
+      const pinMatches = typedSecret && mgr.pin && typedSecret === mgr.pin;
+      const emailPassMatches =
+        typedLogin === (mgr.email || "").toLowerCase() &&
+        typedSecret &&
+        typedSecret === mgr.password;
+
+      if (pinMatches || emailPassMatches) {
+        unlockedManagers[mgrId] = true;
+        writeJson(STORAGE_KEYS.unlockedManagers, unlockedManagers);
+        return true;
+      }
+      return false;
+    }
+
+    function refreshManagerClients() {
+      const mgrId = (byId("lookupManagerInput").value || "").trim();
+      const mgr = demoManagers[mgrId];
+      const clients = mgrId ? demoClients.filter((c) => c.manager_id === mgrId) : [];
+
+      if (mgr && byId("mgrLoginEmail") && !byId("mgrLoginEmail").value) {
+        byId("mgrLoginEmail").value = mgr.email || "";
+      }
+
+      if (!mgrId) {
+        byId("managerLookupInfo").textContent =
+          "Enter an Admin Manager ID (such as mgr_a or mgr_b) to view that manager and their clients.";
+        byId("targetClientSelect").innerHTML = '<option value="">Select a manager first</option>';
+        byId("filteredClientsBody").innerHTML = '<tr><td colspan="5">Enter an Admin Manager ID to view clients.</td></tr>';
+        return;
+      }
+
+      const isLocked = mgr && !unlockedManagers[mgrId];
+
+      byId("managerLookupInfo").textContent =
+        (mgr ? mgr.name + " (" + mgr.id + ")" : "Manager ID: " + mgrId) +
+        " | Clients: " + clients.length +
+        (isLocked ? " | Locked: enter email/password or PIN to unlock" : "");
+
+      byId("targetClientSelect").innerHTML = clients.length
+        ? clients.map((c) => '<option value="' + c.id + '">' + c.name + " (" + c.id + ")</option>").join("")
+        : '<option value="">No clients under this manager</option>';
+
+      if (isLocked) {
+        byId("filteredClientsBody").innerHTML =
+          '<tr><td colspan="5">Manager portal is locked. Enter email + password or PIN to view clients.</td></tr>';
+        return;
+      }
+
+      byId("filteredClientsBody").innerHTML = clients.length
+        ? clients.map((c) => (
+            "<tr>" +
+              "<td>" + c.id + "</td>" +
+              "<td>" + c.name + "</td>" +
+              "<td>" + c.manager_id + "</td>" +
+              "<td>" + c.basePnl.toFixed(2) + "</td>" +
+              "<td>" + getAdjustedPnl(c).toFixed(2) + "</td>" +
+            "</tr>"
+          )).join("")
+        : '<tr><td colspan="5">No clients match this Admin Manager ID.</td></tr>';
+    }
+
+    function handleSubAdminLogin() {
+      const subId = byId("subPortalSelect").value;
+      const email = (byId("subLoginEmail").value || "").trim().toLowerCase();
+      const secret = (byId("subLoginSecret").value || "").trim();
+      const sub = demoSubAdmins.find((item) => item.id === subId);
+
+      if (!sub) {
+        byId("subPortalStatus").textContent = "Sub Admin not found.";
+        return;
+      }
+
+      const pinOk = secret && sub.pin && secret === sub.pin;
+      const emailPassOk = email === (sub.email || "").toLowerCase() && secret && secret === sub.password;
+
+      if (pinOk || emailPassOk) {
+        loggedInSubAdmins[subId] = true;
+        activeSession = { role: "sub_admin", account: { id: sub.id, name: sub.name, email: sub.email } };
+        writeJson(STORAGE_KEYS.session, activeSession);
+        byId("subLoginSecret").value = "";
+        const scopedClients = sub.client_id
+          ? demoClients.filter((c) => c.id === sub.client_id)
+          : demoClients.filter((c) => c.manager_id === sub.manager_id);
+        byId("subPortalStatus").textContent =
+          "Logged in as " + sub.name + " (" + sub.id + ") | Manager: " + sub.manager_id +
+          " | Accessible Clients: " + scopedClients.length;
+        applyRoleVisibility();
+      } else {
+        byId("subPortalStatus").textContent = "Invalid Sub Admin email, password, or PIN.";
+      }
+    }
+
+    function handleSubAdminLogout() {
+      const subId = byId("subPortalSelect").value;
+      if (subId && loggedInSubAdmins[subId]) {
+        delete loggedInSubAdmins[subId];
+      }
+      clearSavedSession();
+      byId("subPortalStatus").textContent = "Logged out.";
+    }
+
+    function handleClientLogin() {
+      const cliId = byId("cliPortalSelect").value;
+      const email = (byId("cliLoginEmail").value || "").trim().toLowerCase();
+      const password = byId("cliLoginPassword").value || "";
+      const client = demoClients.find((c) => c.id === cliId);
+
+      if (!client) {
+        byId("cliPortalStatus").textContent = "Client not found.";
+        return;
+      }
+
+      if (email === (client.email || "").toLowerCase() && password === client.password) {
+        loggedInClients[cliId] = true;
+        activeSession = { role: "client", account: { id: client.id, name: client.name, email: client.email } };
+        writeJson(STORAGE_KEYS.session, activeSession);
+        byId("cliLoginPassword").value = "";
+        byId("cliPortalStatus").textContent =
+          "Logged in as " + client.name + " (" + client.id + ") | Manager: " + client.manager_id +
+          " | Base P&L: $" + Number(client.basePnl).toFixed(2) +
+          " | Adjusted P&L: $" + getAdjustedPnl(client).toFixed(2);
+        applyRoleVisibility();
+      } else {
+        byId("cliPortalStatus").textContent = "Invalid client email or password.";
+      }
+    }
+
+    function handleClientLogout() {
+      const cliId = byId("cliPortalSelect").value;
+      if (cliId && loggedInClients[cliId]) {
+        delete loggedInClients[cliId];
+      }
+      clearSavedSession();
+      byId("cliPortalStatus").textContent = "Logged out.";
+    }
+
+    const pwdInput = byId("newMgrPasswordInput");
+    if (pwdInput && !byId("newMgrPinInput") && pwdInput.parentElement && pwdInput.parentElement.parentElement) {
+      const pinCol = document.createElement("div");
+      pinCol.innerHTML =
+        '<label for="newMgrPinInput">Access PIN (optional, 4–6 digits)</label>' +
+        '<input id="newMgrPinInput" type="text" maxlength="6" placeholder="e.g. 4829 (auto if blank)" />';
+      pwdInput.parentElement.parentElement.appendChild(pinCol);
+    }
+
+    mountSelfSignupCard();
+    mountBrokerOwnerCard();
+    mountUnifiedLoginCard();
+    mountManagerLoginBox();
+
+    byId("createOwnerMgrBtn").addEventListener("click", registerOwnerManager);
+    byId("createOwnerSubBtn").addEventListener("click", registerOwnerSubAdmin);
+    byId("createOwnerClientBtn").addEventListener("click", registerOwnerClient);
+    byId("lookupManagerInput").addEventListener("input", refreshManagerClients);
+
+    byId("subPortalSelect").addEventListener("change", function () {
+      const s = demoSubAdmins.find((item) => item.id === byId("subPortalSelect").value);
+      byId("subLoginEmail").value = s ? (s.email || "") : "";
+      byId("subPortalStatus").textContent = s ? "Ready to log in as " + s.name + "." : "Not logged in.";
+    });
+    byId("subUnlockBtn").addEventListener("click", handleSubAdminLogin);
+    byId("subLockBtn").addEventListener("click", handleSubAdminLogout);
+
+    byId("cliPortalSelect").addEventListener("change", function () {
+      const c = demoClients.find((item) => item.id === byId("cliPortalSelect").value);
+      byId("cliLoginEmail").value = c ? (c.email || "") : "";
+      byId("cliPortalStatus").textContent = c ? "Ready to log in as " + c.name + "." : "Not logged in.";
+    });
+    byId("cliUnlockBtn").addEventListener("click", handleClientLogin);
+    byId("cliLockBtn").addEventListener("click", handleClientLogout);
+
+    renderOwnerAccountsTable();
+    renderOwnerManagers();
+    renderOwnerSubAdmins();
+    renderOwnerClients();
+    refreshManagerClients();
+    restoreSessionUI();
+    applyRoleVisibility();
+    persistAllState();
+  })();
+</script>
 </body>
 </html>
