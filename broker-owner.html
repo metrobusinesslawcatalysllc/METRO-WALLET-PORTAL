@@ -5593,7 +5593,94 @@ function ttRenderPositions() {
         byId("cliPortalStatus").textContent = "Logged out.";
       });
     }
+const SUPABASE_URL = 'https://svgixbyvursakvzhpdjd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_f4ekaWu1X5bDjWkTk32inw_3JtEgykf';
 
+const sbHeaders = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'resolution=merge-duplicates,return=minimal'
+};
+
+async function sbFetch(table, query = '') {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`, {
+    method: 'GET',
+    headers: sbHeaders
+  });
+  if (!res.ok) throw new Error(`Pull ${table} failed: ${res.status}`);
+  return res.json();
+}
+
+async function sbUpsert(table, rows) {
+  if (!rows || !rows.length) return;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: sbHeaders,
+    body: JSON.stringify(rows)
+  });
+  if (!res.ok) throw new Error(`Push ${table} failed: ${res.status}`);
+}
+
+async function pullSharedState() {
+  try {
+    const [owners, managers, subAdmins, clients, rulesArr] = await Promise.all([
+      sbFetch('owners', '?select=*'),
+      sbFetch('managers', '?select=*'),
+      sbFetch('sub_admins', '?select=*'),
+      sbFetch('clients', '?select=*'),
+      sbFetch('per_client_rules', '?select=*')
+    ]);
+
+    if (owners.length) state.owners = owners;
+    if (managers.length) state.managers = managers;
+    if (subAdmins.length) state.subAdmins = subAdmins;
+    if (clients.length) state.clients = clients;
+    if (rulesArr.length) {
+      state.perClientRules = {};
+      rulesArr.forEach(r => {
+        state.perClientRules[r.client_id] = {
+          bias: Number(r.bias || 0),
+          multiplier: Number(r.multiplier ?? 1),
+          offset: Number(r.offset_val || 0)
+        };
+      });
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (typeof renderAllScopedViews === 'function') renderAllScopedViews();
+    return true;
+  } catch (err) {
+    console.error('Supabase pull error:', err);
+    return false;
+  }
+}
+
+async function pushSharedState() {
+  try {
+    // Strip any raw password fields before syncing to shared database tables
+    const cleanOwners = (state.owners || []).map(({ password, ...rest }) => rest);
+    const cleanManagers = (state.managers || []).map(({ password, ...rest }) => rest);
+    const cleanSubAdmins = (state.subAdmins || []).map(({ password, ...rest }) => rest);
+    const cleanClients = (state.clients || []).map(({ password, ...rest }) => rest);
+    const cleanRules = Object.entries(state.perClientRules || {}).map(([client_id, r]) => ({
+      client_id,
+      bias: Number(r.bias || 0),
+      multiplier: Number(r.multiplier ?? 1),
+      offset_val: Number(r.offset || 0)
+    }));
+
+    await sbUpsert('owners', cleanOwners);
+    await sbUpsert('managers', cleanManagers);
+    await sbUpsert('sub_admins', cleanSubAdmins);
+    await sbUpsert('clients', cleanClients);
+    await sbUpsert('per_client_rules', cleanRules);
+    return true;
+  } catch (err) {
+    console.error('Supabase push error:', err);
+    return false;
+  }
+}
     renderAllScopedViews();
     applyRoleVisibility();
   })();
